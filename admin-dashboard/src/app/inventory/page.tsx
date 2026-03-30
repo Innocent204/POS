@@ -278,7 +278,12 @@ export default function InventoryPage() {
                 </div>
                 <div className="ml-4">
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Total Products</p>
-                  <p className="text-2xl font-black text-primary">{calculateUniqueProducts()}</p>
+                  <div className="flex items-baseline gap-2">
+                    <p className="text-2xl font-black text-primary">{calculateUniqueProducts()}</p>
+                    {selectedBranchId === 'all' && dashboardSummary && calculateUniqueProducts() !== dashboardSummary.totalProducts && (
+                      <p className="text-xs font-bold text-text-secondary">/ {dashboardSummary.totalProducts} total</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

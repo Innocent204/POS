@@ -31,6 +31,9 @@ export default function ProductsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState<ProductResponse[]>([]);
   const [totalProducts, setTotalProducts] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,10 +60,15 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await api.products.getAll({ size: 100 });
+      const response = await api.products.getAll({ 
+        page: currentPage, 
+        size: pageSize,
+        search: searchTerm || undefined 
+      });
       if (response.success && response.data) {
         setProducts(response.data.content || []);
         setTotalProducts(response.data.totalElements || 0);
+        setTotalPages(response.data.totalPages || 1);
       } else {
         setError(response.message || 'Failed to load products');
       }
@@ -93,7 +101,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [currentPage, searchTerm]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -569,6 +577,35 @@ export default function ProductsPage() {
                 </tbody>
               </table>
             </div>
+            
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="bg-surface border-t border-divider px-6 py-4 flex items-center justify-between">
+                <div className="text-sm text-text-secondary">
+                  Showing <span className="font-medium text-primary">{currentPage * pageSize + 1}</span> to{' '}
+                  <span className="font-medium text-primary">
+                    {Math.min((currentPage + 1) * pageSize, totalProducts)}
+                  </span>{' '}
+                  of <span className="font-medium text-primary">{totalProducts}</span> products
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    className="btn-outline text-xs h-9 px-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                    disabled={currentPage === 0}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    className="btn-outline text-xs h-9 px-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                    disabled={currentPage >= totalPages - 1}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </Layout>
