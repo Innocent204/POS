@@ -1,0 +1,593 @@
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
+import Layout from '@/components/layout/layout';
+import AuthGuard from '@/components/auth/auth-guard';
+import {
+  DocumentTextIcon,
+  ArrowDownTrayIcon,
+  FunnelIcon,
+  MagnifyingGlassIcon,
+  ShoppingBagIcon,
+  ArchiveBoxIcon,
+  UserGroupIcon,
+  CloudArrowDownIcon,
+  PlusIcon,
+  ArrowPathIcon,
+  BuildingOfficeIcon
+} from '@heroicons/react/24/outline';
+import { formatDate, formatCurrency, formatNumber, getErrorMessage } from '@/lib/utils';
+import { api } from '@/lib/api';
+import { DashboardSummaryResponse, StockLevelResponse, BranchResponse } from '@/types';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import html2canvas from 'html2canvas';
+import { StockReportPDFTemplate } from '@/components/reports/StockReportPDF';
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/components/ui/toaster';
+
+// Types
+interface ReportDefinition {
+  id: string;
+  name: string;
+  description: string;
+  type: 'Sales' | 'Inventory';
+  endpoint: string;
+}
+
+const reportDefinitions: ReportDefinition[] = [
+  {
+    id: 'Stock_Report',
+    name: 'Stock Report',
+    description: 'Current inventory levels across all branches with valuation.',
+    type: 'Inventory',
+    endpoint: 'getStockSnapshot',
+  },
+  {
+    id: 'Low_Stock_Report',
+    name: 'Low Stock Report',
+    description: 'All products below reorder thresholds by priority.',
+    type: 'Inventory',
+    endpoint: 'getLowStock',
+  },
+  {
+    id: 'Sales_Report',
+    name: 'Daily Sales Report',
+    description: 'Summary of all sales transactions for the selected period.',
+    type: 'Sales',
+    endpoint: 'getSalesReport',
+  }
+];
+
+export default function ReportsPage() {
+  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedType, setSelectedType] = useState('All');
+  const [generating, setGenerating] = useState<string | null>(null);
+  const [pdfLoading, setPdfLoading] = useState<string | null>(null);
+  const [pdfStockLevels, setPdfStockLevels] = useState<StockLevelResponse[]>([]);
+  const pdfRef = useRef<HTMLDivElement>(null);
+  const [summary, setSummary] = useState<DashboardSummaryResponse | null>(null);
+  const [branches, setBranches] = useState<BranchResponse[]>([]);
+  const [selectedBranchId, setSelectedBranchId] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [summaryRes, branchesRes] = await Promise.all([
+          api.dashboard.getSummary(),
+          api.branches.getAll()
+        ]);
+
+        if (summaryRes.success && summaryRes.data) {
+          setSummary(summaryRes.data);
+        }
+        if (branchesRes.success && branchesRes.data) {
+          setBranches(branchesRes.data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleDownloadPDF = async (report: ReportDefinition) => {
+    try {
+      setPdfLoading(report.id);
+
+      // Fetch full stock list for the PDF template
+      let allStock: StockLevelResponse[] = [];
+
+      if (selectedBranchId === 'all') {
+        const branchesRes = await api.branches.getAll();
+        if (branchesRes.success && branchesRes.data) {
+          const promises = branchesRes.data.map((b: any) => api.stock.getByBranch(b.id));
+          const results = await Promise.all(promises);
+          results.forEach(res => {
+            if (res.success && res.data) {
+              allStock = [...allStock, ...res.data];
+            }
+          });
+        }
+      } else {
+        const res = await api.stock.getByBranch(selectedBranchId);
+        if (res.success && res.data) {
+          allStock = res.data;
+        }
+      }
+
+      if (allStock.length === 0) throw new Error("Failed to fetch stock data or no stock exists");
+
+      setPdfStockLevels(allStock);
+
+      // Wait for React to render the template with the new data
+      await new Promise(resolve => setTimeout(resolve, 800));
+
+      if (!pdfRef.current) throw new Error("Template not found");
+
+      // Generate canvas of JUST the header and summary boxes
+      const canvas = await html2canvas(pdfRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false
+      });
+
+      // A4 portrait is 595.28 x 841.89 pt
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'pt',
+        format: 'a4'
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = pdfWidth / imgWidth;
+      const finalHeight = imgHeight * ratio;
+
+      const imgData = canvas.toDataURL('image/png');
+
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, finalHeight);
+      let currentY = finalHeight + 20;
+
+      // Helper to draw pill headers
+      const drawSectionHeader = (title: string, yPos: number) => {
+        pdf.setFillColor(241, 245, 249);
+        pdf.roundedRect(40, yPos - 14, 120, 24, 4, 4, 'F');
+        pdf.setFontSize(11);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(51, 65, 85);
+        pdf.text(title, 48, yPos + 2);
+      };
+
+      // STOCK BY BRANCH
+      drawSectionHeader('Stock by Branch', currentY);
+
+      const branchRows = summary!.branchSummaries.map(b => [
+        b.branchName,
+        b.totalUnits.toString(),
+        b.outOfStockCount.toString(),
+        formatCurrency(b.totalStockValue)
+      ]);
+      const totalBranchUnits = summary!.branchSummaries.reduce((acc, b) => acc + b.totalUnits, 0);
+      const totalBranchOut = summary!.branchSummaries.reduce((acc, b) => acc + b.outOfStockCount, 0);
+      const totalBranchVal = summary!.branchSummaries.reduce((acc, b) => acc + b.totalStockValue, 0);
+      branchRows.push(['TOTAL', totalBranchUnits.toString(), totalBranchOut.toString(), formatCurrency(totalBranchVal)]);
+
+      autoTable(pdf, {
+        startY: currentY + 20,
+        head: [['Branch', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
+        body: branchRows,
+        theme: 'grid',
+        headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
+        styles: { fontSize: 9, cellPadding: 6, textColor: [51, 65, 85] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        didParseCell: function (data) {
+          if (data.row.index === branchRows.length - 1) {
+            data.cell.styles.fontStyle = 'bold';
+            data.cell.styles.fillColor = [241, 245, 249];
+          }
+        }
+      });
+
+      // STOCK BY CATEGORY
+      currentY = (pdf as any).lastAutoTable.finalY + 30;
+
+      const categoryMap = new Map<string, { units: number; outOfStock: number; value: number }>();
+      allStock.forEach((item) => {
+        const cat = item.category || 'Uncategorized';
+        const prev = categoryMap.get(cat) || { units: 0, outOfStock: 0, value: 0 };
+        categoryMap.set(cat, {
+          units: prev.units + item.quantityOnHand,
+          outOfStock: prev.outOfStock + (item.quantityOnHand <= 0 ? 1 : 0),
+          value: prev.value + (item.quantityOnHand * item.sellingPrice),
+        });
+      });
+      const categoryRows = Array.from(categoryMap.entries())
+        .sort((a, b) => b[1].value - a[1].value)
+        .map(([cat, stats]) => [
+          cat,
+          stats.units.toString(),
+          stats.outOfStock.toString(),
+          formatCurrency(stats.value)
+        ]);
+
+      drawSectionHeader('Stock by Category', currentY);
+
+      autoTable(pdf, {
+        startY: currentY + 20,
+        head: [['Category', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
+        body: categoryRows,
+        theme: 'grid',
+        headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
+        styles: { fontSize: 9, cellPadding: 6, textColor: [51, 65, 85] },
+        alternateRowStyles: { fillColor: [248, 250, 252] }
+      });
+
+      // FULL INVENTORY
+      currentY = (pdf as any).lastAutoTable.finalY + 30;
+
+      let invTitle = `Full Inventory (${allStock.length})`;
+      pdf.setFillColor(241, 245, 249);
+      pdf.roundedRect(40, currentY - 14, 140, 24, 4, 4, 'F');
+      pdf.setFontSize(11);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(51, 65, 85);
+      pdf.text(invTitle, 48, currentY + 2);
+
+      const inventoryRows = allStock.map(item => [
+        item.productName,
+        item.productSku,
+        item.category || 'N/A',
+        item.branchName,
+        item.quantityOnHand.toString(),
+        formatCurrency(item.quantityOnHand * item.sellingPrice)
+      ]);
+
+      autoTable(pdf, {
+        startY: currentY + 20,
+        head: [['Product', 'SKU', 'Category', 'Branch', 'On Hand (Qty)', 'Total Value']],
+        body: inventoryRows,
+        theme: 'grid',
+        headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
+        styles: { fontSize: 8, cellPadding: 5, textColor: [51, 65, 85] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        didParseCell: function (data) {
+          if (data.section === 'body') {
+            const qtyStr = inventoryRows[data.row.index][4];
+            const qty = parseInt(qtyStr, 10);
+            if (qty <= 0) {
+              data.cell.styles.fillColor = [254, 242, 242];
+            } else if (qty <= 5) {
+              data.cell.styles.fillColor = [255, 251, 235];
+            }
+          }
+        }
+      });
+
+      // Add Footer with page numbers
+      const pageCount = (pdf as any).internal.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setFontSize(8);
+        pdf.setTextColor(148, 163, 184);
+        pdf.text('EcoTracker POS - Confidential', 40, pdf.internal.pageSize.getHeight() - 20);
+        pdf.text(`Page ${i} of ${pageCount}`, pdf.internal.pageSize.getWidth() - 60, pdf.internal.pageSize.getHeight() - 20);
+      }
+
+      const branchName = selectedBranchId === 'all' ? 'All_Branches' : branches.find(b => b.id === selectedBranchId)?.name.replace(/\s+/g, '_') || 'Branch';
+      pdf.save(`${report.id}_${branchName}_${new Date().toISOString().split('T')[0]}.pdf`);
+
+      toast({
+        title: "PDF Generated",
+        description: "Your report has been downloaded.",
+      });
+
+    } catch (err: any) {
+      console.error('PDF Error:', err);
+      toast({
+        variant: "destructive",
+        title: "PDF Generation Failed",
+        description: err.message || "An error occurred while generating PDF."
+      });
+    } finally {
+      setPdfLoading(null);
+    }
+  };
+
+  const handleGenerateReport = async (report: ReportDefinition) => {
+    try {
+      setGenerating(report.id);
+
+      const params: any = {};
+      if (selectedBranchId !== 'all') {
+        params.branchId = selectedBranchId;
+      }
+
+      const response = await (api.reports as any)[report.endpoint](params);
+
+      if (!response.success) {
+        throw new Error(response.message || 'Failed to generate report');
+      }
+
+      let data = response.data;
+      if (!data || data.length === 0) {
+        toast({
+          title: "No Data",
+          description: "This report returned no records for the current period.",
+          variant: "warning"
+        });
+        return;
+      }
+
+      // Manual frontend filter as a safety net (backend might return broader data)
+      if (selectedBranchId !== 'all') {
+        data = data.filter((item: any) =>
+          item.branchId === selectedBranchId ||
+          item.branchName?.toLowerCase() === branches.find(b => b.id === selectedBranchId)?.name.toLowerCase()
+        );
+      }
+
+      if (data.length === 0) {
+        toast({
+          title: "No Matching Data",
+          description: "No records found for the selected branch.",
+          variant: "warning"
+        });
+        return;
+      }
+
+      // Convert JSON to Excel
+      const headers = Object.keys(data[0]);
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet(report.name.substring(0, 31));
+
+      worksheet.addRow(headers.map(h => h.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())));
+
+      worksheet.getRow(1).font = { bold: true };
+      worksheet.getRow(1).fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE2E8F0' }
+      };
+
+      data.forEach((row: any) => {
+        worksheet.addRow(headers.map(header => row[header]));
+      });
+
+      worksheet.columns.forEach(column => {
+        let maxLength = 0;
+        column.eachCell?.({ includeEmpty: true }, cell => {
+          let columnLength = cell.value ? cell.value.toString().length : 10;
+          if (cell.type === ExcelJS.ValueType.Number) columnLength = 10;
+          if (columnLength > maxLength) {
+            maxLength = columnLength;
+          }
+        });
+        column.width = maxLength < 10 ? 10 : maxLength + 2;
+      });
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const branchName = selectedBranchId === 'all' ? 'All_Branches' : branches.find(b => b.id === selectedBranchId)?.name.replace(/\s+/g, '_') || 'Branch';
+      saveAs(blob, `${report.id}_${branchName}_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+      toast({
+        title: "Report Generated",
+        description: `${report.name} has been successfully exported as Excel.`,
+      });
+    } catch (err: unknown) {
+      console.error('Report generation error:', err);
+      const errorMsg = err instanceof Error ? err.message : 'An error occurred while generating the report.';
+      toast({
+        variant: "destructive",
+        title: "Generation Failed",
+        description: errorMsg,
+      });
+    } finally {
+      setGenerating(null);
+    }
+  };
+
+  const filteredReports = reportDefinitions.filter(report => {
+    const matchesSearch = report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      report.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesType = selectedType === 'All' || report.type === selectedType;
+    return matchesSearch && matchesType;
+  });
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'Sales': return <ShoppingBagIcon className="h-6 w-6 text-success" />;
+      case 'Inventory': return <ArchiveBoxIcon className="h-6 w-6 text-info" />;
+      default: return <DocumentTextIcon className="h-6 w-6 text-primary" />;
+    }
+  };
+
+  const getBg = (type: string) => {
+    switch (type) {
+      case 'Sales': return 'bg-success/10';
+      case 'Inventory': return 'bg-info/10';
+      default: return 'bg-primary/10';
+    }
+  };
+
+  return (
+    <AuthGuard>
+      <Layout>
+        <div className="max-w-6xl mx-auto space-y-8">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+            <div>
+              <h1 className="text-3xl font-black text-primary tracking-tight">Advanced Reporting</h1>
+              <p className="text-text-secondary font-medium">Generate and analyze your business data</p>
+            </div>
+          </div>
+
+          <div className="card p-6 border-none shadow-xl shadow-primary/5">
+            <div className="flex flex-col lg:flex-row gap-6">
+              <div className="flex-1 relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary" />
+                <Input
+                  placeholder="Search available reports..."
+                  className="!pl-12 h-12 text-base rounded-2xl border-divider focus:ring-primary/20"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="w-full lg:w-64">
+                <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
+                  <SelectTrigger className="h-12 rounded-2xl border-divider focus:ring-primary/20">
+                    <div className="flex items-center gap-2">
+                      <BuildingOfficeIcon className="h-4 w-4 text-text-secondary" />
+                      <SelectValue placeholder="All Branches" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Branches</SelectItem>
+                    {branches.map(branch => (
+                      <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-3">
+                {['All', 'Sales', 'Inventory'].map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => setSelectedType(type)}
+                    className={`px-6 py-2 rounded-2xl text-sm font-black transition-all duration-300 ${selectedType === type
+                      ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                      : 'bg-surface text-text-secondary hover:text-primary hover:bg-surface/80'
+                      }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[
+              { label: 'Total Products', value: loading ? '...' : formatNumber(summary?.totalProducts || 0), color: 'primary' },
+              { label: 'Inventory Value', value: loading ? '...' : formatCurrency(summary?.totalInventoryValue || 0), color: 'info' },
+              { label: 'Low Stock Alerts', value: loading ? '...' : formatNumber(summary?.totalLowStockItems || 0), color: 'warning' },
+              { label: 'Out of Stock', value: loading ? '...' : formatNumber(summary?.totalOutOfStockItems || 0), color: 'error' },
+            ].map((m, i) => (
+              <Card key={i} className="p-4 border-none shadow-sm flex flex-col items-center justify-center text-center">
+                <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest mb-1">{m.label}</p>
+                <p className={`text-xl font-black text-primary`}>{m.value}</p>
+              </Card>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {filteredReports.map((report) => (
+              <div
+                key={report.id}
+                className="group card p-6 hover:scale-[1.02] hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 border-none relative overflow-hidden"
+              >
+                <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full ${getBg(report.type)} opacity-50 blur-2xl group-hover:scale-150 transition-transform duration-700`}></div>
+
+                <div className="relative z-10 flex flex-col h-full">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className={`p-3 rounded-2xl ${getBg(report.type)}`}>
+                      {getIcon(report.type)}
+                    </div>
+                    <Badge variant="success" className="font-black text-[10px] px-3">
+                      READY
+                    </Badge>
+                  </div>
+
+                  <h3 className="text-lg font-black text-primary leading-tight mb-2 group-hover:text-primary transition-colors">
+                    {report.name}
+                  </h3>
+                  <p className="text-sm text-text-secondary font-medium flex-1 line-clamp-2 mb-6">
+                    {report.description}
+                  </p>
+
+                  <div className="space-y-4">
+                    <Separator className="bg-divider/50" />
+                    <div className="flex justify-between items-center text-xs">
+                      <div className="flex items-center gap-1 text-[10px] font-black text-text-secondary uppercase tracking-wider">
+                        <CloudArrowDownIcon className="h-3 w-3" />
+                        Excel Format
+                      </div>
+                      <span className="font-bold text-primary">v1.3</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        className="flex-1 rounded-xl h-10 font-bold shadow-lg shadow-primary/10"
+                        disabled={generating === report.id || pdfLoading === report.id}
+                        onClick={() => handleGenerateReport(report)}
+                      >
+                        {generating === report.id ? (
+                          <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
+                        ) : (
+                          <DocumentTextIcon className="h-4 w-4 mr-2" />
+                        )}
+                        Excel
+                      </Button>
+
+                      {report.id === 'Stock_Report' && (
+                        <Button
+                          variant="secondary"
+                          className="flex-1 rounded-xl h-10 font-bold"
+                          disabled={generating === report.id || pdfLoading === report.id}
+                          onClick={() => handleDownloadPDF(report)}
+                        >
+                          {pdfLoading === report.id ? (
+                            <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                          )}
+                          PDF
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredReports.length === 0 && (
+            <div className="py-24 card flex flex-col items-center justify-center border-dashed border-2 border-divider bg-surface/50">
+              <div className="p-6 bg-surface rounded-full mb-4">
+                <DocumentTextIcon className="h-12 w-12 text-text-secondary opacity-30" />
+              </div>
+              <h3 className="text-xl font-black text-primary mb-2">No Reports Found</h3>
+              <p className="text-text-secondary font-medium">Try adjusting your search or filters.</p>
+              <Button variant="link" onClick={() => { setSearchTerm(''); setSelectedType('All'); }} className="mt-4 font-bold">
+                Clear all filters
+              </Button>
+            </div>
+          )}
+
+          {/* Hidden PDF Templates */}
+          <StockReportPDFTemplate ref={pdfRef} summary={summary} stockLevels={pdfStockLevels} />
+
+        </div>
+      </Layout>
+    </AuthGuard>
+  );
+}
