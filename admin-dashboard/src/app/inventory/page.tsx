@@ -13,7 +13,7 @@ import {
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { api } from '@/lib/api';
-import { StockLevelResponse, BranchResponse } from '@/types';
+import { StockLevelResponse, BranchResponse, DashboardSummaryResponse } from '@/types';
 import { PRODUCT_CATEGORIES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -48,6 +48,7 @@ export default function InventoryPage() {
   const [selectedBranchId, setSelectedBranchId] = useState('all-low-stock');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [summary, setSummary] = useState<DashboardSummaryResponse | null>(null);
 
   // Stock adjustment dialog state
   const [adjustmentOpen, setAdjustmentOpen] = useState(false);
@@ -79,6 +80,12 @@ export default function InventoryPage() {
         response = await api.stock.getLowStock();
       } else {
         response = await api.stock.getByBranch(selectedBranchId);
+      }
+
+      // Fetch summary to align with dashboard totals
+      const summaryRes = await api.dashboard.getSummary();
+      if (summaryRes.success) {
+        setSummary(summaryRes.data);
       }
 
       if (response.success) {
@@ -263,208 +270,219 @@ export default function InventoryPage() {
                   <span className="text-2xl">💰</span>
                 </div>
                 <div className="ml-4">
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Inventory Value ({selectedBranchId === 'all-low-stock' ? 'Global Low Stock' : branches.find(b => b.id === selectedBranchId)?.name || 'Branch'})</p>
+                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Inventory Value</p>
                   <p className="text-2xl font-black text-info">
-                    {formatCurrency(inventory.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0))}
+                    {(() => {
+                      if (selectedBranchId !== 'all-low-stock' && summary) {
+                        const branchSummary = summary.branchSummaries.find(b => b.branchId === selectedBranchId);
+                        if (branchSummary && selectedCategory === 'All' && searchTerm === '' && stockStatus === 'All') {
+                          return formatCurrency(branchSummary.totalStockValue);
+                        }
+                      }
+                      return formatCurrency(filteredInventory.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0));
+                    })()}
                   </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="card p-4">
-            <div className="flex flex-col lg:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-secondary" />
-                  <Input
-                    placeholder="Search by name or SKU..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="!pl-12"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
-                  <SelectTrigger className="w-[200px] font-bold">
-                    <SelectValue placeholder="Select Branch" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all-low-stock">Global Low Stock</SelectItem>
-                    {branches.map(branch => (
-                      <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="bg-surface border border-divider rounded-lg px-3 py-2 text-sm font-bold text-primary focus:ring-1 focus:ring-primary h-10"
-                >
-                  {categories.map(category => (
-                    <option key={category} value={category}>{category}</option>
-                  ))}
-                </select>
-                <select
-                  value={stockStatus}
-                  onChange={(e) => setStockStatus(e.target.value)}
-                  className="bg-surface border border-divider rounded-lg px-3 py-2 text-sm font-bold text-primary focus:ring-1 focus:ring-primary h-10"
-                >
-                  <option value="All">All Statuses</option>
-                  <option value="In Stock">In Stock</option>
-                  <option value="Low Stock">Low Stock</option>
-                  <option value="Out of Stock">Out of Stock</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {error && (
-            <div className="bg-error-light border border-error/20 rounded-lg p-4 flex items-center justify-between">
-              <p className="text-error text-sm">{error}</p>
-              <Button variant="outline" size="sm" onClick={fetchData}>Retry</Button>
-            </div>
-          )}
-
-          <div className="card overflow-hidden">
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full divide-y divide-divider">
-                <thead className="bg-surface">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">SKU</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Product</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Category</th>
-                    <th className="px-6 py-3 text-center text-xs font-bold text-text-secondary uppercase tracking-wider">In Stock</th>
-                    <th className="px-6 py-3 text-center text-xs font-bold text-text-secondary uppercase tracking-wider">Min Level</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Unit Price</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-card divide-y divide-divider">
-                  {loading ? (
-                    [...Array(5)].map((_, i) => (
-                      <tr key={i} className="animate-pulse">
-                        <td colSpan={8} className="px-6 py-4"><div className="h-10 bg-surface rounded w-full"></div></td>
-                      </tr>
-                    ))
-                  ) : filteredInventory.length > 0 ? (
-                    filteredInventory.map(item => {
-                      const status = getStockStatus(item);
-                      return (
-                        <tr key={item.id} className="hover:bg-surface transition-colors cursor-pointer">
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">{item.productSku}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-primary font-medium">{item.productName}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary uppercase font-bold text-[10px]">{item.category}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-center text-primary">{item.quantityOnHand}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary text-center">{item.minimumStockThreshold}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-primary">{formatCurrency(item.sellingPrice)}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <Badge variant={getStockStatusVariant(status)}>{status}</Badge>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <Button variant="outline" size="sm" onClick={() => openAdjustmentDialog(item)} className="h-8 w-8 p-0">
-                              <AdjustmentsHorizontalIcon className="h-4 w-4" />
-                            </Button>
-                          </td>
-                        </tr>
-                      );
-                    })
-                  ) : (
-                    <tr>
-                      <td colSpan={8} className="px-6 py-12 text-center text-text-secondary bg-surface/30">
-                        <AdjustmentsHorizontalIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
-                        <p>No inventory items found matching your filters</p>
-                      </td>
-                    </tr>
+                  {(selectedCategory !== 'All' || searchTerm !== '' || stockStatus !== 'All') && (
+                    <p className="text-[10px] text-text-secondary font-medium italic">Estimated Retail Value</p>
                   )}
-                </tbody>
-              </table>
+                </div>
+              </div>
+            </div>
+
+            <div className="card p-4">
+              <div className="flex flex-col lg:flex-row gap-4">
+                <div className="flex-1">
+                  <div className="relative">
+                    <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-text-secondary" />
+                    <Input
+                      placeholder="Search by name or SKU..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="!pl-12"
+                    />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
+                    <SelectTrigger className="w-[200px] font-bold">
+                      <SelectValue placeholder="Select Branch" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all-low-stock">Global Low Stock</SelectItem>
+                      {branches.map(branch => (
+                        <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <select
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                    className="bg-surface border border-divider rounded-lg px-3 py-2 text-sm font-bold text-primary focus:ring-1 focus:ring-primary h-10"
+                  >
+                    {categories.map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                  <select
+                    value={stockStatus}
+                    onChange={(e) => setStockStatus(e.target.value)}
+                    className="bg-surface border border-divider rounded-lg px-3 py-2 text-sm font-bold text-primary focus:ring-1 focus:ring-primary h-10"
+                  >
+                    <option value="All">All Statuses</option>
+                    <option value="In Stock">In Stock</option>
+                    <option value="Low Stock">Low Stock</option>
+                    <option value="Out of Stock">Out of Stock</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {error && (
+              <div className="bg-error-light border border-error/20 rounded-lg p-4 flex items-center justify-between">
+                <p className="text-error text-sm">{error}</p>
+                <Button variant="outline" size="sm" onClick={fetchData}>Retry</Button>
+              </div>
+            )}
+
+            <div className="card overflow-hidden">
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full divide-y divide-divider">
+                  <thead className="bg-surface">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">SKU</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Category</th>
+                      <th className="px-6 py-3 text-center text-xs font-bold text-text-secondary uppercase tracking-wider">In Stock</th>
+                      <th className="px-6 py-3 text-center text-xs font-bold text-text-secondary uppercase tracking-wider">Min Level</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Unit Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-card divide-y divide-divider">
+                    {loading ? (
+                      [...Array(5)].map((_, i) => (
+                        <tr key={i} className="animate-pulse">
+                          <td colSpan={8} className="px-6 py-4"><div className="h-10 bg-surface rounded w-full"></div></td>
+                        </tr>
+                      ))
+                    ) : filteredInventory.length > 0 ? (
+                      filteredInventory.map(item => {
+                        const status = getStockStatus(item);
+                        return (
+                          <tr key={item.id} className="hover:bg-surface transition-colors cursor-pointer">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">{item.productSku}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-primary font-medium">{item.productName}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary uppercase font-bold text-[10px]">{item.category}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-center text-primary">{item.quantityOnHand}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary text-center">{item.minimumStockThreshold}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-primary">{formatCurrency(item.sellingPrice)}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <Badge variant={getStockStatusVariant(status)}>{status}</Badge>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm">
+                              <Button variant="outline" size="sm" onClick={() => openAdjustmentDialog(item)} className="h-8 w-8 p-0">
+                                <AdjustmentsHorizontalIcon className="h-4 w-4" />
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    ) : (
+                      <tr>
+                        <td colSpan={8} className="px-6 py-12 text-center text-text-secondary bg-surface/30">
+                          <AdjustmentsHorizontalIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                          <p>No inventory items found matching your filters</p>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
 
-        <Dialog open={adjustmentOpen} onOpenChange={setAdjustmentOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>Adjust Stock</DialogTitle>
-              <DialogDescription>
-                Adjust stock levels for {adjustmentItem?.productName}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-6 py-4">
-              <div className="bg-surface p-4 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <AdjustmentsHorizontalIcon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-text-secondary">Current Stock</p>
-                      <p className="text-2xl font-black text-primary">{adjustmentItem?.quantityOnHand || 0}</p>
+          <Dialog open={adjustmentOpen} onOpenChange={setAdjustmentOpen}>
+            <DialogContent className="sm:max-w-[500px]">
+              <DialogHeader>
+                <DialogTitle>Adjust Stock</DialogTitle>
+                <DialogDescription>
+                  Adjust stock levels for {adjustmentItem?.productName}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-6 py-4">
+                <div className="bg-surface p-4 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <AdjustmentsHorizontalIcon className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-text-secondary">Current Stock</p>
+                        <p className="text-2xl font-black text-primary">{adjustmentItem?.quantityOnHand || 0}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <Label className="text-sm font-semibold text-primary mb-3">Adjustment Type</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setAdjustmentType('INCREASE')}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'INCREASE' ? 'border-success bg-success/10 text-success' : 'border-divider'
-                      }`}
-                  >
-                    <ArrowUpTrayIcon className="h-6 w-6 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Increase</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setAdjustmentType('DECREASE')}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'DECREASE' ? 'border-error bg-error/10 text-error' : 'border-divider'
-                      }`}
-                  >
-                    <ArrowDownTrayIcon className="h-6 w-6 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Decrease</div>
-                  </button>
+                <div>
+                  <Label className="text-sm font-semibold text-primary mb-3">Adjustment Type</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setAdjustmentType('INCREASE')}
+                      className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'INCREASE' ? 'border-success bg-success/10 text-success' : 'border-divider'
+                        }`}
+                    >
+                      <ArrowUpTrayIcon className="h-6 w-6 mx-auto mb-2" />
+                      <div className="text-sm font-medium">Increase</div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAdjustmentType('DECREASE')}
+                      className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'DECREASE' ? 'border-error bg-error/10 text-error' : 'border-divider'
+                        }`}
+                    >
+                      <ArrowDownTrayIcon className="h-6 w-6 mx-auto mb-2" />
+                      <div className="text-sm font-medium">Decrease</div>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="quantity">Quantity</Label>
+                  <Input
+                    id="quantity"
+                    type="number"
+                    value={adjustmentQuantity}
+                    onChange={(e) => setAdjustmentQuantity(e.target.value)}
+                    placeholder="Enter quantity"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="reason">Reason (optional)</Label>
+                  <Input
+                    id="reason"
+                    value={adjustmentReason}
+                    onChange={(e) => setAdjustmentReason(e.target.value)}
+                    placeholder="Enter reason..."
+                  />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="quantity">Quantity</Label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  value={adjustmentQuantity}
-                  onChange={(e) => setAdjustmentQuantity(e.target.value)}
-                  placeholder="Enter quantity"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="reason">Reason (optional)</Label>
-                <Input
-                  id="reason"
-                  value={adjustmentReason}
-                  onChange={(e) => setAdjustmentReason(e.target.value)}
-                  placeholder="Enter reason..."
-                />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setAdjustmentOpen(false)}>Cancel</Button>
-              <Button
-                onClick={handleStockAdjustment}
-                disabled={isAdjusting || !adjustmentQuantity || parseInt(adjustmentQuantity) <= 0}
-              >
-                {isAdjusting ? 'Processing...' : 'Adjust Stock'}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setAdjustmentOpen(false)}>Cancel</Button>
+                <Button
+                  onClick={handleStockAdjustment}
+                  disabled={isAdjusting || !adjustmentQuantity || parseInt(adjustmentQuantity) <= 0}
+                >
+                  {isAdjusting ? 'Processing...' : 'Adjust Stock'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </Layout>
     </AuthGuard>
   );
