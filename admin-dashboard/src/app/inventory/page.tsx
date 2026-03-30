@@ -13,7 +13,7 @@ import {
   ArrowPathIcon
 } from '@heroicons/react/24/outline';
 import { api } from '@/lib/api';
-import { StockLevelResponse, BranchResponse } from '@/types';
+import { StockLevelResponse, BranchResponse, DashboardSummaryResponse } from '@/types';
 import { PRODUCT_CATEGORIES } from '@/lib/constants';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,6 +46,7 @@ export default function InventoryPage() {
   const [inventory, setInventory] = useState<StockLevelResponse[]>([]);
   const [branches, setBranches] = useState<BranchResponse[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState('all-low-stock');
+  const [dashboardSummary, setDashboardSummary] = useState<DashboardSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,17 +75,34 @@ export default function InventoryPage() {
       setLoading(true);
       setError(null);
 
-      let response;
-      if (selectedBranchId === 'all-low-stock') {
-        response = await api.stock.getLowStock();
-      } else {
-        response = await api.stock.getByBranch(selectedBranchId);
+      const [summaryRes, branchesRes] = await Promise.all([
+        api.dashboard.getSummary(),
+        api.branches.getAll()
+      ]);
+
+      if (summaryRes.success && summaryRes.data) {
+        setDashboardSummary(summaryRes.data);
       }
 
-      if (response.success) {
-        const items = response.data || [];
-        setInventory(items);
+      let inventoryRes;
+      if (selectedBranchId === 'all-low-stock') {
+        inventoryRes = await api.stock.getLowStock();
+      } else if (selectedBranchId === 'all') {
+        // Fetch all branch stock
+        if (branchesRes.success && branchesRes.data) {
+          const promises = branchesRes.data.map(b => api.stock.getByBranch(b.id));
+          const results = await Promise.all(promises);
+          const allItems = results.flatMap(res => res.success ? (res.data || []) : []);
+          inventoryRes = { success: true, data: allItems };
+        } else {
+          inventoryRes = { success: false, message: 'Failed to fetch branches for full inventory' };
+        }
+      } else {
+        inventoryRes = await api.stock.getByBranch(selectedBranchId);
+      }
 
+      if (inventoryRes.success) {
+        const items = inventoryRes.data || [];
         setInventory(items);
 
         // Standardized categories
@@ -98,7 +116,7 @@ export default function InventoryPage() {
 
         setCategories(allCategories);
       } else {
-        setError(response.message || 'Failed to load inventory data');
+        setError(inventoryRes.message || 'Failed to load inventory data');
       }
     } catch (err: unknown) {
       console.error('Inventory fetch error:', err);
@@ -144,6 +162,38 @@ export default function InventoryPage() {
 
   const lowStockItems = inventory.filter(item => item.quantityOnHand > 0 && item.quantityOnHand <= item.minimumStockThreshold);
   const outOfStockItems = inventory.filter(item => item.quantityOnHand <= 0);
+
+  // Unique product count helper for dashboard consistency
+  const calculateUniqueProducts = () => {
+    const isFiltered = searchTerm !== '' || selectedCategory !== 'All' || stockStatus !== 'All';
+    
+    // If viewing all branches and not filtered, use the official catalog count from backend
+    if (!isFiltered && selectedBranchId === 'all' && dashboardSummary) {
+      return dashboardSummary.totalProducts;
+    }
+    
+    // Otherwise, count unique products in the current inventory list (e.g. for specific branch or low stock view)
+    const uniqueSkus = new Set(filteredInventory.map(item => item.productSku));
+    return uniqueSkus.size;
+  };
+
+  // Local calculation helper for valuation
+  const calculateInventoryValue = () => {
+    const isFiltered = searchTerm !== '' || selectedCategory !== 'All' || stockStatus !== 'All';
+    
+    // Primary source of truth for branch/global totals (when not filtered)
+    if (!isFiltered && dashboardSummary) {
+      if (selectedBranchId === 'all') {
+        return dashboardSummary.totalInventoryValue;
+      } else if (selectedBranchId !== 'all-low-stock') {
+        const branchSum = dashboardSummary.branchSummaries.find(b => b.branchId === selectedBranchId);
+        if (branchSum) return branchSum.totalStockValue;
+      }
+    }
+    
+    // For "Global Low Stock" or when filtered, we use the items currently in the 'inventory' state
+    return filteredInventory.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0);
+  };
 
   const openAdjustmentDialog = (item: StockLevelResponse) => {
     setAdjustmentItem(item);
@@ -227,8 +277,8 @@ export default function InventoryPage() {
                   <AdjustmentsHorizontalIcon className="h-6 w-6 text-primary" />
                 </div>
                 <div className="ml-4">
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Total Items</p>
-                  <p className="text-2xl font-black text-primary">{inventory.length}</p>
+                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Total Products</p>
+                  <p className="text-2xl font-black text-primary">{calculateUniqueProducts()}</p>
                 </div>
               </div>
             </div>
@@ -263,9 +313,9 @@ export default function InventoryPage() {
                   <span className="text-2xl">💰</span>
                 </div>
                 <div className="ml-4">
-                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Inventory Value ({selectedBranchId === 'all-low-stock' ? 'Global Low Stock' : branches.find(b => b.id === selectedBranchId)?.name || 'Branch'})</p>
+                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Inventory Value ({selectedBranchId === 'all-low-stock' ? 'Global Low Stock' : selectedBranchId === 'all' ? 'All Branches' : branches.find(b => b.id === selectedBranchId)?.name || 'Branch'})</p>
                   <p className="text-2xl font-black text-info">
-                    {formatCurrency(inventory.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0))}
+                    {formatCurrency(calculateInventoryValue())}
                   </p>
                 </div>
               </div>
@@ -291,6 +341,7 @@ export default function InventoryPage() {
                     <SelectValue placeholder="Select Branch" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="all">All Branches</SelectItem>
                     <SelectItem value="all-low-stock">Global Low Stock</SelectItem>
                     {branches.map(branch => (
                       <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>

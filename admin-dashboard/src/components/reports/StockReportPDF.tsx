@@ -57,8 +57,8 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
                                 {/* Row 1 */}
                                 <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
-                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#3b82f6', margin: '0 0 8px 0' }}>{stockLevels.length}</p>
-                                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total SKUs</p>
+                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#3b82f6', margin: '0 0 8px 0' }}>{summary.totalProducts}</p>
+                                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total Products</p>
                                 </div>
                                 <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
                                     <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e3a8a', margin: '0 0 8px 0' }}>{totalBranchUnits}</p>
@@ -78,7 +78,7 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                                 {/* Row 2 */}
                                 <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
                                     <p style={{ fontSize: '20px', fontWeight: 800, color: '#22c55e', margin: '0 0 8px 0' }}>
-                                        {stockLevels.length - summary.totalLowStockItems - summary.totalOutOfStockItems}
+                                        {summary.totalProducts - (summary.totalLowStockItems || 0) - (summary.totalOutOfStockItems || 0)}
                                     </p>
                                     <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>In Stock</p>
                                 </div>

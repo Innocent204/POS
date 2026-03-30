@@ -358,22 +358,20 @@ export default function ReportsPage() {
           status: item.stockStatus
         }));
       } else if (report.id === 'Low_Stock_Report') {
-        const res = await api.stock.getLowStock();
+        const res = await api.reports.getLowStock({ 
+          branchId: selectedBranchId === 'all' ? undefined : selectedBranchId 
+        });
         if (res.success && res.data) {
-          let lowStock = res.data;
-          if (selectedBranchId !== 'all') {
-            lowStock = lowStock.filter(item => item.branchId === selectedBranchId);
-          }
-          allData = lowStock.map(item => ({
+          allData = res.data.map((item: any) => ({
             productName: item.productName,
             productSku: item.productSku,
             category: item.category || 'N/A',
             branchName: item.branchName,
-            quantityOnHand: item.quantityOnHand,
-            minimumThreshold: item.minimumStockThreshold,
-            sellingPrice: item.sellingPrice,
-            totalValue: item.quantityOnHand * item.sellingPrice,
-            status: item.stockStatus
+            openingStock: item.openingStock,
+            stockIn: item.stockIn,
+            stockOut: item.stockOut,
+            closingStock: item.closingStock,
+            totalSalesValue: item.totalSalesValue
           }));
         }
       } else {
