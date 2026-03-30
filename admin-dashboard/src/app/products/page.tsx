@@ -30,6 +30,7 @@ export default function ProductsPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [totalProducts, setTotalProducts] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -57,8 +58,9 @@ export default function ProductsPage() {
     try {
       setLoading(true);
       const response = await api.products.getAll({ size: 100 });
-      if (response.success) {
+      if (response.success && response.data) {
         setProducts(response.data.content || []);
+        setTotalProducts(response.data.totalElements || 0);
       } else {
         setError(response.message || 'Failed to load products');
       }
@@ -446,7 +448,7 @@ export default function ProductsPage() {
                 </div>
                 <div className="ml-4">
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Total Products</p>
-                  <p className="text-2xl font-black text-primary">{filteredProducts.length}</p>
+                  <p className="text-2xl font-black text-primary">{totalProducts}</p>
                 </div>
               </div>
             </div>

@@ -256,6 +256,20 @@ export default function InventoryPage() {
                 </div>
               </div>
             </div>
+
+            <div className="card p-6 border-l-4 border-info col-span-1 md:col-span-3">
+              <div className="flex items-center">
+                <div className="p-3 bg-info/10 rounded-lg">
+                  <span className="text-2xl">💰</span>
+                </div>
+                <div className="ml-4">
+                  <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Inventory Value ({selectedBranchId === 'all-low-stock' ? 'Global Low Stock' : branches.find(b => b.id === selectedBranchId)?.name || 'Branch'})</p>
+                  <p className="text-2xl font-black text-info">
+                    {formatCurrency(inventory.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0))}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="card p-4">

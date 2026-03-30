@@ -317,29 +317,103 @@ export default function ReportsPage() {
     try {
       setGenerating(report.id);
 
-      const params: any = {};
+      const params: any = { size: 100 }; // Standard size for fetching
       if (selectedBranchId !== 'all') {
         params.branchId = selectedBranchId;
       }
 
-      const response = await (api.reports as any)[report.endpoint](params);
+      let allData: any[] = [];
+      let currentPage = 0;
+      let totalPages = 1;
 
-      if (!response.success) {
-        throw new Error(response.message || 'Failed to generate report');
+      // Special handling for Stock_Report to match PDF data source
+      if (report.id === 'Stock_Report') {
+        let allStock: StockLevelResponse[] = [];
+        if (selectedBranchId === 'all') {
+          const branchesRes = await api.branches.getAll();
+          if (branchesRes.success && branchesRes.data) {
+            const promises = branchesRes.data.map((b: any) => api.stock.getByBranch(b.id));
+            const results = await Promise.all(promises);
+            results.forEach(res => {
+              if (res.success && res.data) {
+                allStock = [...allStock, ...res.data];
+              }
+            });
+          }
+        } else {
+          const res = await api.stock.getByBranch(selectedBranchId);
+          if (res.success && res.data) {
+            allStock = res.data;
+          }
+        }
+        allData = allStock.map(item => ({
+          productName: item.productName,
+          productSku: item.productSku,
+          category: item.category || 'N/A',
+          branchName: item.branchName,
+          quantityOnHand: item.quantityOnHand,
+          minimumThreshold: item.minimumStockThreshold,
+          sellingPrice: item.sellingPrice,
+          totalValue: item.quantityOnHand * item.sellingPrice,
+          status: item.stockStatus
+        }));
+      } else if (report.id === 'Low_Stock_Report') {
+        const res = await api.stock.getLowStock();
+        if (res.success && res.data) {
+          let lowStock = res.data;
+          if (selectedBranchId !== 'all') {
+            lowStock = lowStock.filter(item => item.branchId === selectedBranchId);
+          }
+          allData = lowStock.map(item => ({
+            productName: item.productName,
+            productSku: item.productSku,
+            category: item.category || 'N/A',
+            branchName: item.branchName,
+            quantityOnHand: item.quantityOnHand,
+            minimumThreshold: item.minimumStockThreshold,
+            sellingPrice: item.sellingPrice,
+            totalValue: item.quantityOnHand * item.sellingPrice,
+            status: item.stockStatus
+          }));
+        }
+      } else {
+        // Paged fetching for other reports (like Sales)
+        while (currentPage < totalPages) {
+          const response = await (api.reports as any)[report.endpoint]({ ...params, page: currentPage });
+
+          if (!response.success) {
+            throw new Error(response.message || 'Failed to generate report');
+          }
+
+          // If the endpoint returns paged data (like getSalesReport), handle it
+          // Note: our api.reports.getSalesReport already returns the content array directly due to the then() block in api.ts
+          // But it doesn't give us the totalPages. We might need to adjust api.ts or just use a while loop until we get less than 'size'
+
+          const pageData = Array.isArray(response.data) ? response.data :
+            (response.data?.content || []);
+
+          allData = [...allData, ...pageData];
+
+          // Break if not paged or if we've received everything
+          if (!Array.isArray(response.data?.content) || response.data.last || pageData.length < params.size) {
+            break;
+          }
+          currentPage++;
+        }
       }
 
-      let data = response.data;
-      if (!data || data.length === 0) {
+      if (allData.length === 0) {
         toast({
           title: "No Data",
-          description: "This report returned no records for the current period.",
+          description: "This report returned no records for the selected filters.",
           variant: "warning"
         });
         return;
       }
 
-      // Manual frontend filter as a safety net (backend might return broader data)
-      if (selectedBranchId !== 'all') {
+      // Final manual filter for branch if needed (double safety)
+      let data = allData;
+      if (selectedBranchId !== 'all' && report.id !== 'Stock_Report') {
         data = data.filter((item: any) =>
           item.branchId === selectedBranchId ||
           item.branchName?.toLowerCase() === branches.find(b => b.id === selectedBranchId)?.name.toLowerCase()
