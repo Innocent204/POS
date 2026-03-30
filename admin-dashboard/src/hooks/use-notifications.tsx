@@ -30,27 +30,6 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     const saved = localStorage.getItem('notifications');
     if (saved) {
       setNotifications(JSON.parse(saved));
-    } else {
-      // Add some sample notifications if empty
-      const samples: Notification[] = [
-        {
-          id: '1',
-          title: 'Welcome to EcoTracker',
-          message: 'Your admin dashboard is ready. Explore the new analytics!',
-          type: 'info',
-          timestamp: new Date().toISOString(),
-          isRead: false
-        },
-        {
-          id: '2',
-          title: 'Low Stock Alert',
-          message: 'Product "Organic Coffee" is below threshold (5 left)',
-          type: 'warning',
-          timestamp: new Date(Date.now() - 3600000).toISOString(),
-          isRead: false
-        }
-      ];
-      setNotifications(samples);
     }
   }, []);
 
@@ -84,13 +63,13 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
-    <NotificationContext.Provider value={{ 
-      notifications, 
-      unreadCount, 
-      addNotification, 
-      markAsRead, 
-      markAllAsRead, 
-      clearAll 
+    <NotificationContext.Provider value={{
+      notifications,
+      unreadCount,
+      addNotification,
+      markAsRead,
+      markAllAsRead,
+      clearAll
     }}>
       {children}
     </NotificationContext.Provider>
