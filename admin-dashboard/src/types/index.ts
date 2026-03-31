@@ -67,6 +67,7 @@ export interface StockLevelResponse {
   quantityOnHand: number;
   quantityReserved: number;
   minimumStockThreshold: number;
+  costPrice: number;
   sellingPrice: number;
   stockStatus: string;
   updatedAt: string;

@@ -17,11 +17,11 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "EcoTracker Admin",
-  description: "Point-of-Sale administration dashboard for inventory, sales and branch management.",
+  title: "Taura Inventory System",
+  description: "Taura Inventory Management System - Point-of-Sale administration dashboard for inventory, sales and branch management.",
   icons: {
-    icon: '/logo.png',
-    apple: '/logo.png',
+    icon: '/logo.jpeg',
+    apple: '/logo.jpeg',
   },
 };
 

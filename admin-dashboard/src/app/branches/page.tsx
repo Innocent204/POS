@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
 import AuthGuard from '@/components/auth/auth-guard';
-import { BuildingOfficeIcon, PlusIcon, MagnifyingGlassIcon, TrashIcon, BuildingStorefrontIcon, CubeIcon, XMarkIcon, PhoneIcon, UserIcon, MapPinIcon, CalendarDaysIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
-import { formatDate, getErrorMessage } from '@/lib/utils';
+import { BuildingOfficeIcon, PlusIcon, MagnifyingGlassIcon, TrashIcon, BuildingStorefrontIcon, CubeIcon, XMarkIcon, PhoneIcon, UserIcon, MapPinIcon, CalendarDaysIcon, CheckCircleIcon, XCircleIcon, ArchiveBoxIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { formatDate, formatCurrency, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
-import { BranchResponse } from '@/types';
+import { BranchResponse, StockLevelResponse, DashboardSummaryResponse } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +27,7 @@ export default function BranchesPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [branches, setBranches] = useState<BranchResponse[]>([]);
+  const [dashboardSummary, setDashboardSummary] = useState<DashboardSummaryResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,6 +35,7 @@ export default function BranchesPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState<BranchResponse | null>(null);
+  const [stockBranch, setStockBranch] = useState<BranchResponse | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     branchType: 'SHOP' as 'SHOP' | 'WAREHOUSE',
@@ -43,14 +45,28 @@ export default function BranchesPage() {
     isActive: true
   });
 
+  // Stock state
+  const [stock, setStock] = useState<StockLevelResponse[]>([]);
+  const [loadingStock, setLoadingStock] = useState(false);
+  const [isStockOpen, setIsStockOpen] = useState(false);
+  const [stockSearch, setStockSearch] = useState('');
+
   const fetchBranches = async () => {
     try {
       setLoading(true);
-      const response = await api.branches.getAll();
-      if (response.success) {
-        setBranches(response.data);
+      const [branchesResponse, summaryResponse] = await Promise.all([
+        api.branches.getAll(),
+        api.dashboard.getSummary()
+      ]);
+      
+      if (branchesResponse.success) {
+        setBranches(branchesResponse.data);
       } else {
-        setError(response.message || 'Failed to load branches');
+        setError(branchesResponse.message || 'Failed to load branches');
+      }
+      
+      if (summaryResponse.success && summaryResponse.data) {
+        setDashboardSummary(summaryResponse.data);
       }
     } catch (err: unknown) {
       console.error('Fetch branches error:', err);
@@ -58,6 +74,28 @@ export default function BranchesPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchBranchStock = async (branchId: string) => {
+    try {
+      setLoadingStock(true);
+      const response = await api.stock.getByBranch(branchId);
+      if (response.success) {
+        setStock(response.data || []);
+      }
+    } catch (err) {
+      console.error('Fetch stock error:', err);
+    } finally {
+      setLoadingStock(false);
+    }
+  };
+
+  const calculateBranchValue = () => {
+    if (stockBranch && dashboardSummary) {
+      const branchSummary = dashboardSummary.branchSummaries.find(b => b.branchId === stockBranch.id);
+      if (branchSummary) return branchSummary.totalStockValue;
+    }
+    return stock.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0);
   };
 
   useEffect(() => {
@@ -360,6 +398,19 @@ export default function BranchesPage() {
                     <Button
                       variant="link"
                       size="sm"
+                      className="h-auto p-0 text-success font-bold hover:no-underline"
+                      onClick={() => {
+                        setStockBranch(branch);
+                        setIsStockOpen(true);
+                        fetchBranchStock(branch.id);
+                      }}
+                    >
+                      <ArchiveBoxIcon className="h-3.5 w-3.5 mr-1" />
+                      View Products
+                    </Button>
+                    <Button
+                      variant="link"
+                      size="sm"
                       className="h-auto p-0 text-primary"
                       onClick={() => setSelectedBranch(branch)}
                     >View Details</Button>
@@ -480,6 +531,127 @@ export default function BranchesPage() {
                 Close
               </Button>
             </div>
+          </div>
+        </>
+      )}
+      {/* ─── Branch Stock Slide-over ───────────────────────────────────── */}
+      {isStockOpen && stockBranch && (
+        <>
+          <div
+            className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm transition-opacity"
+            onClick={() => { setIsStockOpen(false); setStockBranch(null); setStock([]); setStockSearch(''); }}
+          />
+          <div className="fixed inset-y-0 right-0 z-[70] w-full max-w-2xl bg-card shadow-2xl flex flex-col border-l border-divider animate-in slide-in-from-right duration-300">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-divider bg-gradient-to-r from-success/5 to-transparent">
+              <div>
+                <div className="flex items-center gap-2">
+                  <ArchiveBoxIcon className="h-4 w-4 text-success" />
+                  <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest">Branch Inventory</p>
+                </div>
+                <h2 className="text-xl font-black text-primary">{stockBranch.name}</h2>
+              </div>
+              <button
+                onClick={() => { setIsStockOpen(false); setStockBranch(null); setStock([]); setStockSearch(''); }}
+                className="p-2 rounded-xl hover:bg-surface text-text-secondary hover:text-primary transition-colors"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* toolbar */}
+            <div className="p-4 border-b border-divider bg-surface/30">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary" />
+                <Input
+                  placeholder="Search products in this branch..."
+                  value={stockSearch}
+                  onChange={(e) => setStockSearch(e.target.value)}
+                  className="!pl-10 h-9 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar">
+              {loadingStock ? (
+                <div className="p-12 text-center text-text-secondary space-y-4">
+                  <div className="w-10 h-10 border-4 border-success/20 border-t-success rounded-full animate-spin mx-auto" />
+                  <p className="text-sm font-bold animate-pulse">Fetching inventory...</p>
+                </div>
+              ) : stock.length > 0 ? (
+                <div className="divide-y divide-divider">
+                  {stock
+                    .filter(item =>
+                      item.productName.toLowerCase().includes(stockSearch.toLowerCase()) ||
+                      item.productSku.toLowerCase().includes(stockSearch.toLowerCase())
+                    )
+                    .map((item) => (
+                      <div key={item.productId} className="p-4 hover:bg-surface/50 transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 flex-shrink-0 bg-success/10 rounded-xl flex items-center justify-center">
+                              <ShoppingBagIcon className="h-5 w-5 text-success/60" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-primary">{item.productName}</p>
+                              <p className="text-[10px] text-text-secondary font-mono tracking-wider">{item.productSku}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <span className={`text-sm font-black ${item.quantityOnHand <= item.minimumStockThreshold ? 'text-error' : 'text-primary'}`}>
+                                {item.quantityOnHand}
+                              </span>
+                              <span className="text-[10px] text-text-secondary font-bold uppercase">In Stock</span>
+                            </div>
+                            <p className="text-[10px] text-text-secondary mt-0.5">{formatCurrency(item.sellingPrice)} / unit</p>
+                          </div>
+                        </div>
+                        {item.quantityOnHand <= item.minimumStockThreshold && (
+                          <div className="mt-2 text-[10px] bg-error/10 text-error font-black px-2 py-1 rounded inline-block uppercase tracking-widest">
+                            Low Stock Alert
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="p-12 text-center text-text-secondary">
+                  <XCircleIcon className="h-12 w-12 mx-auto mb-4 opacity-10" />
+                  <p className="font-bold">No products found at this location</p>
+                  <p className="text-sm opacity-60">This branch might not have any stock initialized yet.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Summary Footer */}
+            {!loadingStock && stock.length > 0 && (
+              <div className="p-6 border-t border-divider bg-card">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-3 rounded-xl bg-surface border border-divider">
+                    <p className="text-[10px] font-black text-text-secondary uppercase tracking-widest">Unique Products</p>
+                    <p className="text-lg font-black text-primary">{stock.length}</p>
+                  </div>
+                  <div className="p-3 rounded-xl bg-success/5 border border-success/10">
+                    <p className="text-[10px] font-black text-success uppercase tracking-widest">Branch Value</p>
+                    <p className="text-lg font-black text-success">
+                      {formatCurrency(calculateBranchValue())}
+                    </p>
+                  </div>
+                </div>
+                <Button className="w-full mt-4" onClick={() => { setIsStockOpen(false); setStockBranch(null); setStock([]); }}>
+                  Close Inventory View
+                </Button>
+              </div>
+            )}
+            {!loadingStock && stock.length === 0 && (
+              <div className="p-6 border-t border-divider bg-card">
+                <Button className="w-full" onClick={() => { setIsStockOpen(false); setStockBranch(null); setStock([]); }}>
+                  Close
+                </Button>
+              </div>
+            )}
           </div>
         </>
       )}

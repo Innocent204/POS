@@ -30,7 +30,7 @@ export default function SettingsPage() {
   const [profile, setProfile] = useState({
     firstName: 'Admin',
     lastName: 'User',
-    email: 'admin@ecotracker.com',
+    email: 'admin@taura.com',
     avatar: null as string | null
   });
 

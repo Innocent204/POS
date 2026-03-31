@@ -167,21 +167,21 @@ export default function InventoryPage() {
   const calculateUniqueProducts = () => {
     const isFiltered = searchTerm !== '' || selectedCategory !== 'All' || stockStatus !== 'All';
     
-    // If viewing all branches and not filtered, use the official catalog count from backend
+    // If viewing all branches and not filtered
     if (!isFiltered && selectedBranchId === 'all' && dashboardSummary) {
       return dashboardSummary.totalProducts;
     }
     
-    // Otherwise, count unique products in the current inventory list (e.g. for specific branch or low stock view)
-    const uniqueSkus = new Set(filteredInventory.map(item => item.productSku));
-    return uniqueSkus.size;
+    // Otherwise, count unique products in the current inventory list
+    const uniqueIds = new Set(filteredInventory.map(item => item.productId));
+    return uniqueIds.size;
   };
 
   // Local calculation helper for valuation
   const calculateInventoryValue = () => {
     const isFiltered = searchTerm !== '' || selectedCategory !== 'All' || stockStatus !== 'All';
     
-    // Primary source of truth for branch/global totals (when not filtered)
+    // Primary source of truth for branch/global totals 
     if (!isFiltered && dashboardSummary) {
       if (selectedBranchId === 'all') {
         return dashboardSummary.totalInventoryValue;
@@ -191,7 +191,6 @@ export default function InventoryPage() {
       }
     }
     
-    // For "Global Low Stock" or when filtered, we use the items currently in the 'inventory' state
     return filteredInventory.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0);
   };
 
@@ -280,8 +279,14 @@ export default function InventoryPage() {
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Total Products</p>
                   <div className="flex items-baseline gap-2">
                     <p className="text-2xl font-black text-primary">{calculateUniqueProducts()}</p>
-                    {selectedBranchId === 'all' && dashboardSummary && calculateUniqueProducts() !== dashboardSummary.totalProducts && (
-                      <p className="text-xs font-bold text-text-secondary">/ {dashboardSummary.totalProducts} total</p>
+                    {selectedBranchId === 'all' && dashboardSummary && calculateUniqueProducts() < dashboardSummary.totalProducts && (
+                      <div className="flex flex-col">
+                        <p className="text-xs font-bold text-error">/ {dashboardSummary.totalProducts} total</p>
+                        <p className="text-[10px] text-text-secondary leading-tight mt-1">({dashboardSummary.totalProducts - calculateUniqueProducts()} products missing stock records)</p>
+                      </div>
+                    )}
+                    {selectedBranchId === 'all' && dashboardSummary && calculateUniqueProducts() === dashboardSummary.totalProducts && (
+                      <p className="text-xs font-bold text-text-secondary">/ total</p>
                     )}
                   </div>
                 </div>

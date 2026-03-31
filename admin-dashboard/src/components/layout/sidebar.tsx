@@ -17,7 +17,10 @@ import {
   ClipboardDocumentCheckIcon,
   ShieldCheckIcon,
   ChevronLeftIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ChevronDownIcon,
+  TableCellsIcon,
+  PresentationChartBarIcon
 } from '@heroicons/react/24/outline';
 import { cn } from '@/lib/utils';
 
@@ -27,7 +30,14 @@ const navigationGroups = [
     items: [
       { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
       { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
-      { name: 'Reports', href: '/reports', icon: ClipboardDocumentCheckIcon },
+      {
+        name: 'Reports',
+        icon: ClipboardDocumentCheckIcon,
+        children: [
+          { name: 'Dashboard Reports', href: '/reports/dashboard', icon: PresentationChartBarIcon },
+          { name: 'Advanced Reports', href: '/reports/advanced', icon: TableCellsIcon },
+        ]
+      },
     ]
   },
   {
@@ -50,7 +60,7 @@ const navigationGroups = [
     items: [
       { name: 'Users (Staff)', href: '/users', icon: UserGroupIcon },
       { name: 'Branches', href: '/branches', icon: BuildingOfficeIcon },
-    //  { name: 'Audit Logs', href: '/audit', icon: ShieldCheckIcon },
+      //  { name: 'Audit Logs', href: '/audit', icon: ShieldCheckIcon },
       { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
     ]
   },
@@ -86,8 +96,8 @@ export default function Sidebar({ onClose, onToggleMinimize, isMinimized = false
           <div className="relative flex-shrink-0 w-9 h-9">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo.png"
-              alt="EcoTracker Logo"
+              src="/logo.jpeg"
+              alt="Taura Logo"
               className="w-full h-full object-contain rounded-xl"
             />
           </div>
@@ -95,8 +105,8 @@ export default function Sidebar({ onClose, onToggleMinimize, isMinimized = false
           {/* Brand text */}
           {!isMinimized && (
             <div className="hidden sm:block leading-none">
-              <p className="text-base font-black text-primary tracking-tight">EcoTracker</p>
-              <p className="text-[9px] font-bold text-text-secondary uppercase tracking-[0.18em] mt-0.5">POS System</p>
+              <p className="text-base font-black text-primary tracking-tight">Taura</p>
+              <p className="text-[9px] font-bold text-text-secondary uppercase tracking-[0.18em] mt-0.5">Inventory Management</p>
             </div>
           )}
         </div>
@@ -127,6 +137,64 @@ export default function Sidebar({ onClose, onToggleMinimize, isMinimized = false
             )}
 
             {group.items.map((item) => {
+              if (item.children) {
+                const isChildActive = item.children.some(child => pathname === child.href);
+                const isOpen = isChildActive; // Simple logic, could use state for manual toggle
+
+                return (
+                  <div key={item.name} className="space-y-0.5">
+                    <div
+                      className={cn(
+                        'relative group flex items-center px-3 py-2.5 text-sm font-bold rounded-xl transition-all duration-200',
+                        isChildActive
+                          ? 'text-primary'
+                          : 'text-text-secondary hover:bg-surface hover:text-primary',
+                        isMinimized ? 'justify-center' : 'justify-start gap-3',
+                        !isMinimized && "cursor-default"
+                      )}
+                    >
+                      <item.icon
+                        className={cn(
+                          'shrink-0 h-5 w-5 transition-colors',
+                          isChildActive ? 'text-primary' : 'text-text-secondary group-hover:text-primary'
+                        )}
+                      />
+                      {!isMinimized && (
+                        <>
+                          <span className="truncate flex-1">{item.name}</span>
+                          <ChevronDownIcon className={cn("w-3.5 h-3.5 transition-transform duration-200", isChildActive ? "rotate-0" : "-rotate-90")} />
+                        </>
+                      )}
+                    </div>
+                    
+                    {!isMinimized && (
+                      <div className="pl-9 space-y-0.5">
+                        {item.children.map((child) => {
+                          const isSubActive = pathname === child.href;
+                          return (
+                            <Link
+                              key={child.name}
+                              href={child.href}
+                              onClick={onClose}
+                              className={cn(
+                                'relative group flex items-center px-3 py-2 text-xs font-bold rounded-lg transition-all duration-200',
+                                isSubActive
+                                  ? 'bg-primary/5 text-primary'
+                                  : 'text-text-secondary/70 hover:bg-surface hover:text-primary',
+                                'gap-2.5'
+                              )}
+                            >
+                              <child.icon className={cn("w-4 h-4", isSubActive ? "text-primary" : "text-text-secondary/50 group-hover:text-primary")} />
+                              <span className="truncate">{child.name}</span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
               const isActive = pathname === item.href;
               return (
                 <Link

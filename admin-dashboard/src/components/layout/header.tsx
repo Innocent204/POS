@@ -57,7 +57,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
         {/* Brand / Breadcrumb area */}
         <div className="flex-1 min-w-0 ml-2 lg:ml-0 flex items-center gap-3">
           <div className="hidden lg:flex flex-col">
-            <span className="text-lg font-black text-primary tracking-tight leading-none">EcoTracker</span>
+            <span className="text-lg font-black text-primary tracking-tight leading-none">Taura</span>
             <span className="text-[10px] font-bold text-text-secondary uppercase tracking-[0.15em] leading-none mt-0.5">Admin Console</span>
           </div>
           {/* Live clock (desktop only) */}

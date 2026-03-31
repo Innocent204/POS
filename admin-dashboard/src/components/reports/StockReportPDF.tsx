@@ -43,7 +43,7 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                         </div>
                         <div style={{ textAlign: 'right' }}>
                             <p style={{ fontSize: '12px', color: '#94a3b8', margin: '0 0 4px 0' }}>Generated: {today}</p>
-                            <p style={{ fontSize: '14px', fontWeight: 700, color: '#64748b', margin: 0 }}>EcoTracker POS</p>
+                            <p style={{ fontSize: '14px', fontWeight: 700, color: '#64748b', margin: 0 }}>Taura Inventory Management</p>
                         </div>
                     </div>
 

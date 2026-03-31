@@ -34,7 +34,7 @@ const MOCK_AUDIT_LOGS: AuditLogResponse[] = [
     {
         id: '1',
         userId: 'u1',
-        userEmail: 'admin@ecotracker.com',
+        userEmail: 'admin@taura.com',
         action: 'LOGIN',
         entityType: 'USER',
         entityId: 'u1',
@@ -44,7 +44,7 @@ const MOCK_AUDIT_LOGS: AuditLogResponse[] = [
     {
         id: '2',
         userId: 'u2',
-        userEmail: 'manager.lusaka@ecotracker.com',
+        userEmail: 'manager.lusaka@taura.com',
         action: 'UPDATE',
         entityType: 'PRODUCT',
         entityId: 'p-101',
@@ -56,7 +56,7 @@ const MOCK_AUDIT_LOGS: AuditLogResponse[] = [
     {
         id: '3',
         userId: 'u1',
-        userEmail: 'admin@ecotracker.com',
+        userEmail: 'admin@taura.com',
         action: 'DISPATCH',
         entityType: 'TRANSFER',
         entityId: 'TRF-8829',
@@ -67,7 +67,7 @@ const MOCK_AUDIT_LOGS: AuditLogResponse[] = [
     {
         id: '4',
         userId: 'u3',
-        userEmail: 'cashier.kitwe@ecotracker.com',
+        userEmail: 'cashier.kitwe@taura.com',
         action: 'CREATE',
         entityType: 'SALE',
         entityId: 'REC-5541',

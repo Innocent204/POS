@@ -81,8 +81,8 @@ export default function LoginPage() {
             <CubeIcon className="h-10 w-10 text-white relative z-10" />
           </div>
           <div className="space-y-1">
-            <h1 className="text-3xl font-black text-white tracking-tighter">POS Admin</h1>
-            <p className="text-white/70 font-medium">Real-Time Inventory Dashboard</p>
+            <h1 className="text-3xl font-black text-white tracking-tighter uppercase">Taura</h1>
+            <p className="text-white/70 font-medium">Inventory Management System</p>
           </div>
         </div>
 
@@ -170,7 +170,7 @@ export default function LoginPage() {
           {/* Card Footer */}
           <div className="mt-8 pt-6 border-t border-divider text-center">
             <p className="text-[10px] text-text-secondary font-bold uppercase tracking-widest leading-loose">
-              EcoTracker POS Web <br />
+              Taura Inventory Management <br />
               &copy; 2026
             </p>
           </div>

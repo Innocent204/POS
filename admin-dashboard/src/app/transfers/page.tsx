@@ -194,7 +194,9 @@ export default function TransfersPage() {
       pdfp.setFont('helvetica', 'normal');
       pdfp.setTextColor(100, 116, 139);
       pdfp.text(`Generated: ${new Date().toLocaleString('en-GB')}`, 40, 56);
-      pdfp.text('EcoTracker POS', pageWidth - 120, 56);
+      pdfp.setFontSize(10);
+      pdfp.setTextColor(150);
+      pdfp.text('Taura IMS', pageWidth - 120, 56);
 
       // Summary Header
       pdfp.setFillColor(241, 245, 249);
@@ -254,7 +256,7 @@ export default function TransfersPage() {
         pdfp.setPage(i);
         pdfp.setFontSize(8);
         pdfp.setTextColor(148, 163, 184); // slate-400
-        pdfp.text('EcoTracker POS - Confidential', 40, pdfp.internal.pageSize.getHeight() - 20);
+        pdfp.text('Taura IMS - Confidential', 40, pdfp.internal.pageSize.getHeight() - 20);
         pdfp.text(`Page ${i} of ${pageCount}`, pdfp.internal.pageSize.getWidth() - 60, pdfp.internal.pageSize.getHeight() - 20);
       }
 

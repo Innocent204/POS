@@ -289,7 +289,7 @@ export default function ReportsPage() {
         pdf.setPage(i);
         pdf.setFontSize(8);
         pdf.setTextColor(148, 163, 184);
-        pdf.text('EcoTracker POS - Confidential', 40, pdf.internal.pageSize.getHeight() - 20);
+        pdf.text('Taura IMS - Confidential', 40, pdf.internal.pageSize.getHeight() - 20);
         pdf.text(`Page ${i} of ${pageCount}`, pdf.internal.pageSize.getWidth() - 60, pdf.internal.pageSize.getHeight() - 20);
       }
 
@@ -358,8 +358,8 @@ export default function ReportsPage() {
           status: item.stockStatus
         }));
       } else if (report.id === 'Low_Stock_Report') {
-        const res = await api.reports.getLowStock({ 
-          branchId: selectedBranchId === 'all' ? undefined : selectedBranchId 
+        const res = await api.reports.getLowStock({
+          branchId: selectedBranchId === 'all' ? undefined : selectedBranchId
         });
         if (res.success && res.data) {
           allData = res.data.map((item: any) => ({
