@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import Layout from '@/components/layout/layout';
 import AuthGuard from '@/components/auth/auth-guard';
 import {
@@ -18,7 +19,8 @@ import {
   EyeIcon,
   MapPinIcon,
   CalendarDaysIcon,
-  CubeIcon
+  CubeIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -291,6 +293,12 @@ export default function TransfersPage() {
               </p>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
+              <Link href="/transfers/new">
+                <Button size="sm">
+                  <PlusIcon className="h-4 w-4 mr-2" />
+                  New Transfer
+                </Button>
+              </Link>
               <Button variant="outline" size="sm" onClick={fetchTransfers} disabled={loading}>
                 <ArrowPathIcon className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh

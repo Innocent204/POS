@@ -96,7 +96,7 @@ export default function Sidebar({ onClose, onToggleMinimize, isMinimized = false
           <div className="relative flex-shrink-0 w-9 h-9">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/logo.jpeg"
+              src="/taura-brand.jpeg"
               alt="Taura Logo"
               className="w-full h-full object-contain rounded-xl"
             />
@@ -166,7 +166,7 @@ export default function Sidebar({ onClose, onToggleMinimize, isMinimized = false
                         </>
                       )}
                     </div>
-                    
+
                     {!isMinimized && (
                       <div className="pl-9 space-y-0.5">
                         {item.children.map((child) => {

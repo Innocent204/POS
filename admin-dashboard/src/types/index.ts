@@ -228,6 +228,15 @@ export interface CreateUserRequest {
   assignedBranchId?: string;
 }
 
+export interface UpdateUserRequest {
+  fullName?: string;
+  email?: string;
+  password?: string;
+  role?: 'ADMIN' | 'MANAGER' | 'CASHIER';
+  assignedBranchId?: string;
+  isActive?: boolean;
+}
+
 export interface CreateBranchRequest {
   name: string;
   branchType: 'WAREHOUSE' | 'SHOP';

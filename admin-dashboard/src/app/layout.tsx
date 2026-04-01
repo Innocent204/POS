@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   title: "Taura Inventory System",
   description: "Taura Inventory Management System - Point-of-Sale administration dashboard for inventory, sales and branch management.",
   icons: {
-    icon: '/logo.jpeg',
-    apple: '/logo.jpeg',
+    icon: '/taura-brand.jpeg',
+    apple: '/taura-brand.jpeg',
   },
 };
 

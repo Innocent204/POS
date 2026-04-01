@@ -39,6 +39,8 @@ export default function ProductsPage() {
 
   // Form state
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [branches, setBranches] = useState<BranchResponse[]>([]);
@@ -60,10 +62,10 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await api.products.getAll({ 
-        page: currentPage, 
+      const response = await api.products.getAll({
+        page: currentPage,
         size: pageSize,
-        search: searchTerm || undefined 
+        search: searchTerm || undefined
       });
       if (response.success && response.data) {
         setProducts(response.data.content || []);
@@ -157,6 +159,55 @@ export default function ProductsPage() {
         description: errorMsg,
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openEditDialog = (product: ProductResponse) => {
+    setEditingProduct(product.id);
+    setFormData(prev => ({
+      ...prev,
+      name: product.name,
+      sku: product.sku,
+      category: product.category || '',
+      sellingPrice: product.sellingPrice,
+      costPrice: product.costPrice,
+      unitOfMeasure: product.unitOfMeasure || 'pcs',
+      minimumStockThreshold: product.minimumStockThreshold,
+      description: product.description || '',
+    }));
+    setIsEditOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    try {
+      setIsSubmitting(true);
+      const productData = {
+        name: formData.name,
+        category: formData.category,
+        sellingPrice: formData.sellingPrice,
+        costPrice: formData.costPrice,
+        unitOfMeasure: formData.unitOfMeasure,
+        minimumStockThreshold: formData.minimumStockThreshold,
+        description: formData.description,
+      };
+
+      const response = await api.products.update(editingProduct, productData);
+      if (response.success) {
+        toast({ title: 'Success', description: 'Product updated successfully' });
+        setIsEditOpen(false);
+        setEditingProduct(null);
+        fetchProducts();
+        resetForm();
+      } else {
+        throw new Error(response.message || 'Failed to update product');
+      }
+    } catch (err: unknown) {
+      console.error('Update product error:', err);
+      toast({ title: 'Error', description: getErrorMessage(err), variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -446,6 +497,128 @@ export default function ProductsPage() {
                 </form>
               </DialogContent>
             </Dialog>
+
+            {/* Edit Product Dialog */}
+            <Dialog open={isEditOpen} onOpenChange={(open) => {
+              setIsEditOpen(open);
+              if (!open) {
+                setEditingProduct(null);
+                resetForm();
+              }
+            }}>
+              <DialogContent className="sm:max-w-[600px] overflow-y-auto max-h-[90vh]">
+                <DialogHeader>
+                  <DialogTitle>Edit Product</DialogTitle>
+                  <DialogDescription>
+                    Update the product details and pricing information.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleEditSubmit} className="space-y-6 py-4">
+                  <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div>
+                      <h3 className="text-sm font-semibold text-primary mb-3">Basic Details</h3>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-name">Product Name</Label>
+                          <Input
+                            id="edit-name"
+                            required
+                            value={formData.name}
+                            onChange={e => setFormData({ ...formData, name: e.target.value })}
+                            placeholder="e.g. 50W Solar Panel"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-sku">SKU (Stock Keeping Unit)</Label>
+                            <Input
+                              id="edit-sku"
+                              required
+                              disabled
+                              value={formData.sku}
+                              placeholder="e.g. SP-50W-001"
+                            />
+                            <p className="text-[10px] text-text-secondary mt-1">SKU cannot be changed after creation.</p>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="edit-category">Category</Label>
+                            <Select
+                              value={formData.category}
+                              onValueChange={(value: string) => setFormData({ ...formData, category: value })}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a category" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {PRODUCT_CATEGORIES.map((category) => (
+                                  <SelectItem key={category} value={category}>
+                                    {category}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-primary mb-3">Pricing</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-costPrice">Cost Price ($)</Label>
+                          <Input
+                            id="edit-costPrice"
+                            type="number"
+                            step="0.01"
+                            required
+                            value={formData.costPrice}
+                            onChange={e => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
+                            placeholder="0.00"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-sellingPrice">Selling Price ($)</Label>
+                          <Input
+                            id="edit-sellingPrice"
+                            type="number"
+                            step="0.01"
+                            required
+                            value={formData.sellingPrice}
+                            onChange={e => setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) || 0 })}
+                            placeholder="0.00"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-primary mb-3">Inventory Settings</h3>
+                      <div className="space-y-2">
+                        <Label htmlFor="edit-minimumStockThreshold">Minimum Stock Threshold</Label>
+                        <Input
+                          id="edit-minimumStockThreshold"
+                          type="number"
+                          required
+                          value={formData.minimumStockThreshold}
+                          onChange={e => setFormData({ ...formData, minimumStockThreshold: parseInt(e.target.value) || 0 })}
+                          placeholder="5"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? 'Updating...' : 'Update Product'}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -556,7 +729,7 @@ export default function ProductsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                           <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" title="Edit">
+                            <Button variant="ghost" size="icon" title="Edit" onClick={() => openEditDialog(product)}>
                               <PencilIcon className="h-4 w-4 text-text-secondary" />
                             </Button>
                             <Button variant="ghost" size="icon" title="Delete" onClick={() => handleDelete(product.id)}>
@@ -577,7 +750,7 @@ export default function ProductsPage() {
                 </tbody>
               </table>
             </div>
-            
+
             {/* Pagination Controls */}
             {totalPages > 1 && (
               <div className="bg-surface border-t border-divider px-6 py-4 flex items-center justify-between">

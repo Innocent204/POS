@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
 import AuthGuard from '@/components/auth/auth-guard';
-import { BuildingOfficeIcon, PlusIcon, MagnifyingGlassIcon, TrashIcon, BuildingStorefrontIcon, CubeIcon, XMarkIcon, PhoneIcon, UserIcon, MapPinIcon, CalendarDaysIcon, CheckCircleIcon, XCircleIcon, ArchiveBoxIcon, ShoppingBagIcon } from '@heroicons/react/24/outline';
+import { BuildingOfficeIcon, PlusIcon, MagnifyingGlassIcon, TrashIcon, BuildingStorefrontIcon, CubeIcon, XMarkIcon, PhoneIcon, UserIcon, MapPinIcon, CalendarDaysIcon, CheckCircleIcon, XCircleIcon, ArchiveBoxIcon, ShoppingBagIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { formatDate, formatCurrency, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { BranchResponse, StockLevelResponse, DashboardSummaryResponse } from '@/types';
@@ -33,6 +33,8 @@ export default function BranchesPage() {
 
   // Form state
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingBranch, setEditingBranch] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState<BranchResponse | null>(null);
   const [stockBranch, setStockBranch] = useState<BranchResponse | null>(null);
@@ -58,13 +60,13 @@ export default function BranchesPage() {
         api.branches.getAll(),
         api.dashboard.getSummary()
       ]);
-      
+
       if (branchesResponse.success) {
         setBranches(branchesResponse.data);
       } else {
         setError(branchesResponse.message || 'Failed to load branches');
       }
-      
+
       if (summaryResponse.success && summaryResponse.data) {
         setDashboardSummary(summaryResponse.data);
       }
@@ -133,6 +135,42 @@ export default function BranchesPage() {
         description: errorMsg,
         variant: 'destructive',
       });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openEditDialog = (branch: BranchResponse) => {
+    setEditingBranch(branch.id);
+    setFormData({
+      name: branch.name,
+      branchType: branch.branchType,
+      location: branch.location || '',
+      managerName: branch.managerName || '',
+      contactNumber: branch.contactNumber || '',
+      isActive: branch.isActive
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingBranch) return;
+    try {
+      setIsSubmitting(true);
+      const response = await api.branches.update(editingBranch, formData);
+      if (response.success) {
+        toast({ title: 'Success', description: 'Branch updated successfully' });
+        setIsEditOpen(false);
+        setEditingBranch(null);
+        fetchBranches();
+        setFormData({ name: '', branchType: 'SHOP', location: '', managerName: '', contactNumber: '', isActive: true });
+      } else {
+        throw new Error(response.message || 'Failed to update branch');
+      }
+    } catch (err: unknown) {
+      console.error('Update branch error:', err);
+      toast({ title: 'Error', description: getErrorMessage(err), variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -288,6 +326,124 @@ export default function BranchesPage() {
                 </form>
               </DialogContent>
             </Dialog>
+
+            {/* Edit Branch Dialog */}
+            <Dialog open={isEditOpen} onOpenChange={(open) => {
+              setIsEditOpen(open);
+              if (!open) {
+                setEditingBranch(null);
+                setFormData({
+                  name: '',
+                  branchType: 'SHOP',
+                  location: '',
+                  managerName: '',
+                  contactNumber: '',
+                  isActive: true
+                });
+              }
+            }}>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>Edit Branch</DialogTitle>
+                  <DialogDescription>
+                    Update details for this branch location.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleEditSubmit} className="space-y-6 py-4">
+                  <div>
+                    <Label className="text-sm font-semibold text-primary mb-3 block">Branch Type</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, branchType: 'SHOP' })}
+                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${formData.branchType === 'SHOP'
+                          ? 'border-success bg-success/10 text-success'
+                          : 'border-success/30 bg-success/5 text-success/70 hover:border-success/50 hover:bg-success/10'
+                          }`}
+                      >
+                        <BuildingStorefrontIcon className="h-6 w-6 mx-auto mb-2" />
+                        <div className="text-sm font-medium">Shop</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, branchType: 'WAREHOUSE' })}
+                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${formData.branchType === 'WAREHOUSE'
+                          ? 'border-info bg-info/10 text-info'
+                          : 'border-info/30 bg-info/5 text-info/70 hover:border-info/50 hover:bg-info/10'
+                          }`}
+                      >
+                        <BuildingOfficeIcon className="h-6 w-6 mx-auto mb-2" />
+                        <div className="text-sm font-medium">Warehouse</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-name">Branch Name</Label>
+                    <Input
+                      id="edit-name"
+                      required
+                      value={formData.name}
+                      onChange={e => setFormData({ ...formData, name: e.target.value })}
+                      placeholder="e.g. Harare CBD Shop"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-location">Location</Label>
+                    <Input
+                      id="edit-location"
+                      value={formData.location}
+                      onChange={e => setFormData({ ...formData, location: e.target.value })}
+                      placeholder="e.g. 123 Main St, Harare"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-managerName">Manager Name</Label>
+                      <Input
+                        id="edit-managerName"
+                        value={formData.managerName}
+                        onChange={e => setFormData({ ...formData, managerName: e.target.value })}
+                        placeholder="e.g. John Doe"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-contactNumber">Contact Number</Label>
+                      <Input
+                        id="edit-contactNumber"
+                        value={formData.contactNumber}
+                        onChange={e => setFormData({ ...formData, contactNumber: e.target.value })}
+                        placeholder="e.g. +263 77 123 4567"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id="edit-isActive"
+                      checked={formData.isActive}
+                      onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
+                      className="h-4 w-4 rounded border-divider text-primary focus:ring-primary"
+                    />
+                    <Label htmlFor="edit-isActive" className="text-sm font-medium">
+                      Branch is active
+                    </Label>
+                  </div>
+
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? 'Updating...' : 'Update Branch'}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -388,32 +544,36 @@ export default function BranchesPage() {
                       <Button variant="ghost" size="icon" title="Delete" onClick={() => handleDelete(branch.id)}>
                         <TrashIcon className="h-4 w-4 text-error" />
                       </Button>
-                      <Button variant="ghost" size="icon">
-                        <BuildingOfficeIcon className="h-4 w-4 text-primary" />
+                      <Button variant="ghost" size="icon" title="Edit" onClick={() => openEditDialog(branch)}>
+                        <PencilIcon className="h-4 w-4 text-primary" />
                       </Button>
                     </div>
                   </div>
                   <div className="mt-4 pt-4 border-t border-divider flex justify-between items-center text-xs text-text-secondary">
                     <span>Created {formatDate(branch.createdAt)}</span>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="h-auto p-0 text-success font-bold hover:no-underline"
-                      onClick={() => {
-                        setStockBranch(branch);
-                        setIsStockOpen(true);
-                        fetchBranchStock(branch.id);
-                      }}
-                    >
-                      <ArchiveBoxIcon className="h-3.5 w-3.5 mr-1" />
-                      View Products
-                    </Button>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="h-auto p-0 text-primary"
-                      onClick={() => setSelectedBranch(branch)}
-                    >View Details</Button>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="h-auto p-0 text-success font-bold hover:no-underline"
+                        onClick={() => {
+                          setStockBranch(branch);
+                          setIsStockOpen(true);
+                          fetchBranchStock(branch.id);
+                        }}
+                      >
+                        <ArchiveBoxIcon className="h-3.5 w-3.5 mr-1" />
+                        View Products
+                      </Button>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="h-auto p-0 text-primary font-bold hover:no-underline"
+                        onClick={() => setSelectedBranch(branch)}
+                      >
+                        View Details
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))
@@ -534,7 +694,7 @@ export default function BranchesPage() {
           </div>
         </>
       )}
-      {/* ─── Branch Stock Slide-over ───────────────────────────────────── */}
+      {/* ─── Branch Stock Slide-over ─────────────────────────────────────   */}
       {isStockOpen && stockBranch && (
         <>
           <div

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
 import AuthGuard from '@/components/auth/auth-guard';
-import { UserGroupIcon, PlusIcon, MagnifyingGlassIcon, TrashIcon, ShieldCheckIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
+import { UserGroupIcon, PlusIcon, MagnifyingGlassIcon, TrashIcon, ShieldCheckIcon, CheckCircleIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { formatDate, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { UserResponse, BranchResponse, CreateUserRequest } from '@/types';
@@ -30,13 +30,16 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState<CreateUserRequest & { password: string }>({
+  const [formData, setFormData] = useState<CreateUserRequest & { password?: string; isActive?: boolean }>({
     fullName: '',
     email: '',
     password: '',
     role: 'CASHIER',
     assignedBranchId: '',
+    isActive: true,
   });
 
   const fetchUsers = async () => {
@@ -62,17 +65,21 @@ export default function UsersPage() {
   }, []);
 
   const resetForm = () => {
-    setFormData({ fullName: '', email: '', password: '', role: 'CASHIER', assignedBranchId: '' });
+    setFormData({ fullName: '', email: '', password: '', role: 'CASHIER', assignedBranchId: '', isActive: true });
   };
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      if (!formData.password) {
+        toast({ title: 'Error', description: 'Password is required for new users.', variant: 'destructive' });
+        return;
+      }
       setIsSubmitting(true);
       const payload: CreateUserRequest = {
         fullName: formData.fullName,
         email: formData.email,
-        password: formData.password,
+        password: formData.password as string,
         role: formData.role,
         assignedBranchId: formData.assignedBranchId || undefined,
       };
@@ -88,6 +95,52 @@ export default function UsersPage() {
     } catch (err) {
       console.error('Create user error:', err);
       toast({ title: 'Error', description: 'Failed to create user.', variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openEditDialog = (user: UserResponse) => {
+    setEditingUser(user.id);
+    setFormData({
+      fullName: user.fullName,
+      email: user.email,
+      password: '',
+      role: user.role as 'ADMIN' | 'MANAGER' | 'CASHIER',
+      assignedBranchId: user.assignedBranchId || '',
+      isActive: user.isActive,
+    });
+    setIsEditOpen(true);
+  };
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    try {
+      setIsSubmitting(true);
+      const payload: any = {
+        fullName: formData.fullName,
+        email: formData.email,
+        role: formData.role,
+        assignedBranchId: formData.assignedBranchId || undefined,
+        isActive: formData.isActive,
+      };
+      if (formData.password) {
+        payload.password = formData.password;
+      }
+      const response = await api.users.update(editingUser, payload);
+      if (response.success) {
+        toast({ title: 'Success', description: 'User updated successfully.' });
+        setIsEditOpen(false);
+        setEditingUser(null);
+        resetForm();
+        fetchUsers();
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (err) {
+      console.error('Update user error:', err);
+      toast({ title: 'Error', description: 'Failed to update user.', variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -223,6 +276,103 @@ export default function UsersPage() {
                 </form>
               </DialogContent>
             </Dialog>
+
+            {/* Edit User Dialog */}
+            <Dialog open={isEditOpen} onOpenChange={(open) => {
+              setIsEditOpen(open);
+              if (!open) {
+                setEditingUser(null);
+                resetForm();
+              }
+            }}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Edit User</DialogTitle>
+                  <DialogDescription>Update staff account details and roles.</DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleEditSubmit} className="space-y-4 py-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-fullName">Full Name</Label>
+                    <Input
+                      id="edit-fullName"
+                      required
+                      value={formData.fullName}
+                      onChange={e => setFormData({ ...formData, fullName: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-email">Email Address</Label>
+                    <Input
+                      id="edit-email"
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={e => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-password">Password (Leave blank to keep current)</Label>
+                    <Input
+                      id="edit-password"
+                      type="password"
+                      minLength={8}
+                      value={formData.password}
+                      onChange={e => setFormData({ ...formData, password: e.target.value })}
+                      placeholder="Enter new password to change"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="edit-role">Role</Label>
+                    <select
+                      id="edit-role"
+                      className="input-field w-full"
+                      value={formData.role}
+                      onChange={e => setFormData({ ...formData, role: e.target.value as 'ADMIN' | 'MANAGER' | 'CASHIER' })}
+                    >
+                      <option value="CASHIER">Cashier</option>
+                      <option value="MANAGER">Manager</option>
+                      <option value="ADMIN">Admin</option>
+                    </select>
+                  </div>
+                  {(formData.role === 'CASHIER' || formData.role === 'MANAGER') && (
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-assignedBranchId">Assigned Branch</Label>
+                      <select
+                        id="edit-assignedBranchId"
+                        className="input-field w-full"
+                        value={formData.assignedBranchId || ''}
+                        onChange={e => setFormData({ ...formData, assignedBranchId: e.target.value })}
+                      >
+                        <option value="">No branch assigned</option>
+                        {branches.map(branch => (
+                          <option key={branch.id} value={branch.id}>{branch.name} ({branch.branchType})</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  <div className="flex items-center space-x-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id="edit-isActive"
+                      checked={formData.isActive}
+                      onChange={e => setFormData({ ...formData, isActive: e.target.checked })}
+                      className="h-4 w-4 rounded border-divider text-primary focus:ring-primary"
+                    />
+                    <Label htmlFor="edit-isActive" className="text-sm font-medium">
+                      Account is active
+                    </Label>
+                  </div>
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => { setIsEditOpen(false); resetForm(); }}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? 'Updating...' : 'Update User'}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -344,16 +494,26 @@ export default function UsersPage() {
                           {user.lastLogin ? formatDate(user.lastLogin) : 'Never'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                          {user.isActive && (
+                          <div className="flex justify-end gap-2">
                             <Button
                               variant="ghost" size="icon"
-                              className="h-8 w-8 rounded-lg hover:bg-error/5"
-                              onClick={() => handleDeactivate(user.id)}
-                              title="Deactivate user"
+                              className="h-8 w-8 rounded-lg outline-none focus:ring-2 focus:ring-primary/50"
+                              onClick={() => openEditDialog(user)}
+                              title="Edit user"
                             >
-                              <TrashIcon className="h-4 w-4 text-error" />
+                              <PencilIcon className="h-4 w-4 text-text-secondary" />
                             </Button>
-                          )}
+                            {user.isActive && (
+                              <Button
+                                variant="ghost" size="icon"
+                                className="h-8 w-8 rounded-lg hover:bg-error/5"
+                                onClick={() => handleDeactivate(user.id)}
+                                title="Deactivate user"
+                              >
+                                <TrashIcon className="h-4 w-4 text-error" />
+                              </Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     ))
@@ -395,15 +555,26 @@ export default function UsersPage() {
                         <p className="text-[10px] text-primary font-black mt-0.5">{user.assignedBranchName || 'Global Access'}</p>
                       </div>
                     </div>
-                    {user.isActive && (
+                    <div className="flex justify-end gap-2 shrink-0">
                       <Button
                         variant="outline" size="icon"
-                        className="h-8 w-8 rounded-lg border-error/20 hover:bg-error/5 shrink-0"
-                        onClick={() => handleDeactivate(user.id)}
+                        className="h-8 w-8 rounded-lg"
+                        onClick={() => openEditDialog(user)}
+                        title="Edit user"
                       >
-                        <TrashIcon className="h-4 w-4 text-error" />
+                        <PencilIcon className="h-4 w-4 text-text-secondary" />
                       </Button>
-                    )}
+                      {user.isActive && (
+                        <Button
+                          variant="outline" size="icon"
+                          className="h-8 w-8 rounded-lg border-error/20 hover:bg-error/5 shrink-0"
+                          onClick={() => handleDeactivate(user.id)}
+                          title="Deactivate user"
+                        >
+                          <TrashIcon className="h-4 w-4 text-error" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 ))
               ) : (

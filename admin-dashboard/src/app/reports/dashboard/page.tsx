@@ -3,12 +3,14 @@
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
 import AuthGuard from '@/components/auth/auth-guard';
-import { 
-  BuildingOfficeIcon, 
+import {
+  BuildingOfficeIcon,
   ArchiveBoxIcon,
   ArrowDownTrayIcon,
-  DocumentChartBarIcon
+  DocumentChartBarIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline';
+import { Input } from '@/components/ui/input';
 import { api } from '@/lib/api';
 import { formatCurrency, formatNumber, cn, formatDate } from '@/lib/utils';
 import { DashboardSummaryResponse, BranchResponse, StockLevelResponse } from '@/types';
@@ -22,6 +24,7 @@ export default function DashboardReportsPage() {
   const [loading, setLoading] = useState(true);
   const [stock, setStock] = useState<StockLevelResponse[]>([]);
   const [loadingStock, setLoadingStock] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -65,8 +68,8 @@ export default function DashboardReportsPage() {
   }, [selectedBranchId]);
 
   const currentBranch = branches.find(b => b.id === selectedBranchId);
-  const currentBranchSummary = selectedBranchId === 'all' 
-    ? null 
+  const currentBranchSummary = selectedBranchId === 'all'
+    ? null
     : summary?.branchSummaries.find(b => b.branchId === selectedBranchId);
 
   return (
@@ -81,20 +84,31 @@ export default function DashboardReportsPage() {
               </h1>
               <p className="text-sm font-medium text-text-secondary">Generate a live preview of specific branch inventory data</p>
             </div>
-            
-            <div className="flex items-center gap-3 bg-card p-2 rounded-2xl border border-divider/40 shadow-sm">
-              <span className="text-xs font-black text-text-secondary uppercase tracking-widest ml-2">Select Branch:</span>
-              <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
-                <SelectTrigger className="w-[240px] border-none bg-surface/50 font-bold focus:ring-0">
-                  <SelectValue placeholder="Select Branch" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl border-divider/60">
-                  <SelectItem value="all" className="font-bold">Select a Branch to Preview</SelectItem>
-                  {branches.map(branch => (
-                    <SelectItem key={branch.id} value={branch.id} className="font-medium">{branch.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-secondary" />
+                <Input
+                  className="pl-9 h-10 w-full sm:w-[240px] rounded-2xl bg-card border-divider/40 shadow-sm"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <div className="flex items-center gap-3 bg-card p-1.5 rounded-2xl border border-divider/40 shadow-sm">
+                <span className="text-[10px] font-black text-text-secondary uppercase tracking-widest ml-3 hidden md:inline-block">Select Branch:</span>
+                <Select value={selectedBranchId} onValueChange={setSelectedBranchId}>
+                  <SelectTrigger className="w-full sm:w-[200px] h-9 border-none bg-surface/50 font-bold focus:ring-0">
+                    <SelectValue placeholder="Select Branch" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-divider/60">
+                    <SelectItem value="all" className="font-bold">Select a Branch to Preview</SelectItem>
+                    {branches.map(branch => (
+                      <SelectItem key={branch.id} value={branch.id} className="font-medium">{branch.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -185,8 +199,8 @@ export default function DashboardReportsPage() {
                               Synchronizing live inventory data...
                             </td>
                           </tr>
-                        ) : stock.length > 0 ? (
-                          stock.map((item) => (
+                        ) : stock.filter(item => item.productName.toLowerCase().includes(searchQuery.toLowerCase()) || item.productSku.toLowerCase().includes(searchQuery.toLowerCase())).length > 0 ? (
+                          stock.filter(item => item.productName.toLowerCase().includes(searchQuery.toLowerCase()) || item.productSku.toLowerCase().includes(searchQuery.toLowerCase())).map((item) => (
                             <tr key={item.id} className={cn(
                               "hover:bg-surface/50 transition-colors",
                               item.quantityOnHand <= item.minimumStockThreshold && "bg-error/5"
@@ -213,7 +227,7 @@ export default function DashboardReportsPage() {
                         ) : (
                           <tr>
                             <td colSpan={5} className="px-4 py-20 text-center text-text-secondary">
-                              No inventory records found for this location.
+                              No inventory records found for this location matching your search.
                             </td>
                           </tr>
                         )}
@@ -222,7 +236,7 @@ export default function DashboardReportsPage() {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex justify-center gap-4 max-w-[850px] mx-auto pb-10">
                 <Button className="rounded-xl font-bold shadow-lg shadow-primary/20" onClick={() => window.location.href = '/reports/advanced'}>
                   Generate Official Report

@@ -21,6 +21,7 @@ import {
   CreateTransferRequest,
   StockAdjustmentRequest,
   CreateUserRequest,
+  UpdateUserRequest,
   BranchStockSummary,
   AuditLogResponse,
   CreateSaleRequest
@@ -168,6 +169,8 @@ export const api = {
       apiClient.get<ApiResponse<UserResponse>>(`/users/${id}`).then(res => res.data),
     create: (data: CreateUserRequest) =>
       apiClient.post<ApiResponse<UserResponse>>('/users', data).then(res => res.data),
+    update: (id: string, data: UpdateUserRequest) =>
+      apiClient.put<ApiResponse<UserResponse>>(`/users/${id}`, data).then(res => res.data),
     delete: (id: string) =>
       apiClient.delete<ApiResponse<Record<string, never>>>(`/users/${id}`).then(res => res.data),
   },

@@ -7,14 +7,15 @@ import {
   EnvelopeIcon,
   EyeIcon,
   EyeSlashIcon,
-  ArrowRightOnRectangleIcon,
-  CubeIcon
+  ArrowRightOnRectangleIcon
 } from '@heroicons/react/24/outline';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getErrorMessage } from '@/lib/utils';
 
+import Image from 'next/image';
+import brandLogo from '../../../public/taura-brand.jpeg';
 import { api } from '@/lib/api';
 
 export default function LoginPage() {
@@ -76,9 +77,14 @@ export default function LoginPage() {
       <div className={`max-w-md w-full space-y-8 transition-all duration-1000 transform ${mounted ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
         {/* Branding Header */}
         <div className="text-center space-y-4">
-          <div className="mx-auto w-20 h-20 bg-white/10 backdrop-blur-xl border-2 border-white/20 rounded-[2rem] flex items-center justify-center shadow-2xl relative group overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <CubeIcon className="h-10 w-10 text-white relative z-10" />
+          <div className="mx-auto w-24 h-24 bg-white/90 backdrop-blur-xl border-4 border-white/20 rounded-3xl flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.1)] relative group overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <Image
+              src={brandLogo}
+              alt="Taura IMS Logo"
+              priority
+              className="w-full h-full object-cover relative z-10"
+            />
           </div>
           <div className="space-y-1">
             <h1 className="text-3xl font-black text-white tracking-tighter uppercase">Taura</h1>
