@@ -43,6 +43,8 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [originalStockQty, setOriginalStockQty] = useState(0);
+  const [stockExistsForBranch, setStockExistsForBranch] = useState(false);
   const [branches, setBranches] = useState<BranchResponse[]>([]);
   const [loadingBranches, setLoadingBranches] = useState(false);
   const [formData, setFormData] = useState({
@@ -164,8 +166,14 @@ export default function ProductsPage() {
     }
   };
 
-  const openEditDialog = (product: ProductResponse) => {
+  const openEditDialog = async (product: ProductResponse) => {
     setEditingProduct(product.id);
+
+    // Ensure branches are loaded for the dropdown
+    if (branches.length === 0) {
+      fetchBranches();
+    }
+
     setFormData(prev => ({
       ...prev,
       name: product.name,
@@ -176,7 +184,29 @@ export default function ProductsPage() {
       unitOfMeasure: product.unitOfMeasure || 'pcs',
       minimumStockThreshold: product.minimumStockThreshold,
       description: product.description || '',
+      branchId: '',
+      initialQuantity: 0
     }));
+
+    // Fetch current stock info to pre-populate
+    setOriginalStockQty(0);
+    setStockExistsForBranch(false);
+    try {
+      const stockRes = await api.stock.getByProduct(product.id);
+      if (stockRes.success && stockRes.data && stockRes.data.length > 0) {
+        const primaryStock = stockRes.data[0];
+        setFormData(prev => ({
+          ...prev,
+          branchId: primaryStock.branchId,
+          initialQuantity: primaryStock.quantityOnHand
+        }));
+        setOriginalStockQty(primaryStock.quantityOnHand);
+        setStockExistsForBranch(true);
+      }
+    } catch (err) {
+      console.error('Error fetching stock for product edit:', err);
+    }
+
     setIsEditOpen(true);
   };
 
@@ -197,6 +227,28 @@ export default function ProductsPage() {
 
       const response = await api.products.update(editingProduct, productData);
       if (response.success) {
+        // Update stock: use adjust if stock already exists, initialize if new
+        if (formData.branchId && formData.initialQuantity >= 0) {
+          if (stockExistsForBranch) {
+            const delta = formData.initialQuantity - originalStockQty;
+            if (delta !== 0) {
+              await api.stock.adjust({
+                productId: editingProduct,
+                branchId: formData.branchId,
+                adjustmentType: delta > 0 ? 'INCREASE' : 'DECREASE',
+                quantity: Math.abs(delta),
+                reason: 'Manual stock update via product edit'
+              });
+            }
+          } else if (formData.initialQuantity > 0) {
+            await api.stock.initialize({
+              productId: editingProduct,
+              branchId: formData.branchId,
+              initialQuantity: formData.initialQuantity
+            });
+          }
+        }
+
         toast({ title: 'Success', description: 'Product updated successfully' });
         setIsEditOpen(false);
         setEditingProduct(null);
@@ -604,6 +656,41 @@ export default function ProductsPage() {
                           onChange={e => setFormData({ ...formData, minimumStockThreshold: parseInt(e.target.value) || 0 })}
                           placeholder="5"
                         />
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-primary mb-3">Inventory & Stock Setup</h3>
+                      <div className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-branchId">Primary Branch</Label>
+                          <Select
+                            value={formData.branchId}
+                            onValueChange={(value: string) => setFormData({ ...formData, branchId: value })}
+                          >
+                            <SelectTrigger id="edit-branchId">
+                              <SelectValue placeholder="Select a branch" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {branches.map((branch) => (
+                                <SelectItem key={branch.id} value={branch.id}>
+                                  {branch.name} {branch.branchType === 'WAREHOUSE' && '(Warehouse)'}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="edit-initialQuantity">Current Stock / Initial Quantity</Label>
+                          <Input
+                            id="edit-initialQuantity"
+                            type="number"
+                            value={formData.initialQuantity}
+                            onChange={e => setFormData({ ...formData, initialQuantity: parseInt(e.target.value) || 0 })}
+                            placeholder="0"
+                          />
+                          <p className="text-[10px] text-text-secondary">Changing this will perform a stock initialization/reset for the selected branch.</p>
+                        </div>
                       </div>
                     </div>
                   </div>

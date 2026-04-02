@@ -84,14 +84,16 @@ export default function ReportsPage() {
   const [branches, setBranches] = useState<BranchResponse[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<string>('all');
   const [loading, setLoading] = useState(true);
+  const [productCosts, setProductCosts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [summaryRes, branchesRes] = await Promise.all([
+        const [summaryRes, branchesRes, productsRes] = await Promise.all([
           api.dashboard.getSummary(),
-          api.branches.getAll()
+          api.branches.getAll(),
+          api.products.getAll({ size: 2000 })
         ]);
 
         if (summaryRes.success && summaryRes.data) {
@@ -99,6 +101,13 @@ export default function ReportsPage() {
         }
         if (branchesRes.success && branchesRes.data) {
           setBranches(branchesRes.data);
+        }
+        if (productsRes.success && productsRes.data?.content) {
+          const costs: Record<string, number> = {};
+          productsRes.data.content.forEach(p => {
+            costs[p.id] = p.costPrice;
+          });
+          setProductCosts(costs);
         }
       } catch (err) {
         console.error('Failed to fetch data:', err);
@@ -178,72 +187,76 @@ export default function ReportsPage() {
         pdf.text(title, 48, yPos + 2);
       };
 
-      // STOCK BY BRANCH
-      drawSectionHeader('Stock by Branch', currentY);
+      // STOCK BY BRANCH - Only for full reports
+      if (selectedBranchId === 'all') {
+        drawSectionHeader('Stock by Branch', currentY);
 
-      const branchRows = summary!.branchSummaries.map(b => [
-        b.branchName,
-        b.totalUnits.toString(),
-        b.outOfStockCount.toString(),
-        formatCurrency(b.totalStockValue)
-      ]);
-      const totalBranchUnits = summary!.branchSummaries.reduce((acc, b) => acc + b.totalUnits, 0);
-      const totalBranchOut = summary!.branchSummaries.reduce((acc, b) => acc + b.outOfStockCount, 0);
-      const totalBranchVal = summary!.branchSummaries.reduce((acc, b) => acc + b.totalStockValue, 0);
-      branchRows.push(['TOTAL', totalBranchUnits.toString(), totalBranchOut.toString(), formatCurrency(totalBranchVal)]);
-
-      autoTable(pdf, {
-        startY: currentY + 20,
-        head: [['Branch', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
-        body: branchRows,
-        theme: 'grid',
-        headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
-        styles: { fontSize: 9, cellPadding: 6, textColor: [51, 65, 85] },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        didParseCell: function (data) {
-          if (data.row.index === branchRows.length - 1) {
-            data.cell.styles.fontStyle = 'bold';
-            data.cell.styles.fillColor = [241, 245, 249];
-          }
-        }
-      });
-
-      // STOCK BY CATEGORY
-      currentY = (pdf as any).lastAutoTable.finalY + 30;
-
-      const categoryMap = new Map<string, { units: number; outOfStock: number; value: number }>();
-      allStock.forEach((item) => {
-        const cat = item.category || 'Uncategorized';
-        const prev = categoryMap.get(cat) || { units: 0, outOfStock: 0, value: 0 };
-        categoryMap.set(cat, {
-          units: prev.units + item.quantityOnHand,
-          outOfStock: prev.outOfStock + (item.quantityOnHand <= 0 ? 1 : 0),
-          value: prev.value + (item.quantityOnHand * item.sellingPrice),
-        });
-      });
-      const categoryRows = Array.from(categoryMap.entries())
-        .sort((a, b) => b[1].value - a[1].value)
-        .map(([cat, stats]) => [
-          cat,
-          stats.units.toString(),
-          stats.outOfStock.toString(),
-          formatCurrency(stats.value)
+        const branchRows = summary!.branchSummaries.map(b => [
+          b.branchName,
+          b.totalUnits.toString(),
+          b.outOfStockCount.toString(),
+          formatCurrency(b.totalStockValue)
         ]);
+        const totalBranchUnits = summary!.branchSummaries.reduce((acc, b) => acc + b.totalUnits, 0);
+        const totalBranchOut = summary!.branchSummaries.reduce((acc, b) => acc + b.outOfStockCount, 0);
+        const totalBranchVal = summary!.branchSummaries.reduce((acc, b) => acc + b.totalStockValue, 0);
+        branchRows.push(['TOTAL', totalBranchUnits.toString(), totalBranchOut.toString(), formatCurrency(totalBranchVal)]);
 
-      drawSectionHeader('Stock by Category', currentY);
+        autoTable(pdf, {
+          startY: currentY + 20,
+          head: [['Branch', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
+          body: branchRows,
+          theme: 'grid',
+          headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
+          styles: { fontSize: 9, cellPadding: 6, textColor: [51, 65, 85] },
+          alternateRowStyles: { fillColor: [248, 250, 252] },
+          didParseCell: function (data) {
+            if (data.row.index === branchRows.length - 1) {
+              data.cell.styles.fontStyle = 'bold';
+              data.cell.styles.fillColor = [241, 245, 249];
+            }
+          }
+        });
 
-      autoTable(pdf, {
-        startY: currentY + 20,
-        head: [['Category', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
-        body: categoryRows,
-        theme: 'grid',
-        headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
-        styles: { fontSize: 9, cellPadding: 6, textColor: [51, 65, 85] },
-        alternateRowStyles: { fillColor: [248, 250, 252] }
-      });
+        // STOCK BY CATEGORY
+        currentY = (pdf as any).lastAutoTable.finalY + 30;
+
+        const categoryMap = new Map<string, { units: number; outOfStock: number; value: number }>();
+        allStock.forEach((item) => {
+          const cat = item.category || 'Uncategorized';
+          const prev = categoryMap.get(cat) || { units: 0, outOfStock: 0, value: 0 };
+          categoryMap.set(cat, {
+            units: prev.units + (item.quantityOnHand || 0),
+            outOfStock: prev.outOfStock + ((item.quantityOnHand || 0) <= 0 ? 1 : 0),
+            value: prev.value + ((item.quantityOnHand || 0) * (productCosts[item.productId] ?? item.costPrice ?? 0)),
+          });
+        });
+        const categoryRows = Array.from(categoryMap.entries())
+          .sort((a, b) => b[1].value - a[1].value)
+          .map(([cat, stats]) => [
+            cat,
+            stats.units.toString(),
+            stats.outOfStock.toString(),
+            formatCurrency(stats.value)
+          ]);
+
+        drawSectionHeader('Stock by Category', currentY);
+
+        autoTable(pdf, {
+          startY: currentY + 20,
+          head: [['Category', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
+          body: categoryRows,
+          theme: 'grid',
+          headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
+          styles: { fontSize: 9, cellPadding: 6, textColor: [51, 65, 85] },
+          alternateRowStyles: { fillColor: [248, 250, 252] }
+        });
+
+        currentY = (pdf as any).lastAutoTable.finalY + 30;
+      }
 
       // FULL INVENTORY
-      currentY = (pdf as any).lastAutoTable.finalY + 30;
+      // currentY remains the same if tables were skipped, or updated if they were drawn
 
       let invTitle = `Full Inventory (${allStock.length})`;
       pdf.setFillColor(241, 245, 249);
@@ -258,8 +271,8 @@ export default function ReportsPage() {
         item.productSku,
         item.category || 'N/A',
         item.branchName,
-        item.quantityOnHand.toString(),
-        formatCurrency(item.quantityOnHand * item.sellingPrice)
+        (item.quantityOnHand || 0).toString(),
+        formatCurrency((item.quantityOnHand || 0) * (productCosts[item.productId] ?? item.costPrice ?? 0))
       ]);
 
       autoTable(pdf, {
@@ -352,9 +365,10 @@ export default function ReportsPage() {
           category: item.category || 'N/A',
           branchName: item.branchName,
           quantityOnHand: item.quantityOnHand,
-          minimumThreshold: item.minimumStockThreshold,
-          sellingPrice: item.sellingPrice,
-          totalValue: item.quantityOnHand * item.sellingPrice,
+          minimumThreshold: item.minimumStockThreshold || 0,
+          costPrice: productCosts[item.productId] ?? item.costPrice ?? 0,
+          sellingPrice: item.sellingPrice || 0,
+          totalValue: (item.quantityOnHand || 0) * (productCosts[item.productId] ?? item.costPrice ?? 0),
           status: item.stockStatus
         }));
       } else if (report.id === 'Low_Stock_Report') {
@@ -382,10 +396,6 @@ export default function ReportsPage() {
           if (!response.success) {
             throw new Error(response.message || 'Failed to generate report');
           }
-
-          // If the endpoint returns paged data (like getSalesReport), handle it
-          // Note: our api.reports.getSalesReport already returns the content array directly due to the then() block in api.ts
-          // But it doesn't give us the totalPages. We might need to adjust api.ts or just use a while loop until we get less than 'size'
 
           const pageData = Array.isArray(response.data) ? response.data :
             (response.data?.content || []);
@@ -656,7 +666,13 @@ export default function ReportsPage() {
           )}
 
           {/* Hidden PDF Templates */}
-          <StockReportPDFTemplate ref={pdfRef} summary={summary} stockLevels={pdfStockLevels} />
+          <StockReportPDFTemplate
+            ref={pdfRef}
+            summary={summary}
+            stockLevels={pdfStockLevels}
+            productCosts={productCosts}
+            isBranchFiltered={selectedBranchId !== 'all'}
+          />
 
         </div>
       </Layout>

@@ -95,8 +95,16 @@ export function getErrorMessage(err: any): string {
   if (!err) return 'An unexpected error occurred.';
 
   // If backend provided a direct message, use it
-  if (err.response?.data?.message) {
-    return err.response.data.message;
+  if (err.response?.data) {
+    const data = err.response.data;
+    if (typeof data === 'string') return data;
+    if (data.message) return data.message;
+    if (data.error) return data.error;
+    if (Array.isArray(data.errors) && data.errors[0]?.message) return data.errors[0].message;
+    if (data.errors && typeof data.errors === 'object' && !Array.isArray(data.errors)) {
+      const firstError = Object.values(data.errors)[0];
+      if (typeof firstError === 'string') return firstError;
+    }
   }
 
   // Handle common HTTP status codes with friendly messages

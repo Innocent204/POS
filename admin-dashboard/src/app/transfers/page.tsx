@@ -20,7 +20,8 @@ import {
   MapPinIcon,
   CalendarDaysIcon,
   CubeIcon,
-  PlusIcon
+  PlusIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -33,6 +34,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/components/ui/toaster';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 export default function TransfersPage() {
   const { toast } = useToast();
@@ -42,6 +52,18 @@ export default function TransfersPage() {
   const [error, setError] = useState<string | null>(null);
   const [exportingPdf, setExportingPdf] = useState(false);
   const [selectedTransfer, setSelectedTransfer] = useState<TransferResponse | null>(null);
+
+  // Receive state
+  const [isReceiveOpen, setIsReceiveOpen] = useState(false);
+  const [receivingTransfer, setReceivingTransfer] = useState<TransferResponse | null>(null);
+  const [receivedQuantities, setReceivedQuantities] = useState<Record<string, number>>({});
+  const [receiveNotes, setReceiveNotes] = useState('');
+  const [isSubmittingReceive, setIsSubmittingReceive] = useState(false);
+
+  // Cancel transfer state
+  const [isCancelOpen, setIsCancelOpen] = useState(false);
+  const [cancellingTransfer, setCancellingTransfer] = useState<TransferResponse | null>(null);
+  const [isSubmittingCancel, setIsSubmittingCancel] = useState(false);
 
   const fetchTransfers = async () => {
     try {
@@ -88,8 +110,94 @@ export default function TransfersPage() {
       toast({
         variant: 'destructive',
         title: 'Action Failed',
-        description: `An error occurred while trying to ${action} the transfer.`,
+        description: getErrorMessage(err),
       });
+    }
+  };
+
+  const handleOpenReceive = (transfer: TransferResponse) => {
+    setReceivingTransfer(transfer);
+    const initialQtys: Record<string, number> = {};
+    transfer.items?.forEach(item => {
+      initialQtys[item.id] = item.quantityRequested;
+    });
+    setReceivedQuantities(initialQtys);
+    setReceiveNotes('');
+    setIsReceiveOpen(true);
+  };
+
+  const handleReceiveSubmit = async () => {
+    if (!receivingTransfer) return;
+
+    try {
+      setIsSubmittingReceive(true);
+      const items = Object.entries(receivedQuantities).map(([id, qty]) => ({
+        transferItemId: id,
+        quantityReceived: qty
+      }));
+
+      const response = await api.transfers.receive(receivingTransfer.id, {
+        items,
+        notes: receiveNotes.trim() || undefined
+      });
+
+      if (response.success) {
+        toast({
+          title: 'Success',
+          description: 'Transfer received successfully.',
+        });
+        setIsReceiveOpen(false);
+        setReceivingTransfer(null);
+        setSelectedTransfer(null);
+        fetchTransfers();
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (err) {
+      console.error('Receive transfer error:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Action Failed',
+        description: getErrorMessage(err),
+      });
+    } finally {
+      setIsSubmittingReceive(false);
+    }
+  };
+
+  const handleOpenCancel = (transfer: TransferResponse) => {
+    setCancellingTransfer(transfer);
+    setIsCancelOpen(true);
+  };
+
+  const handleCancelConfirm = async () => {
+    if (!cancellingTransfer) return;
+
+    try {
+      setIsSubmittingCancel(true);
+      const response = await api.transfers.cancel(cancellingTransfer.id);
+
+      if (response.success) {
+        toast({
+          title: 'Success',
+          description: 'Transfer cancelled successfully.',
+        });
+        setIsCancelOpen(false);
+        setCancellingTransfer(null);
+        setSelectedTransfer(null);
+        fetchTransfers();
+      } else {
+        throw new Error(response.message);
+      }
+    } catch (err) {
+      console.error('Cancel transfer error:', err);
+      toast({
+        variant: 'destructive',
+        title: 'Action Failed',
+        description: getErrorMessage(err),
+      });
+    } finally {
+      setIsSubmittingCancel(false);
     }
   };
 
@@ -478,6 +586,15 @@ export default function TransfersPage() {
                                 </Button>
                               </>
                             )}
+                            {transfer.status === 'PENDING' && (
+                              <Button
+                                variant="outline" size="sm" className="h-8 w-8 p-0 text-error hover:bg-error/10"
+                                onClick={() => handleOpenCancel(transfer)}
+                                title="Cancel Transfer"
+                              >
+                                <XCircleIcon className="h-4 w-4" />
+                              </Button>
+                            )}
                             {transfer.status === 'IN_TRANSIT' && (
                               <span className="text-xs text-text-secondary italic px-2">Awaiting receipt</span>
                             )}
@@ -606,6 +723,19 @@ export default function TransfersPage() {
               )}
             </div>
 
+            {/* Action footer for IN_TRANSIT transfers */}
+            {selectedTransfer.status === 'IN_TRANSIT' && (
+              <div className="px-6 py-4 border-t border-divider bg-surface/30">
+                <Button
+                  className="w-full bg-success hover:bg-success/90"
+                  onClick={() => handleOpenReceive(selectedTransfer)}
+                >
+                  <CheckBadgeIcon className="h-4 w-4 mr-2" />
+                  Receive Items
+                </Button>
+              </div>
+            )}
+
             {/* Action footer for PENDING transfers */}
             {selectedTransfer.status === 'PENDING' && (
               <div className="px-6 py-4 border-t border-divider bg-surface/30 flex gap-3">
@@ -619,16 +749,149 @@ export default function TransfersPage() {
                 <Button
                   variant="outline"
                   className="flex-1 text-error border-error/20 hover:bg-error/5"
-                  onClick={() => { handleStatusUpdate(selectedTransfer.id, 'cancel'); setSelectedTransfer(null); }}
+                  onClick={() => handleOpenCancel(selectedTransfer)}
                 >
                   <XCircleIcon className="h-4 w-4 mr-2" />
-                  Cancel
+                  Cancel Transfer
                 </Button>
               </div>
             )}
           </div>
         </>
       )}
+
+      {/* ─── Receive Transfer Dialog ────────────────────────────────── */}
+      <Dialog open={isReceiveOpen} onOpenChange={setIsReceiveOpen}>
+        <DialogContent className="max-w-2xl bg-card border-divider">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-primary flex items-center gap-2">
+              <CheckBadgeIcon className="h-5 w-5 text-success" />
+              Receive Transfer
+            </DialogTitle>
+            <DialogDescription className="text-text-secondary font-medium">
+              Confirm quantities received for items in transfer #{receivingTransfer?.referenceNumber}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4 space-y-4">
+            <div className="rounded-xl border border-divider overflow-hidden bg-surface/30">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-surface border-b border-divider">
+                  <tr>
+                    <th className="px-4 py-3 font-bold text-text-secondary">Product</th>
+                    <th className="px-4 py-3 font-bold text-text-secondary text-center">Sent</th>
+                    <th className="px-4 py-3 font-bold text-text-secondary text-right">Received</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-divider/50">
+                  {receivingTransfer?.items?.map((item) => (
+                    <tr key={item.id} className="bg-card/50">
+                      <td className="px-4 py-3 font-medium text-primary">{item.productName}</td>
+                      <td className="px-4 py-3 text-center text-text-secondary font-bold">{item.quantityRequested}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex justify-end">
+                          <Input
+                            type="number"
+                            min="0"
+                            max={item.quantityRequested}
+                            value={receivedQuantities[item.id] ?? 0}
+                            onChange={(e) => setReceivedQuantities(prev => ({
+                              ...prev,
+                              [item.id]: parseInt(e.target.value) || 0
+                            }))}
+                            className="w-24 h-9 text-right font-black rounded-lg border-divider focus:ring-success"
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="receive-notes" className="text-xs font-black text-text-secondary uppercase tracking-widest px-1">
+                Receiving Notes (Optional)
+              </Label>
+              <Input
+                id="receive-notes"
+                placeholder="Discrepancies, condition notes, etc..."
+                value={receiveNotes}
+                onChange={(e) => setReceiveNotes(e.target.value)}
+                className="h-10 rounded-xl border-divider bg-surface/50 font-medium"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsReceiveOpen(false)}
+              className="rounded-xl font-bold"
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-success hover:bg-success/90 rounded-xl font-black px-8"
+              onClick={handleReceiveSubmit}
+              disabled={isSubmittingReceive}
+            >
+              {isSubmittingReceive ? (
+                <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <CheckBadgeIcon className="h-4 w-4 mr-2" />
+              )}
+              Confirm Receipt
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ─── Cancel Transfer Confirmation Dialog ────────────────────────── */}
+      <Dialog open={isCancelOpen} onOpenChange={setIsCancelOpen}>
+        <DialogContent className="max-w-md bg-card border-divider">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-primary flex items-center gap-2">
+              <XCircleIcon className="h-5 w-5 text-error" />
+              Cancel Transfer
+            </DialogTitle>
+            <DialogDescription className="text-text-secondary font-medium">
+              Are you sure you want to cancel transfer #{cancellingTransfer?.referenceNumber}? This will mark it as cancelled and stop the stock movement.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="py-4">
+            <div className="p-4 rounded-xl bg-error/5 border border-error/10">
+              <p className="text-xs text-error font-medium leading-relaxed">
+                Cancelling a transfer will prevent it from being dispatched or received. Stock levels will not be affected.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => setIsCancelOpen(false)}
+              className="rounded-xl font-bold"
+            >
+              Keep Transfer
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-error hover:bg-error/90 rounded-xl font-black px-8"
+              onClick={handleCancelConfirm}
+              disabled={isSubmittingCancel}
+            >
+              {isSubmittingCancel ? (
+                <ArrowPathIcon className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <XCircleIcon className="h-4 w-4 mr-2" />
+              )}
+              Confirm Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AuthGuard>
   );
 }

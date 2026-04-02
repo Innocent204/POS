@@ -14,7 +14,7 @@ import {
   BuildingOfficeIcon,
   BuildingStorefrontIcon
 } from '@heroicons/react/24/outline';
-import { formatDate } from '@/lib/utils';
+import { formatDate, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { BranchResponse, ProductResponse } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -88,17 +88,13 @@ export default function NewTransferPage() {
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) {
-      setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
-    } else {
-      setCart(prevCart =>
-        prevCart.map(item =>
-          item.product.id === productId
-            ? { ...item, quantity }
-            : item
-        )
-      );
-    }
+    setCart(prevCart =>
+      prevCart.map(item =>
+        item.product.id === productId
+          ? { ...item, quantity: Math.max(0, quantity) }
+          : item
+      )
+    );
   };
 
   const removeFromCart = (productId: string) => {
@@ -119,6 +115,15 @@ export default function NewTransferPage() {
       toast({
         title: 'Error',
         description: 'Please add at least one product',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (cart.some(item => item.quantity <= 0)) {
+      toast({
+        title: 'Error',
+        description: 'All transfer items must have a quantity greater than 0',
         variant: 'destructive',
       });
       return;
@@ -147,7 +152,7 @@ export default function NewTransferPage() {
       }
     } catch (err) {
       console.error('Create transfer error:', err);
-      toast({ title: 'Error', description: 'Failed to create transfer.', variant: 'destructive' });
+      toast({ title: 'Error', description: getErrorMessage(err), variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -282,14 +287,36 @@ export default function NewTransferPage() {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                        onClick={() => {
+                          if (item.quantity > 1) {
+                            updateQuantity(item.product.id, item.quantity - 1);
+                          } else {
+                            removeFromCart(item.product.id);
+                          }
+                        }}
                         className="h-8 w-8 p-0 text-error hover:bg-error/10"
                       >
                         <MinusIcon className="h-4 w-4" />
                       </Button>
 
-                      <div className="w-12 text-center">
-                        <span className="text-sm font-bold">{item.quantity}</span>
+                      <div className="w-16">
+                        <Input
+                          type="number"
+                          value={item.quantity || ''}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            if (val === '') {
+                              updateQuantity(item.product.id, 0);
+                            } else {
+                              const num = parseInt(val, 10);
+                              if (!isNaN(num)) {
+                                updateQuantity(item.product.id, num);
+                              }
+                            }
+                          }}
+                          className="h-8 text-center font-bold px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                          min="0"
+                        />
                       </div>
 
                       <Button

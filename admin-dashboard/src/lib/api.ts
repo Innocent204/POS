@@ -145,6 +145,8 @@ export const api = {
       apiClient.put<ApiResponse<TransferResponse>>(`/transfers/${id}/receive`, data).then(res => res.data),
     cancel: (id: string) =>
       apiClient.put<ApiResponse<TransferResponse>>(`/transfers/${id}/cancel`).then(res => res.data),
+    delete: (id: string) =>
+      apiClient.delete<ApiResponse<Record<string, never>>>(`/transfers/${id}`).then(res => res.data),
   },
 
   reports: {
