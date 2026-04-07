@@ -94,10 +94,27 @@ export function debounce<T extends (...args: any[]) => any>(
 export function getErrorMessage(err: any): string {
   if (!err) return 'An unexpected error occurred.';
 
-  // If backend provided a direct message, use it
-  if (err.response?.data) {
-    const data = err.response.data;
-    if (typeof data === 'string') return data;
+  const status = err.response?.status;
+  const data = err.response?.data;
+
+  // 1. Handle HTML responses (usually from Nginx/proxies)
+  const isHtml = typeof data === 'string' && (data.includes('<html>') || data.includes('<!DOCTYPE html>'));
+
+  // 2. Map status codes to user-friendly messages
+  const statusMessages: Record<number, string> = {
+    400: 'Invalid request. Please check your input.',
+    401: 'Your session has expired. Please log in again.',
+    403: 'Access denied. You do not have permission for this.',
+    404: 'The requested information could not be found.',
+    405: 'This action is not supported by the system.',
+    500: 'Internal server error. Our team has been notified.',
+    502: 'The server is temporarily unavailable (Bad Gateway).',
+    503: 'The service is under maintenance. Please try again later.',
+    504: 'The server took too long to respond. Please try again.',
+  };
+
+  // 3. If it's NOT HTML and we have structured error data, use it
+  if (data && !isHtml) {
     if (data.message) return data.message;
     if (data.error) return data.error;
     if (Array.isArray(data.errors) && data.errors[0]?.message) return data.errors[0].message;
@@ -105,22 +122,24 @@ export function getErrorMessage(err: any): string {
       const firstError = Object.values(data.errors)[0];
       if (typeof firstError === 'string') return firstError;
     }
+    if (typeof data === 'string' && data.length < 200) return data;
   }
 
-  // Handle common HTTP status codes with friendly messages
-  if (err.response?.status) {
-    const status = err.response.status;
-    if (status === 401) return 'Invalid email or password.';
-    if (status === 403) return 'You do not have permission to perform this action.';
-    if (status === 404) return 'The requested resource was not found.';
-    if (status >= 500) return 'The server is currently unavailable. Please try again later.';
+  // 4. Use status-based message if available
+  if (status && statusMessages[status]) {
+    return statusMessages[status];
   }
 
-  // Handle network or other errors
-  if (err.message === 'Network Error') {
+  // 5. Fallback for generic server errors
+  if (status >= 500) {
+    return 'The server is currently experiencing issues. Please try again later.';
+  }
+
+  // 6. Handle network or other errors
+  if (err.message === 'Network Error' || err.code === 'ECONNABORTED') {
     return 'Unable to connect to the server. Please check your internet connection.';
   }
 
-  // Fallback to a generic message instead of "Request failed with status code XXX"
-  return 'An error occurred. Please try again.';
+  // Final fallback
+  return 'An unexpected error occurred. Please try again.';
 }

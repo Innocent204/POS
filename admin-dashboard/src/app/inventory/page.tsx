@@ -118,10 +118,9 @@ export default function InventoryPage() {
       } else {
         setError(inventoryRes.message || 'Failed to load inventory data');
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error('Inventory fetch error:', err);
-      const errorMsg = err instanceof Error ? err.message : 'Failed to load inventory data';
-      setError(errorMsg);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -166,12 +165,12 @@ export default function InventoryPage() {
   // Unique product count helper for dashboard consistency
   const calculateUniqueProducts = () => {
     const isFiltered = searchTerm !== '' || selectedCategory !== 'All' || stockStatus !== 'All';
-    
+
     // If viewing all branches and not filtered
     if (!isFiltered && selectedBranchId === 'all' && dashboardSummary) {
       return dashboardSummary.totalProducts;
     }
-    
+
     // Otherwise, count unique products in the current inventory list
     const uniqueIds = new Set(filteredInventory.map(item => item.productId));
     return uniqueIds.size;
@@ -180,7 +179,7 @@ export default function InventoryPage() {
   // Local calculation helper for valuation
   const calculateInventoryValue = () => {
     const isFiltered = searchTerm !== '' || selectedCategory !== 'All' || stockStatus !== 'All';
-    
+
     // Primary source of truth for branch/global totals 
     if (!isFiltered && dashboardSummary) {
       if (selectedBranchId === 'all') {
@@ -190,7 +189,7 @@ export default function InventoryPage() {
         if (branchSum) return branchSum.totalStockValue;
       }
     }
-    
+
     return filteredInventory.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0);
   };
 
@@ -236,12 +235,11 @@ export default function InventoryPage() {
       } else {
         throw new Error(response.message || 'Failed to adjust stock');
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error('Stock adjustment error:', err);
-      const errorMsg = err instanceof Error ? err.message : 'Failed to adjust stock';
       toast({
         title: 'Error',
-        description: errorMsg,
+        description: getErrorMessage(err),
         variant: 'destructive',
       });
     } finally {

@@ -177,14 +177,16 @@ export default function ReportsPage() {
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, finalHeight);
       let currentY = finalHeight + 20;
 
-      // Helper to draw pill headers
+      // Helper to draw pill headers — navy brand color
       const drawSectionHeader = (title: string, yPos: number) => {
-        pdf.setFillColor(241, 245, 249);
-        pdf.roundedRect(40, yPos - 14, 120, 24, 4, 4, 'F');
-        pdf.setFontSize(11);
+        pdf.setFillColor(30, 58, 95);
+        pdf.roundedRect(40, yPos - 14, 140, 24, 4, 4, 'F');
+        pdf.setFontSize(10);
         pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(255, 255, 255);
+        pdf.text(title.toUpperCase(), 48, yPos + 2);
+        // Reset text color
         pdf.setTextColor(51, 65, 85);
-        pdf.text(title, 48, yPos + 2);
       };
 
       // STOCK BY BRANCH - Only for full reports
@@ -207,13 +209,14 @@ export default function ReportsPage() {
           head: [['Branch', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
           body: branchRows,
           theme: 'grid',
-          headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
+          headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
           styles: { fontSize: 9, cellPadding: 6, textColor: [51, 65, 85] },
           alternateRowStyles: { fillColor: [248, 250, 252] },
           didParseCell: function (data) {
             if (data.row.index === branchRows.length - 1) {
               data.cell.styles.fontStyle = 'bold';
-              data.cell.styles.fillColor = [241, 245, 249];
+              data.cell.styles.fillColor = [236, 243, 255];
+              data.cell.styles.textColor = [30, 58, 95];
             }
           }
         });
@@ -247,7 +250,7 @@ export default function ReportsPage() {
           head: [['Category', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
           body: categoryRows,
           theme: 'grid',
-          headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
+          headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
           styles: { fontSize: 9, cellPadding: 6, textColor: [51, 65, 85] },
           alternateRowStyles: { fillColor: [248, 250, 252] }
         });
@@ -280,30 +283,48 @@ export default function ReportsPage() {
         head: [['Product', 'SKU', 'Category', 'Branch', 'On Hand (Qty)', 'Total Value']],
         body: inventoryRows,
         theme: 'grid',
-        headStyles: { fillColor: [226, 232, 240], textColor: [30, 41, 59], fontStyle: 'bold' },
+        headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
         styles: { fontSize: 8, cellPadding: 5, textColor: [51, 65, 85] },
         alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: { 4: { halign: 'center' }, 5: { halign: 'right' } },
         didParseCell: function (data) {
           if (data.section === 'body') {
             const qtyStr = inventoryRows[data.row.index][4];
             const qty = parseInt(qtyStr, 10);
             if (qty <= 0) {
               data.cell.styles.fillColor = [254, 242, 242];
+              data.cell.styles.textColor = [185, 28, 28];
             } else if (qty <= 5) {
               data.cell.styles.fillColor = [255, 251, 235];
+              data.cell.styles.textColor = [146, 64, 14];
             }
           }
         }
       });
 
-      // Add Footer with page numbers
+      // Add branded footer with page numbers
       const pageCount = (pdf as any).internal.getNumberOfPages();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const pageW = pdf.internal.pageSize.getWidth();
       for (let i = 1; i <= pageCount; i++) {
         pdf.setPage(i);
+        // Footer divider line
+        pdf.setDrawColor(30, 58, 95);
+        pdf.setLineWidth(0.5);
+        pdf.line(40, pageH - 30, pageW - 40, pageH - 30);
+        // Left: company
         pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(30, 58, 95);
+        pdf.text('TAURA IMS', 40, pageH - 18);
+        pdf.setFont('helvetica', 'normal');
         pdf.setTextColor(148, 163, 184);
-        pdf.text('Taura IMS - Confidential', 40, pdf.internal.pageSize.getHeight() - 20);
-        pdf.text(`Page ${i} of ${pageCount}`, pdf.internal.pageSize.getWidth() - 60, pdf.internal.pageSize.getHeight() - 20);
+        pdf.text(' — Confidential. For Internal Use Only.', 40 + pdf.getTextWidth('TAURA IMS'), pageH - 18);
+        // Right: page number
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(30, 58, 95);
+        const pageLabel = `Page ${i} of ${pageCount}`;
+        pdf.text(pageLabel, pageW - 40 - pdf.getTextWidth(pageLabel), pageH - 18);
       }
 
       const branchName = selectedBranchId === 'all' ? 'All_Branches' : branches.find(b => b.id === selectedBranchId)?.name.replace(/\s+/g, '_') || 'Branch';
@@ -437,36 +458,117 @@ export default function ReportsPage() {
         return;
       }
 
-      // Convert JSON to Excel
+      // ── Excel: Build branded workbook ────────────────────────────────────
       const headers = Object.keys(data[0]);
+      const colCount = headers.length;
 
       const workbook = new ExcelJS.Workbook();
+      // Workbook metadata
+      workbook.creator = 'Taura IMS';
+      workbook.company = 'Taura Inventory Management System';
+      workbook.created = new Date();
+      workbook.title = report.name;
+
       const worksheet = workbook.addWorksheet(report.name.substring(0, 31));
 
-      worksheet.addRow(headers.map(h => h.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())));
+      const branchLabel = selectedBranchId === 'all'
+        ? 'All Branches'
+        : branches.find(b => b.id === selectedBranchId)?.name || 'Unknown Branch';
+      const generatedAt = new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-      worksheet.getRow(1).font = { bold: true };
-      worksheet.getRow(1).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFE2E8F0' }
-      };
+      // Row 1 — Company title
+      worksheet.addRow(['TAURA INVENTORY MANAGEMENT SYSTEM']);
+      worksheet.mergeCells(1, 1, 1, colCount);
+      const titleRow = worksheet.getRow(1);
+      titleRow.height = 28;
+      titleRow.font = { name: 'Calibri', bold: true, size: 14, color: { argb: 'FFFFFFFF' } };
+      titleRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A5F' } };
+      titleRow.alignment = { vertical: 'middle', horizontal: 'center' };
 
-      data.forEach((row: any) => {
-        worksheet.addRow(headers.map(header => row[header]));
+      // Row 2 — Report metadata
+      worksheet.addRow([`${report.name}  |  Scope: ${branchLabel}  |  Generated: ${generatedAt}`]);
+      worksheet.mergeCells(2, 1, 2, colCount);
+      const metaRow = worksheet.getRow(2);
+      metaRow.height = 20;
+      metaRow.font = { name: 'Calibri', size: 10, italic: true, color: { argb: 'FF334155' } };
+      metaRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
+      metaRow.alignment = { vertical: 'middle', horizontal: 'center' };
+
+      // Row 3 — Blank spacer
+      worksheet.addRow([]);
+
+      // Row 4 — Column headers
+      const friendlyHeaders = headers.map(h =>
+        h.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim()
+      );
+      worksheet.addRow(friendlyHeaders);
+      const headerRow = worksheet.getRow(4);
+      headerRow.height = 22;
+      headerRow.font = { name: 'Calibri', bold: true, size: 10, color: { argb: 'FFFFFFFF' } };
+      headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A5F' } };
+      headerRow.alignment = { vertical: 'middle', horizontal: 'center' };
+      headerRow.eachCell(cell => {
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FF1E3A5F' } },
+          bottom: { style: 'medium', color: { argb: 'FF93C5FD' } },
+          left: { style: 'thin', color: { argb: 'FF2D5A8E' } },
+          right: { style: 'thin', color: { argb: 'FF2D5A8E' } },
+        };
       });
 
-      worksheet.columns.forEach(column => {
-        let maxLength = 0;
-        column.eachCell?.({ includeEmpty: true }, cell => {
-          let columnLength = cell.value ? cell.value.toString().length : 10;
-          if (cell.type === ExcelJS.ValueType.Number) columnLength = 10;
-          if (columnLength > maxLength) {
-            maxLength = columnLength;
+      // Detect value/price columns by name
+      const currencyKeywords = ['value', 'price', 'cost', 'total', 'sales', 'amount', 'revenue'];
+      const isCurrencyCol = (key: string) => currencyKeywords.some(k => key.toLowerCase().includes(k));
+      const isNumberCol = (key: string) => ['quantity', 'units', 'stock', 'count', 'opening', 'closing', 'stockin', 'stockout'].some(k => key.toLowerCase().includes(k));
+
+      // Data rows
+      data.forEach((row: any, rowIdx: number) => {
+        const values = headers.map(header => row[header]);
+        const dataRow = worksheet.addRow(values);
+        dataRow.height = 18;
+        dataRow.font = { name: 'Calibri', size: 9.5 };
+        // Alternate row fill
+        if (rowIdx % 2 === 0) {
+          dataRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+        }
+        dataRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+          const key = headers[colNumber - 1];
+          const rawVal = row[key];
+          // Format currency cells
+          if (isCurrencyCol(key) && rawVal !== null && rawVal !== undefined && !isNaN(Number(rawVal))) {
+            cell.value = Number(rawVal);
+            cell.numFmt = '$#,##0.00';
+            cell.alignment = { horizontal: 'right', vertical: 'middle' };
+          } else if (isNumberCol(key) && rawVal !== null && rawVal !== undefined && !isNaN(Number(rawVal))) {
+            cell.value = Number(rawVal);
+            cell.numFmt = '#,##0';
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+          } else {
+            cell.alignment = { vertical: 'middle' };
           }
+          cell.border = {
+            top: { style: 'hair', color: { argb: 'FFCBD5E1' } },
+            bottom: { style: 'hair', color: { argb: 'FFCBD5E1' } },
+            left: { style: 'hair', color: { argb: 'FFCBD5E1' } },
+            right: { style: 'hair', color: { argb: 'FFCBD5E1' } },
+          };
         });
-        column.width = maxLength < 10 ? 10 : maxLength + 2;
       });
+
+      // Auto-fit column widths
+      worksheet.columns.forEach((column, colIdx) => {
+        const key = headers[colIdx];
+        let maxLen = friendlyHeaders[colIdx]?.length || 10;
+        data.forEach((row: any) => {
+          const val = row[key];
+          const len = val != null ? String(val).length : 0;
+          if (len > maxLen) maxLen = len;
+        });
+        column.width = Math.min(Math.max(maxLen + 2, 12), 40);
+      });
+
+      // Freeze top 4 rows so headers stay visible while scrolling
+      worksheet.views = [{ state: 'frozen', ySplit: 4, xSplit: 0 }];
 
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -477,13 +579,12 @@ export default function ReportsPage() {
         title: "Report Generated",
         description: `${report.name} has been successfully exported as Excel.`,
       });
-    } catch (err: unknown) {
+    } catch (err: any) {
       console.error('Report generation error:', err);
-      const errorMsg = err instanceof Error ? err.message : 'An error occurred while generating the report.';
       toast({
         variant: "destructive",
         title: "Generation Failed",
-        description: errorMsg,
+        description: getErrorMessage(err),
       });
     } finally {
       setGenerating(null);

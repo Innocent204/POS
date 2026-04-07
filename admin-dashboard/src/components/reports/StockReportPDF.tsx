@@ -37,15 +37,42 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                 {/* We use an explicit width matching A4 portrait in pixels (~794px at 96dpi) for predictable rendering */}
                 <div ref={ref} id="pdf-report-template" style={{ width: '794px', backgroundColor: '#ffffff', color: '#1e293b', fontFamily: 'Inter, sans-serif' }}>
 
-                    {/* Header */}
-                    <div style={{ padding: '40px 40px 20px 40px', borderBottom: '2px solid #cbd5e1', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div>
-                            <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#334155', margin: '0 0 4px 0', letterSpacing: '-0.5px' }}>Stock Levels Report</h1>
-                            <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>Period: Current Snapshot</p>
+                    {/* Branded Header — navy accent bar + report metadata */}
+                    <div>
+                        {/* Top brand bar */}
+                        <div style={{ backgroundColor: '#1e3a5f', padding: '16px 40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                {/* Actual brand logo */}
+                                <div style={{ width: '40px', height: '40px', borderRadius: '8px', overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)', flexShrink: 0 }}>
+                                    <img
+                                        src="/taura-brand.jpeg"
+                                        alt="Taura IMS Logo"
+                                        crossOrigin="anonymous"
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                    />
+                                </div>
+                                <div>
+                                    <p style={{ margin: 0, color: '#ffffff', fontWeight: 900, fontSize: '16px', letterSpacing: '0.5px' }}>TAURA IMS</p>
+                                    <p style={{ margin: 0, color: '#93c5fd', fontSize: '10px', fontWeight: 500, letterSpacing: '1px', textTransform: 'uppercase' }}>Inventory Management System</p>
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <p style={{ margin: 0, color: '#bfdbfe', fontSize: '11px' }}>CONFIDENTIAL</p>
+                                <p style={{ margin: 0, color: '#93c5fd', fontSize: '10px', marginTop: '2px' }}>For Internal Use Only</p>
+                            </div>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
-                            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '0 0 4px 0' }}>Generated: {today}</p>
-                            <p style={{ fontSize: '14px', fontWeight: 700, color: '#64748b', margin: 0 }}>Taura Inventory Management</p>
+
+                        {/* Report title row */}
+                        <div style={{ backgroundColor: '#f8fafc', padding: '20px 40px 18px 40px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                            <div>
+                                <p style={{ margin: '0 0 4px 0', fontSize: '11px', fontWeight: 700, color: '#94a3b8', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Report</p>
+                                <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#1e3a5f', margin: 0, letterSpacing: '-0.5px' }}>Stock Levels Report</h1>
+                                <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>Period: Current Snapshot</p>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 2px 0' }}>Generated</p>
+                                <p style={{ fontSize: '13px', fontWeight: 700, color: '#334155', margin: 0 }}>{today}</p>
+                            </div>
                         </div>
                     </div>
 
