@@ -147,6 +147,20 @@ export default function ReportsPage() {
 
       setPdfStockLevels(allStock);
 
+      // Ensure we have summary data (for branch/category aggregates)
+      let currentSummary = summary;
+      if (!currentSummary) {
+        const summaryRes = await api.dashboard.getSummary();
+        if (summaryRes.success && summaryRes.data) {
+          currentSummary = summaryRes.data;
+          setSummary(currentSummary);
+        }
+      }
+
+      if (!currentSummary || !currentSummary.branchSummaries) {
+        throw new Error("Dashboard summary data is unavailable. Please refresh the page.");
+      }
+
       // Wait for React to render the template with the new data
       await new Promise(resolve => setTimeout(resolve, 800));
 
@@ -156,7 +170,15 @@ export default function ReportsPage() {
       const canvas = await html2canvas(pdfRef.current, {
         scale: 2,
         useCORS: true,
-        logging: false
+        logging: false,
+        onclone: (clonedDoc) => {
+          // Extra safety: ensure the template doesn't have visibility: hidden in the clone
+          const template = clonedDoc.getElementById('pdf-report-template');
+          if (template && template.parentElement) {
+            template.parentElement.style.visibility = 'visible';
+            template.parentElement.style.position = 'static';
+          }
+        }
       });
 
       // A4 portrait is 595.28 x 841.89 pt
@@ -193,15 +215,15 @@ export default function ReportsPage() {
       if (selectedBranchId === 'all') {
         drawSectionHeader('Stock by Branch', currentY);
 
-        const branchRows = summary!.branchSummaries.map(b => [
+        const branchRows = currentSummary.branchSummaries.map(b => [
           b.branchName,
           b.totalUnits.toString(),
           b.outOfStockCount.toString(),
           formatCurrency(b.totalStockValue)
         ]);
-        const totalBranchUnits = summary!.branchSummaries.reduce((acc, b) => acc + b.totalUnits, 0);
-        const totalBranchOut = summary!.branchSummaries.reduce((acc, b) => acc + b.outOfStockCount, 0);
-        const totalBranchVal = summary!.branchSummaries.reduce((acc, b) => acc + b.totalStockValue, 0);
+        const totalBranchUnits = currentSummary.branchSummaries.reduce((acc, b) => acc + b.totalUnits, 0);
+        const totalBranchOut = currentSummary.branchSummaries.reduce((acc, b) => acc + b.outOfStockCount, 0);
+        const totalBranchVal = currentSummary.branchSummaries.reduce((acc, b) => acc + b.totalStockValue, 0);
         branchRows.push(['TOTAL', totalBranchUnits.toString(), totalBranchOut.toString(), formatCurrency(totalBranchVal)]);
 
         autoTable(pdf, {

@@ -33,7 +33,13 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
         const today = new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
         return (
-            <div className="absolute left-[-9999px] top-[-9999px]">
+            <div style={{
+                position: 'absolute',
+                left: '-9999px',
+                top: '-9999px',
+                visibility: 'hidden',
+                pointerEvents: 'none'
+            }}>
                 {/* We use an explicit width matching A4 portrait in pixels (~794px at 96dpi) for predictable rendering */}
                 <div ref={ref} id="pdf-report-template" style={{ width: '794px', backgroundColor: '#ffffff', color: '#1e293b', fontFamily: 'Inter, sans-serif' }}>
 
