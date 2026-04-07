@@ -145,7 +145,7 @@ export default function ProductsPage() {
             sellingPrice: item.sellingPrice,
             costPrice: item.costPrice,
             minimumStockThreshold: item.minimumStockThreshold,
-            isActive: true,
+            isActive: (item as any).isActive ?? true, // Fallback to true if missing, but allow override
             unitOfMeasure: 'pcs',
             createdAt: item.updatedAt
           })) as ProductResponse[];
@@ -234,32 +234,43 @@ export default function ProductsPage() {
   };
 
   const openEditDialog = async (product: ProductResponse) => {
-    setEditingProduct(product.id);
-
-    // Ensure branches are loaded for the dropdown
-    if (branches.length === 0) {
-      fetchBranches();
-    }
-
-    setFormData(prev => ({
-      ...prev,
-      name: product.name,
-      sku: product.sku,
-      category: product.category || '',
-      sellingPrice: product.sellingPrice,
-      costPrice: product.costPrice,
-      unitOfMeasure: product.unitOfMeasure || 'pcs',
-      minimumStockThreshold: product.minimumStockThreshold,
-      description: product.description || '',
-      branchId: '',
-      initialQuantity: 0
-    }));
-
-    // Fetch current stock info to pre-populate
-    setOriginalStockQty(0);
-    setStockExistsForBranch(false);
     try {
-      const stockRes = await api.stock.getByProduct(product.id);
+      setLoading(true);
+
+      // Fetch full product details to ensure we have everything and check if ID is valid
+      const response = await api.products.getById(product.id);
+      if (!response.success || !response.data) {
+        throw new Error(response.message || 'Product not found on server');
+      }
+
+      const fullProduct = response.data;
+      setEditingProduct(fullProduct.id);
+
+      // Ensure branches are loaded for the dropdown
+      if (branches.length === 0) {
+        fetchBranches();
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        name: fullProduct.name,
+        sku: fullProduct.sku,
+        category: fullProduct.category || '',
+        sellingPrice: fullProduct.sellingPrice,
+        costPrice: fullProduct.costPrice,
+        unitOfMeasure: fullProduct.unitOfMeasure || 'pcs',
+        minimumStockThreshold: fullProduct.minimumStockThreshold,
+        description: fullProduct.description || '',
+        isActive: fullProduct.isActive,
+        branchId: '',
+        initialQuantity: 0
+      }));
+
+      // Fetch current stock info to pre-populate
+      setOriginalStockQty(0);
+      setStockExistsForBranch(false);
+
+      const stockRes = await api.stock.getByProduct(fullProduct.id);
       if (stockRes.success && stockRes.data && stockRes.data.length > 0) {
         const primaryStock = stockRes.data[0];
         setFormData(prev => ({
@@ -270,11 +281,33 @@ export default function ProductsPage() {
         setOriginalStockQty(primaryStock.quantityOnHand);
         setStockExistsForBranch(true);
       }
-    } catch (err) {
-      console.error('Error fetching stock for product edit:', err);
-    }
 
-    setIsEditOpen(true);
+      setIsEditOpen(true);
+    } catch (err: any) {
+      console.error('Error opening edit dialog:', err);
+
+      const is404 = err.response?.status === 404 || getErrorMessage(err).includes('404');
+
+      if (is404) {
+        toast({
+          title: 'Orphaned Record Detected',
+          description: 'This product record no longer exists in the system. Removing orphaned stock from view.',
+          variant: 'destructive',
+        });
+
+        // Remove the orphaned product from the current lists
+        setAllBranchStock(prev => prev.filter(p => p.id !== product.id));
+        setProducts(prev => prev.filter(p => p.id !== product.id));
+      } else {
+        toast({
+          title: 'Error',
+          description: getErrorMessage(err),
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -290,6 +323,7 @@ export default function ProductsPage() {
         unitOfMeasure: formData.unitOfMeasure,
         minimumStockThreshold: formData.minimumStockThreshold,
         description: formData.description,
+        isActive: formData.isActive
       };
 
       const response = await api.products.update(editingProduct, productData);
