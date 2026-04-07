@@ -108,7 +108,7 @@ export function getErrorMessage(err: any): string {
     404: 'The requested information could not be found.',
     405: 'This action is not supported by the system.',
     500: 'Internal server error. Our team has been notified.',
-    502: 'The server is temporarily unavailable (Bad Gateway).',
+    502: 'The server is temporarily unavailable.',
     503: 'The service is under maintenance. Please try again later.',
     504: 'The server took too long to respond. Please try again.',
   };

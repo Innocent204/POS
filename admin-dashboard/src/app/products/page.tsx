@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
 import AuthGuard from '@/components/auth/auth-guard';
-import { CubeIcon, PlusIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { CubeIcon, PlusIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 import { formatCurrency, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
 import { ProductResponse, BranchResponse } from '@/types';
@@ -47,6 +47,9 @@ export default function ProductsPage() {
   const [stockExistsForBranch, setStockExistsForBranch] = useState(false);
   const [branches, setBranches] = useState<BranchResponse[]>([]);
   const [loadingBranches, setLoadingBranches] = useState(false);
+  const [selectedFilterBranch, setSelectedFilterBranch] = useState<string>('all');
+  const [allBranchStock, setAllBranchStock] = useState<ProductResponse[]>([]);
+  const [filteringByBranch, setFilteringByBranch] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     sku: '',
@@ -64,17 +67,36 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await api.products.getAll({
-        page: currentPage,
-        size: pageSize,
-        search: searchTerm || undefined
-      });
-      if (response.success && response.data) {
-        setProducts(response.data.content || []);
-        setTotalProducts(response.data.totalElements || 0);
-        setTotalPages(response.data.totalPages || 1);
+      setError(null);
+
+      if (selectedFilterBranch === 'all') {
+        const response = await api.products.getAll({
+          page: currentPage,
+          size: pageSize,
+          search: searchTerm || undefined
+        });
+        if (response.success && response.data) {
+          setProducts(response.data.content || []);
+          setTotalProducts(response.data.totalElements || 0);
+          setTotalPages(response.data.totalPages || 1);
+        } else {
+          setError(response.message || 'Failed to load products');
+        }
       } else {
-        setError(response.message || 'Failed to load products');
+        // Handle branch-specific paged filtering locally from allBranchStock
+        const filtered = allBranchStock.filter(p =>
+          p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (p.category && p.category.toLowerCase().includes(searchTerm.toLowerCase()))
+        );
+
+        setTotalProducts(filtered.length);
+        setTotalPages(Math.ceil(filtered.length / pageSize) || 1);
+
+        // Client-side pagination
+        const start = currentPage * pageSize;
+        const end = start + pageSize;
+        setProducts(filtered.slice(start, end));
       }
     } catch (err: unknown) {
       console.error('Fetch products error:', err);
@@ -104,8 +126,53 @@ export default function ProductsPage() {
   };
 
   useEffect(() => {
+    if (selectedFilterBranch === 'all') {
+      setAllBranchStock([]);
+      fetchProducts();
+      return;
+    }
+
+    const loadBranchProducts = async () => {
+      try {
+        setFilteringByBranch(true);
+        const res = await api.stock.getByBranch(selectedFilterBranch);
+        if (res.success && res.data) {
+          const mappedProducts = res.data.map((item: any) => ({
+            id: item.productId,
+            name: item.productName,
+            sku: item.productSku,
+            category: item.category,
+            sellingPrice: item.sellingPrice,
+            costPrice: item.costPrice,
+            minimumStockThreshold: item.minimumStockThreshold,
+            isActive: true,
+            unitOfMeasure: 'pcs',
+            createdAt: item.updatedAt
+          })) as ProductResponse[];
+
+          setAllBranchStock(mappedProducts);
+          setCurrentPage(0); // Reset to first page
+          // fetchProducts will be triggered by the state updates if we include them in the dependency array
+        }
+      } catch (err) {
+        console.error('Load branch stock error:', err);
+        setAllBranchStock([]);
+      } finally {
+        setFilteringByBranch(false);
+      }
+    };
+    loadBranchProducts();
+  }, [selectedFilterBranch]);
+
+  // Load branches on mount for the filter bar
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
+  // Combined fetch trigger
+  useEffect(() => {
     fetchProducts();
-  }, [currentPage, searchTerm]);
+  }, [currentPage, searchTerm, allBranchStock]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -315,11 +382,8 @@ export default function ProductsPage() {
     }
   };
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (product.category && product.category.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // We use the products state directly as it's already filtered/paged by fetchProducts
+  const displayedProducts = products;
 
   return (
     <AuthGuard>
@@ -729,7 +793,7 @@ export default function ProductsPage() {
                 <div className="ml-4">
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Active Catalog</p>
                   <p className="text-2xl font-black text-success">
-                    {filteredProducts.filter(p => p.isActive).length}
+                    {displayedProducts.filter(p => p.isActive).length}
                   </p>
                 </div>
               </div>
@@ -743,7 +807,7 @@ export default function ProductsPage() {
                 <div className="ml-4">
                   <p className="text-xs font-bold text-text-secondary uppercase tracking-wider">Categories</p>
                   <p className="text-2xl font-black text-info">
-                    {new Set(filteredProducts.map(p => p.category)).size}
+                    {new Set(displayedProducts.map(p => p.category)).size}
                   </p>
                 </div>
               </div>
@@ -751,17 +815,42 @@ export default function ProductsPage() {
           </div>
 
           <div className="card p-4">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-text-secondary" />
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <MagnifyingGlassIcon className="h-5 w-5 text-text-secondary" />
+                </div>
+                <Input
+                  type="text"
+                  placeholder="Search by name, SKU or category..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="!pl-12 h-11"
+                />
               </div>
-              <Input
-                type="text"
-                placeholder="Search by name, SKU or category..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="!pl-12"
-              />
+
+              <div className="w-full lg:w-72">
+                <Select
+                  value={selectedFilterBranch}
+                  onValueChange={setSelectedFilterBranch}
+                  disabled={filteringByBranch}
+                >
+                  <SelectTrigger className="h-11">
+                    <div className="flex items-center gap-2">
+                      <BuildingOfficeIcon className="h-4 w-4 text-text-secondary" />
+                      <SelectValue placeholder="All Branches" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Branches</SelectItem>
+                    {branches.map(branch => (
+                      <SelectItem key={branch.id} value={branch.id}>
+                        {branch.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
@@ -793,8 +882,8 @@ export default function ProductsPage() {
                         <td colSpan={5} className="px-6 py-4"><div className="h-10 bg-surface rounded w-full"></div></td>
                       </tr>
                     ))
-                  ) : filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
+                  ) : displayedProducts.length > 0 ? (
+                    displayedProducts.map((product) => (
                       <tr key={product.id} className="hover:bg-surface transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
