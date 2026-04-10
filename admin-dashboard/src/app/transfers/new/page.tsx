@@ -170,7 +170,20 @@ export default function NewTransferPage() {
       });
 
       if (response.success) {
-        toast({ title: 'Success', description: 'Transfer created successfully.' });
+        // Automatically deduct stock from source branch
+        Promise.allSettled(
+          cart.map(item => 
+            api.stock.adjust({
+              branchId: sourceBranch.id,
+              productId: item.product.id,
+              adjustmentType: 'DECREASE',
+              quantity: item.quantity,
+              reason: 'Transfer initiated to ' + destinationBranch.name,
+            })
+          )
+        ).catch(err => console.error("Error deducting stock:", err));
+
+        toast({ title: 'Success', description: 'Transfer created and stock deducted.' });
         setSourceBranch(null);
         setDestinationBranch(null);
         setNotes('');
@@ -186,11 +199,19 @@ export default function NewTransferPage() {
     }
   };
 
-  const availableProducts = products.filter(product => {
-    if (!sourceBranch) return false;
-    const stock = sourceStock.find(s => s.productId === product.id);
-    return stock && stock.quantityOnHand > 0;
-  });
+  const availableProducts: ProductResponse[] = sourceBranch ? sourceStock
+    .filter(s => s.quantityOnHand > 0)
+    .map(s => ({
+      id: s.productId,
+      name: s.productName,
+      sku: s.productSku,
+      category: s.category,
+      costPrice: s.costPrice || 0,
+      sellingPrice: s.sellingPrice || 0,
+      minimumStockThreshold: s.minimumStockThreshold || 0,
+      isActive: true,
+      createdAt: s.updatedAt || new Date().toISOString()
+    })) : [];
 
   const filteredProducts = availableProducts.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
