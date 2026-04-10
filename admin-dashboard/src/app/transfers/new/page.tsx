@@ -16,7 +16,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { formatDate, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
-import { BranchResponse, ProductResponse } from '@/types';
+import { BranchResponse, ProductResponse, StockLevelResponse } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +47,8 @@ export default function NewTransferPage() {
   const [destinationBranch, setDestinationBranch] = useState<BranchResponse | null>(null);
   const [branches, setBranches] = useState<BranchResponse[]>([]);
   const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [sourceStock, setSourceStock] = useState<StockLevelResponse[]>([]);
+  const [fetchingStock, setFetchingStock] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -54,6 +56,29 @@ export default function NewTransferPage() {
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (sourceBranch) {
+      setFetchingStock(true);
+      api.stock.getByBranch(sourceBranch.id)
+        .then(res => {
+          if (res.success && res.data) {
+            setSourceStock(res.data);
+          } else {
+            setSourceStock([]);
+          }
+        })
+        .catch(err => {
+          console.error('Fetch source stock error:', err);
+          setSourceStock([]);
+        })
+        .finally(() => {
+          setFetchingStock(false);
+        });
+    } else {
+      setSourceStock([]);
+    }
+  }, [sourceBranch]);
 
   const loadData = async () => {
     try {
@@ -88,10 +113,13 @@ export default function NewTransferPage() {
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
+    const stock = sourceStock.find(s => s.productId === productId);
+    const maxQty = stock ? stock.quantityOnHand : 0;
+    
     setCart(prevCart =>
       prevCart.map(item =>
         item.product.id === productId
-          ? { ...item, quantity: Math.max(0, quantity) }
+          ? { ...item, quantity: Math.min(Math.max(0, quantity), maxQty) }
           : item
       )
     );
@@ -158,7 +186,13 @@ export default function NewTransferPage() {
     }
   };
 
-  const filteredProducts = products.filter(product =>
+  const availableProducts = products.filter(product => {
+    if (!sourceBranch) return false;
+    const stock = sourceStock.find(s => s.productId === product.id);
+    return stock && stock.quantityOnHand > 0;
+  });
+
+  const filteredProducts = availableProducts.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.sku.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -255,7 +289,11 @@ export default function NewTransferPage() {
           <div className="card p-6">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold text-primary">Products</h3>
-              <Button onClick={() => setIsProductPickerOpen(true)}>
+              <Button 
+                onClick={() => setIsProductPickerOpen(true)}
+                disabled={!sourceBranch}
+                title={!sourceBranch ? "Select a source branch first" : "Add Products"}
+              >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 Add Products
               </Button>
@@ -288,11 +326,11 @@ export default function NewTransferPage() {
                         variant="outline"
                         size="icon"
                         onClick={() => {
-                          if (item.quantity > 1) {
-                            updateQuantity(item.product.id, item.quantity - 1);
-                          } else {
-                            removeFromCart(item.product.id);
-                          }
+                            if (item.quantity > 1) {
+                              updateQuantity(item.product.id, item.quantity - 1);
+                            } else {
+                              removeFromCart(item.product.id);
+                            }
                         }}
                         className="h-8 w-8 p-0 text-error hover:bg-error/10"
                       >
@@ -303,6 +341,7 @@ export default function NewTransferPage() {
                         <Input
                           type="number"
                           value={item.quantity || ''}
+                          max={sourceStock.find(s => s.productId === item.product.id)?.quantityOnHand || 0}
                           onChange={(e) => {
                             const val = e.target.value;
                             if (val === '') {
@@ -414,8 +453,14 @@ export default function NewTransferPage() {
                         >
                           <div className="flex-1">
                             <h4 className="text-sm font-bold text-primary">{product.name}</h4>
-                            <p className="text-xs text-text-secondary">{product.sku}</p>
-                            <p className="text-xs text-text-secondary">{product.category}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                                <p className="text-xs text-text-secondary">{product.sku}</p>
+                                <span className="text-xs text-divider">•</span>
+                                <p className="text-xs font-semibold text-info">
+                                    {sourceStock.find(s => s.productId === product.id)?.quantityOnHand || 0} in stock
+                                </p>
+                            </div>
+                            {product.category && <p className="text-xs text-text-secondary mt-1">{product.category}</p>}
                           </div>
                           {isSelected ? (
                             <CheckIcon className="h-5 w-5 text-success" />
