@@ -84,7 +84,7 @@ export default function ReportsPage() {
   const [branches, setBranches] = useState<BranchResponse[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<string>('all');
   const [loading, setLoading] = useState(true);
-  const [productCosts, setProductCosts] = useState<Record<string, number>>({});
+  const [productPrices, setProductPrices] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -103,11 +103,11 @@ export default function ReportsPage() {
           setBranches(branchesRes.data);
         }
         if (productsRes.success && productsRes.data?.content) {
-          const costs: Record<string, number> = {};
+          const prices: Record<string, number> = {};
           productsRes.data.content.forEach(p => {
-            costs[p.id] = p.costPrice;
+            prices[p.id] = p.price;
           });
-          setProductCosts(costs);
+          setProductPrices(prices);
         }
       } catch (err) {
         console.error('Failed to fetch data:', err);
@@ -253,7 +253,7 @@ export default function ReportsPage() {
           categoryMap.set(cat, {
             units: prev.units + (item.quantityOnHand || 0),
             outOfStock: prev.outOfStock + ((item.quantityOnHand || 0) <= 0 ? 1 : 0),
-            value: prev.value + ((item.quantityOnHand || 0) * (productCosts[item.productId] ?? item.costPrice ?? 0)),
+            value: prev.value + ((item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0)),
           });
         });
         const categoryRows = Array.from(categoryMap.entries())
@@ -297,7 +297,7 @@ export default function ReportsPage() {
         item.category || 'N/A',
         item.branchName,
         (item.quantityOnHand || 0).toString(),
-        formatCurrency((item.quantityOnHand || 0) * (productCosts[item.productId] ?? item.costPrice ?? 0))
+        formatCurrency((item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0))
       ]);
 
       autoTable(pdf, {
@@ -409,9 +409,8 @@ export default function ReportsPage() {
           branchName: item.branchName,
           quantityOnHand: item.quantityOnHand,
           minimumThreshold: item.minimumStockThreshold || 0,
-          costPrice: productCosts[item.productId] ?? item.costPrice ?? 0,
-          sellingPrice: item.sellingPrice || 0,
-          totalValue: (item.quantityOnHand || 0) * (productCosts[item.productId] ?? item.costPrice ?? 0),
+          unifiedPrice: productPrices[item.productId] ?? item.price ?? 0,
+          totalValue: (item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0),
           status: item.stockStatus
         }));
       } else if (report.id === 'Low_Stock_Report') {
@@ -464,7 +463,7 @@ export default function ReportsPage() {
 
       // Final manual filter for branch if needed (double safety)
       let data = allData;
-      if (selectedBranchId !== 'all' && report.id !== 'Stock_Report') {
+      if (selectedBranchId !== 'all' && report.id !== 'Stock_Report' && report.id !== 'Low_Stock_Report') {
         data = data.filter((item: any) =>
           item.branchId === selectedBranchId ||
           item.branchName?.toLowerCase() === branches.find(b => b.id === selectedBranchId)?.name.toLowerCase()
@@ -793,7 +792,7 @@ export default function ReportsPage() {
             ref={pdfRef}
             summary={summary}
             stockLevels={pdfStockLevels}
-            productCosts={productCosts}
+            productPrices={productPrices}
             isBranchFiltered={selectedBranchId !== 'all'}
           />
 

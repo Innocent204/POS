@@ -46,8 +46,7 @@ export interface ProductResponse {
   sku: string;
   category?: string;
   unitOfMeasure?: string;
-  costPrice: number;
-  sellingPrice: number;
+  price: number;
   minimumStockThreshold: number;
   description?: string;
   isActive: boolean;
@@ -67,8 +66,7 @@ export interface StockLevelResponse {
   quantityOnHand: number;
   quantityReserved: number;
   minimumStockThreshold: number;
-  costPrice: number;
-  sellingPrice: number;
+  price: number;
   stockStatus: string;
   updatedAt: string;
 }
@@ -257,8 +255,7 @@ export interface CreateProductRequest {
   sku: string;
   category?: string;
   unitOfMeasure?: string;
-  costPrice: number;
-  sellingPrice: number;
+  price: number;
   minimumStockThreshold: number;
   description?: string;
 }
@@ -267,8 +264,7 @@ export interface UpdateProductRequest {
   name?: string;
   category?: string;
   unitOfMeasure?: string;
-  costPrice?: number;
-  sellingPrice?: number;
+  price?: number;
   minimumStockThreshold?: number;
   description?: string;
 }
@@ -305,4 +301,35 @@ export interface CreateSaleRequest {
   paymentMethod: string;
   items: CreateSaleLineItemRequest[];
   totalAmount: number;
+}
+
+// Sale Return Types
+export interface ReturnLineItemRequest {
+  lineItemId: string;
+  quantityReturned: number;
+}
+
+export interface CreateSaleReturnRequest {
+  reason: string;
+  items: ReturnLineItemRequest[];
+}
+
+export interface SaleReturnLineItemResponse {
+  id: string;
+  lineItemId: string;
+  productName: string;
+  productSku: string;
+  quantityReturned: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface SaleReturnResponse {
+  id: string;
+  saleId: string;
+  receiptNumber: string;
+  reason: string;
+  items: SaleReturnLineItemResponse[];
+  totalRefundAmount: number;
+  createdAt: string;
 }

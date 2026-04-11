@@ -47,6 +47,7 @@ export default function InventoryPage() {
   const [branches, setBranches] = useState<BranchResponse[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState('all-low-stock');
   const [dashboardSummary, setDashboardSummary] = useState<DashboardSummaryResponse | null>(null);
+  const [productPrices, setProductPrices] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -75,13 +76,23 @@ export default function InventoryPage() {
       setLoading(true);
       setError(null);
 
-      const [summaryRes, branchesRes] = await Promise.all([
+      const [summaryRes, branchesRes, productsRes] = await Promise.all([
         api.dashboard.getSummary(),
-        api.branches.getAll()
+        api.branches.getAll(),
+        api.products.getAll({ size: 2000 })
       ]);
 
       if (summaryRes.success && summaryRes.data) {
         setDashboardSummary(summaryRes.data);
+      }
+
+      // Fetch unified prices from product catalog
+      if (productsRes.success && productsRes.data?.content) {
+        const prices: Record<string, number> = {};
+        productsRes.data.content.forEach(p => {
+          prices[p.id] = p.price;
+        });
+        setProductPrices(prices);
       }
 
       let inventoryRes;
@@ -190,7 +201,10 @@ export default function InventoryPage() {
       }
     }
 
-    return filteredInventory.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0);
+    return filteredInventory.reduce((sum, item) => {
+      const unifiedPrice = productPrices[item.productId] ?? item.price ?? 0;
+      return sum + (item.quantityOnHand * unifiedPrice);
+    }, 0);
   };
 
   const openAdjustmentDialog = (item: StockLevelResponse) => {
@@ -396,7 +410,7 @@ export default function InventoryPage() {
                     <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Category</th>
                     <th className="px-6 py-3 text-center text-xs font-bold text-text-secondary uppercase tracking-wider">In Stock</th>
                     <th className="px-6 py-3 text-center text-xs font-bold text-text-secondary uppercase tracking-wider">Min Level</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Unit Price</th>
+                    <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Price</th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Status</th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Actions</th>
                   </tr>
@@ -418,7 +432,7 @@ export default function InventoryPage() {
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary uppercase font-bold text-[10px]">{item.category}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-black text-center text-primary">{item.quantityOnHand}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary text-center">{item.minimumStockThreshold}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-primary">{formatCurrency(item.sellingPrice)}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-primary">{formatCurrency(item.price)}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm">
                             <Badge variant={getStockStatusVariant(status)}>{status}</Badge>
                           </td>

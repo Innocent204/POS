@@ -24,7 +24,9 @@ import {
   UpdateUserRequest,
   BranchStockSummary,
   AuditLogResponse,
-  CreateSaleRequest
+  CreateSaleRequest,
+  CreateSaleReturnRequest,
+  SaleReturnResponse
 } from '@/types';
 
 const API_BASE_URL = '/api';
@@ -127,7 +129,9 @@ export const api = {
     getByReceipt: (receiptNumber: string) =>
       apiClient.get<ApiResponse<SaleResponse>>(`/sales/receipt/${receiptNumber}`).then(res => res.data),
     getReturns: (id: string) =>
-      apiClient.get<ApiResponse<any[]>>(`/sales/${id}/returns`).then(res => res.data),
+      apiClient.get<ApiResponse<SaleReturnResponse[]>>(`/sales/${id}/returns`).then(res => res.data),
+    createReturn: (id: string, data: CreateSaleReturnRequest) =>
+      apiClient.post<ApiResponse<SaleReturnResponse>>(`/sales/${id}/returns`, data).then(res => res.data),
     create: (data: CreateSaleRequest) =>
       apiClient.post<ApiResponse<SaleResponse>>('/sales', data).then(res => res.data),
   },
@@ -174,7 +178,7 @@ export const api = {
     update: (id: string, data: UpdateUserRequest) =>
       apiClient.put<ApiResponse<UserResponse>>(`/users/${id}`, data).then(res => res.data),
     delete: (id: string) =>
-      apiClient.delete<ApiResponse<Record<string, never>>>(`/users/${id}`).then(res => res.data),
+      apiClient.delete<ApiResponse<Record<string, never>>>((`/users/${id}`)).then(res => res.data),
   },
 
   audit: {

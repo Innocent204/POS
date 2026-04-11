@@ -54,8 +54,7 @@ export default function ProductsPage() {
     name: '',
     sku: '',
     category: '',
-    sellingPrice: 0,
-    costPrice: 0,
+    price: 0,
     unitOfMeasure: 'pcs',
     minimumStockThreshold: 5,
     description: '',
@@ -142,10 +141,9 @@ export default function ProductsPage() {
             name: item.productName,
             sku: item.productSku,
             category: item.category,
-            sellingPrice: item.sellingPrice,
-            costPrice: item.costPrice,
+            price: item.price,
             minimumStockThreshold: item.minimumStockThreshold,
-            isActive: (item as any).isActive ?? true, // Fallback to true if missing, but allow override
+            isActive: (item as any).isActive ?? true,
             unitOfMeasure: 'pcs',
             createdAt: item.updatedAt
           })) as ProductResponse[];
@@ -191,8 +189,7 @@ export default function ProductsPage() {
         name: formData.name,
         sku: formData.sku,
         category: formData.category,
-        sellingPrice: formData.sellingPrice,
-        costPrice: formData.costPrice,
+        price: formData.price,
         unitOfMeasure: formData.unitOfMeasure,
         minimumStockThreshold: formData.minimumStockThreshold,
         description: formData.description,
@@ -256,8 +253,7 @@ export default function ProductsPage() {
         name: fullProduct.name,
         sku: fullProduct.sku,
         category: fullProduct.category || '',
-        sellingPrice: fullProduct.sellingPrice,
-        costPrice: fullProduct.costPrice,
+        price: fullProduct.price,
         unitOfMeasure: fullProduct.unitOfMeasure || 'pcs',
         minimumStockThreshold: fullProduct.minimumStockThreshold,
         description: fullProduct.description || '',
@@ -318,8 +314,7 @@ export default function ProductsPage() {
       const productData = {
         name: formData.name,
         category: formData.category,
-        sellingPrice: formData.sellingPrice,
-        costPrice: formData.costPrice,
+        price: formData.price,
         unitOfMeasure: formData.unitOfMeasure,
         minimumStockThreshold: formData.minimumStockThreshold,
         description: formData.description,
@@ -371,8 +366,7 @@ export default function ProductsPage() {
       name: '',
       sku: '',
       category: '',
-      sellingPrice: 0,
-      costPrice: 0,
+      price: 0,
       unitOfMeasure: 'pcs',
       minimumStockThreshold: 5,
       description: '',
@@ -534,35 +528,18 @@ export default function ProductsPage() {
                         </div>
                       </div>
 
-                      <div>
-                        <h3 className="text-sm font-semibold text-primary mb-3">Pricing</h3>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="costPrice">Cost Price ($)</Label>
-                            <Input
-                              id="costPrice"
-                              type="number"
-                              step="0.01"
-                              required
-                              value={formData.costPrice}
-                              onChange={e => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
-                              placeholder="0.00"
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="sellingPrice">Selling Price ($)</Label>
-                            <Input
-                              id="sellingPrice"
-                              type="number"
-                              step="0.01"
-                              required
-                              value={formData.sellingPrice}
-                              onChange={e => setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) || 0 })}
-                              placeholder="0.00"
-                            />
-                          </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="price">Price ($)</Label>
+                          <Input
+                            id="price"
+                            type="number"
+                            step="0.01"
+                            required
+                            value={formData.price}
+                            onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                            placeholder="0.00"
+                          />
                         </div>
-                      </div>
 
                       <div>
                         <h3 className="text-sm font-semibold text-primary mb-3">Inventory Settings</h3>
@@ -712,34 +689,17 @@ export default function ProductsPage() {
                       </div>
                     </div>
 
-                    <div>
-                      <h3 className="text-sm font-semibold text-primary mb-3">Pricing</h3>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-costPrice">Cost Price ($)</Label>
-                          <Input
-                            id="edit-costPrice"
-                            type="number"
-                            step="0.01"
-                            required
-                            value={formData.costPrice}
-                            onChange={e => setFormData({ ...formData, costPrice: parseFloat(e.target.value) || 0 })}
-                            placeholder="0.00"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="edit-sellingPrice">Selling Price ($)</Label>
-                          <Input
-                            id="edit-sellingPrice"
-                            type="number"
-                            step="0.01"
-                            required
-                            value={formData.sellingPrice}
-                            onChange={e => setFormData({ ...formData, sellingPrice: parseFloat(e.target.value) || 0 })}
-                            placeholder="0.00"
-                          />
-                        </div>
-                      </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="edit-price">Price ($)</Label>
+                      <Input
+                        id="edit-price"
+                        type="number"
+                        step="0.01"
+                        required
+                        value={formData.price}
+                        onChange={e => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })}
+                        placeholder="0.00"
+                      />
                     </div>
 
                     <div>
@@ -931,7 +891,7 @@ export default function ProductsPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{product.category}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">{formatCurrency(product.sellingPrice)}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">{formatCurrency(product.price)}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <Badge variant={product.isActive ? 'success' : 'error'}>
                             {product.isActive ? 'Active' : 'Inactive'}

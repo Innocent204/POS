@@ -222,7 +222,6 @@ export default function TransfersPage() {
     transfer.referenceNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     transfer.sourceBranchName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     transfer.destinationBranchName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    transfer.destinationBranchName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     transfer.items?.some(item => item.productName?.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
@@ -569,27 +568,18 @@ export default function TransfersPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-right">
                           <div className="flex justify-end gap-2">
                             {transfer.status === 'PENDING' && (
-                              <>
-                                <Button
-                                  variant="outline" size="sm" className="h-8 w-8 p-0 text-info hover:bg-info/10"
-                                  onClick={() => handleStatusUpdate(transfer.id, 'dispatch')}
-                                  title="Dispatch Stock"
-                                >
-                                  <TruckIcon className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                  variant="outline" size="sm" className="h-8 w-8 p-0 text-error hover:bg-error/10"
-                                  onClick={() => handleStatusUpdate(transfer.id, 'cancel')}
-                                  title="Cancel Transfer"
-                                >
-                                  <XCircleIcon className="h-4 w-4" />
-                                </Button>
-                              </>
+                              <Button
+                                variant="outline" size="sm" className="h-8 w-8 p-0 text-info hover:bg-info/10"
+                                onClick={(e) => { e.stopPropagation(); handleStatusUpdate(transfer.id, 'dispatch'); }}
+                                title="Dispatch Stock"
+                              >
+                                <TruckIcon className="h-4 w-4" />
+                              </Button>
                             )}
                             {transfer.status === 'PENDING' && (
                               <Button
                                 variant="outline" size="sm" className="h-8 w-8 p-0 text-error hover:bg-error/10"
-                                onClick={() => handleOpenCancel(transfer)}
+                                onClick={(e) => { e.stopPropagation(); handleOpenCancel(transfer); }}
                                 title="Cancel Transfer"
                               >
                                 <XCircleIcon className="h-4 w-4" />

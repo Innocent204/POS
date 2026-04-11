@@ -206,8 +206,7 @@ export default function NewTransferPage() {
       name: s.productName,
       sku: s.productSku,
       category: s.category,
-      costPrice: s.costPrice || 0,
-      sellingPrice: s.sellingPrice || 0,
+      price: s.price || 0,
       minimumStockThreshold: s.minimumStockThreshold || 0,
       isActive: true,
       createdAt: s.updatedAt || new Date().toISOString()

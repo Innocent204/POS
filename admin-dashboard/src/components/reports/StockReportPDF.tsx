@@ -5,12 +5,12 @@ import { formatCurrency, formatNumber } from '@/lib/utils';
 interface StockReportPDFProps {
     summary: DashboardSummaryResponse | null;
     stockLevels: StockLevelResponse[];
-    productCosts: Record<string, number>;
+    productPrices: Record<string, number>;
     isBranchFiltered?: boolean;
 }
 
 export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockReportPDFProps>(
-    ({ summary, stockLevels, productCosts, isBranchFiltered }, ref) => {
+    ({ summary, stockLevels, productPrices, isBranchFiltered }, ref) => {
         if (!summary) return null;
 
         // Aggregate by category
@@ -21,14 +21,14 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
             categoryMap.set(cat, {
                 units: prev.units + (item.quantityOnHand || 0),
                 outOfStock: prev.outOfStock + ((item.quantityOnHand || 0) <= 0 ? 1 : 0),
-                value: prev.value + ((item.quantityOnHand || 0) * (productCosts[item.productId] ?? item.costPrice ?? 0)),
+                value: prev.value + ((item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0)),
             });
         });
 
         const categoryData = Array.from(categoryMap.entries());
 
         const totalBranchUnits = stockLevels.reduce((acc, item) => acc + (item.quantityOnHand || 0), 0);
-        const totalBranchValue = stockLevels.reduce((acc, item) => acc + ((item.quantityOnHand || 0) * (productCosts[item.productId] ?? item.costPrice ?? 0)), 0);
+        const totalBranchValue = stockLevels.reduce((acc, item) => acc + ((item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0)), 0);
 
         const today = new Date().toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 

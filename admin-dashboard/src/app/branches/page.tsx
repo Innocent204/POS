@@ -52,13 +52,15 @@ export default function BranchesPage() {
   const [loadingStock, setLoadingStock] = useState(false);
   const [isStockOpen, setIsStockOpen] = useState(false);
   const [stockSearch, setStockSearch] = useState('');
+  const [productPrices, setProductPrices] = useState<Record<string, number>>({});
 
   const fetchBranches = async () => {
     try {
       setLoading(true);
-      const [branchesResponse, summaryResponse] = await Promise.all([
+      const [branchesResponse, summaryResponse, productsResponse] = await Promise.all([
         api.branches.getAll(),
-        api.dashboard.getSummary()
+        api.dashboard.getSummary(),
+        api.products.getAll({ size: 2000 })
       ]);
 
       if (branchesResponse.success) {
@@ -69,6 +71,15 @@ export default function BranchesPage() {
 
       if (summaryResponse.success && summaryResponse.data) {
         setDashboardSummary(summaryResponse.data);
+      }
+
+      // Fetch unified prices from product catalog
+      if (productsResponse.success && productsResponse.data?.content) {
+        const prices: Record<string, number> = {};
+        productsResponse.data.content.forEach(p => {
+          prices[p.id] = p.price;
+        });
+        setProductPrices(prices);
       }
     } catch (err: unknown) {
       console.error('Fetch branches error:', err);
@@ -97,7 +108,10 @@ export default function BranchesPage() {
       const branchSummary = dashboardSummary.branchSummaries.find(b => b.branchId === stockBranch.id);
       if (branchSummary) return branchSummary.totalStockValue;
     }
-    return stock.reduce((sum, item) => sum + (item.quantityOnHand * (item.sellingPrice || 0)), 0);
+    return stock.reduce((sum, item) => {
+      const unifiedPrice = productPrices[item.productId] ?? item.price ?? 0;
+      return sum + (item.quantityOnHand * unifiedPrice);
+    }, 0);
   };
 
   useEffect(() => {
@@ -765,7 +779,7 @@ export default function BranchesPage() {
                               </span>
                               <span className="text-[10px] text-text-secondary font-bold uppercase">In Stock</span>
                             </div>
-                            <p className="text-[10px] text-text-secondary mt-0.5">{formatCurrency(item.sellingPrice)} / unit</p>
+                            <p className="text-[10px] text-text-secondary mt-0.5">{formatCurrency(item.price)} / unit</p>
                           </div>
                         </div>
                         {item.quantityOnHand <= item.minimumStockThreshold && (

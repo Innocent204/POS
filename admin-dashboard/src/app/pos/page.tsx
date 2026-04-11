@@ -125,7 +125,7 @@ export default function POSPage() {
     setCart(prev => prev.filter(item => item.id !== id));
   };
 
-  const total = cart.reduce((sum, item) => sum + (item.sellingPrice * item.quantity), 0);
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
@@ -145,7 +145,7 @@ export default function POSPage() {
         items: cart.map(item => ({
           productId: item.id,
           quantity: item.quantity,
-          unitPrice: item.sellingPrice
+          unitPrice: item.price
         })),
         totalAmount: total,
         paymentMethod: paymentMethod.toUpperCase()
@@ -305,7 +305,7 @@ export default function POSPage() {
                             <p className="text-[10px] uppercase font-bold text-text-secondary">{product.category}</p>
                           </div>
                           <div className="mt-4 flex flex-col gap-3">
-                            <p className="text-lg font-black text-primary">{formatCurrency(product.sellingPrice)}</p>
+                            <p className="text-lg font-black text-primary">{formatCurrency(product.price)}</p>
                             <Button size="sm" className="w-full text-xs font-bold rounded-lg py-0 h-8 opacity-0 group-hover:opacity-100 transition-opacity">
                               Add to Cart
                             </Button>
@@ -333,7 +333,7 @@ export default function POSPage() {
                           <div key={item.id} className="flex items-center gap-4 p-3 rounded-xl bg-surface border border-divider group">
                             <div className="flex-1">
                               <p className="text-sm font-bold text-primary line-clamp-1">{item.name}</p>
-                              <p className="text-xs font-bold text-text-secondary">{formatCurrency(item.sellingPrice)}</p>
+                              <p className="text-xs font-bold text-text-secondary">{formatCurrency(item.price)}</p>
                             </div>
                             <div className="flex items-center gap-3">
                               <div className="flex items-center bg-background rounded-lg border border-divider">
@@ -459,7 +459,7 @@ export default function POSPage() {
                           <p className="text-xs text-text-secondary mb-3">SKU: {product.sku}</p>
                           <div className="flex justify-between items-center">
                             <div>
-                              <p className="text-lg font-black text-primary">{formatCurrency(product.sellingPrice)}</p>
+                              <p className="text-lg font-black text-primary">{formatCurrency(product.price)}</p>
                               <p className="text-xs text-text-secondary flex items-center gap-1">
                                 Stock: <span className={`font-bold ${stockByProduct[product.id] > 0 ? 'text-success' : 'text-error'}`}>{stockByProduct[product.id] || 0}</span>
                               </p>

@@ -25,7 +25,7 @@ export default function DashboardReportsPage() {
   const [stock, setStock] = useState<StockLevelResponse[]>([]);
   const [loadingStock, setLoadingStock] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [productCosts, setProductCosts] = useState<Record<string, number>>({});
+  const [productPrices, setProductPrices] = useState<Record<string, number>>({});
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -40,11 +40,11 @@ export default function DashboardReportsPage() {
         if (summaryRes.success) setSummary(summaryRes.data);
         if (branchesRes.success) setBranches(branchesRes.data);
         if (productsRes.success && productsRes.data?.content) {
-          const costs: Record<string, number> = {};
+          const prices: Record<string, number> = {};
           productsRes.data.content.forEach(p => {
-            costs[p.id] = p.costPrice;
+            prices[p.id] = p.price;
           });
-          setProductCosts(costs);
+          setProductPrices(prices);
         }
       } catch (error) {
         console.error('Error fetching initial data:', error);
@@ -163,7 +163,7 @@ export default function DashboardReportsPage() {
                     </div>
                     <div className="border-l-2 border-divider pl-4">
                       <p className="text-[10px] font-black text-text-secondary/60 uppercase tracking-widest">Valuation Basis</p>
-                      <p className="text-sm font-bold text-primary mt-1">Weighted Cost Price (WAC)</p>
+                      <p className="text-sm font-bold text-primary mt-1">Unified Price</p>
                     </div>
                   </div>
                 </div>
@@ -180,12 +180,12 @@ export default function DashboardReportsPage() {
                       <p className="text-xl font-bold text-primary">{formatNumber(currentBranchSummary?.totalUnits || 0)}</p>
                     </div>
                     <div className="p-4 bg-surface/50 border border-divider/60 rounded-xl">
-                      <p className="text-[9px] font-black text-text-secondary/60 uppercase mb-1">Stock Valuation (Cost)</p>
+                      <p className="text-[9px] font-black text-text-secondary/60 uppercase mb-1">Stock Valuation</p>
                       <p className="text-xl font-bold text-success">
                         {formatCurrency(
                           stock.reduce((acc, item) => {
-                            const cost = productCosts[item.productId] ?? item.costPrice ?? 0;
-                            return acc + ((item.quantityOnHand || 0) * cost);
+                            const unifiedPrice = productPrices[item.productId] ?? item.price ?? 0;
+                            return acc + ((item.quantityOnHand || 0) * unifiedPrice);
                           }, 0)
                         )}
                       </p>
@@ -204,7 +204,7 @@ export default function DashboardReportsPage() {
                           <th className="px-4 py-3 font-bold uppercase tracking-widest">Product Details</th>
                           <th className="px-4 py-3 font-bold uppercase tracking-widest">SKU</th>
                           <th className="px-4 py-3 font-bold uppercase tracking-widest text-center">Qty</th>
-                          <th className="px-4 py-3 font-bold uppercase tracking-widest text-right">Cost Price</th>
+                          <th className="px-4 py-3 font-bold uppercase tracking-widest text-right">Price</th>
                           <th className="px-4 py-3 font-bold uppercase tracking-widest text-right">Stock Value</th>
                         </tr>
                       </thead>
@@ -234,9 +234,9 @@ export default function DashboardReportsPage() {
                                   {item.quantityOnHand}
                                 </span>
                               </td>
-                              <td className="px-4 py-3 text-right text-text-secondary">{formatCurrency(productCosts[item.productId] ?? item.costPrice ?? 0)}</td>
+                              <td className="px-4 py-3 text-right text-text-secondary">{formatCurrency(productPrices[item.productId] ?? item.price ?? 0)}</td>
                               <td className="px-4 py-3 text-right font-bold text-primary">
-                                {formatCurrency((item.quantityOnHand || 0) * (productCosts[item.productId] ?? item.costPrice ?? 0))}
+                                {formatCurrency((item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0))}
                               </td>
                             </tr>
                           ))

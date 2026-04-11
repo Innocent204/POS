@@ -85,7 +85,7 @@ export default function AnalyticsPage() {
           </div>
 
           {error && (
-            <div className="bg-error-light border border-error/20 rounded-lg p-4 flex items-center justify-between">
+            <div className="bg-error/5 border border-error/20 rounded-lg p-4 flex items-center justify-between">
               <p className="text-error text-sm">{error}</p>
               <Button variant="outline" size="sm" onClick={fetchData}>Retry</Button>
             </div>

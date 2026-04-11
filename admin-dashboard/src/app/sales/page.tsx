@@ -13,16 +13,26 @@ import {
   ShoppingBagIcon,
   BanknotesIcon,
   CreditCardIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { api } from '@/lib/api';
-import { SaleResponse } from '@/types';
+import { SaleResponse, SaleLineItemResponse, ReturnLineItemRequest } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/toaster';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 export default function SalesPage() {
   const { toast } = useToast();
@@ -37,11 +47,21 @@ export default function SalesPage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
+  // Return dialog state
+  const [returnDialogOpen, setReturnDialogOpen] = useState(false);
+  const [returningSale, setReturningSale] = useState<SaleResponse | null>(null);
+  const [returnReason, setReturnReason] = useState('');
+  const [returnItems, setReturnItems] = useState<Record<string, number>>({});
+  const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
+
   const fetchSales = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.sales.getAll({ size: 100 });
+      const params: { size: number; from?: string; to?: string } = { size: 500 };
+      if (startDate) params.from = `${startDate}T00:00:00`;
+      if (endDate) params.to = `${endDate}T23:59:59`;
+      const response = await api.sales.getAll(params);
       if (response.success) {
         setSales(response.data.content || []);
       } else {
@@ -57,7 +77,7 @@ export default function SalesPage() {
 
   useEffect(() => {
     fetchSales();
-  }, []);
+  }, [startDate, endDate]);
 
   const filteredSales = sales.filter(sale => {
     const matchesSearch =
@@ -68,11 +88,7 @@ export default function SalesPage() {
       (statusFilter === 'Completed' && !sale.isReturned) ||
       (statusFilter === 'Returned' && sale.isReturned);
 
-    const saleDate = new Date(sale.createdAt);
-    const matchesStart = !startDate || saleDate >= new Date(startDate);
-    const matchesEnd = !endDate || saleDate <= new Date(endDate);
-
-    return matchesSearch && matchesStatus && matchesStart && matchesEnd;
+    return matchesSearch && matchesStatus;
   });
 
   const totalRevenue = filteredSales.reduce((acc, s) => acc + s.totalAmount, 0);
@@ -83,6 +99,52 @@ export default function SalesPage() {
     setStartDate('');
     setEndDate('');
     setSearchTerm('');
+  };
+
+  const openReturnDialog = async (sale: SaleResponse) => {
+    try {
+      const res = await api.sales.getById(sale.id);
+      if (res.success && res.data) {
+        setReturningSale(res.data);
+        const initial: Record<string, number> = {};
+        res.data.lineItems.forEach(item => { initial[item.id] = 0; });
+        setReturnItems(initial);
+        setReturnReason('');
+        setReturnDialogOpen(true);
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: getErrorMessage(err), variant: 'destructive' });
+    }
+  };
+
+  const handleReturnSubmit = async () => {
+    if (!returningSale) return;
+    if (!returnReason.trim()) {
+      toast({ title: 'Reason required', description: 'Please enter a reason for the return.', variant: 'destructive' });
+      return;
+    }
+    const items: ReturnLineItemRequest[] = Object.entries(returnItems)
+      .filter(([, qty]) => qty > 0)
+      .map(([lineItemId, quantityReturned]) => ({ lineItemId, quantityReturned }));
+    if (items.length === 0) {
+      toast({ title: 'No items selected', description: 'Select at least one item to return.', variant: 'destructive' });
+      return;
+    }
+    try {
+      setIsSubmittingReturn(true);
+      const res = await api.sales.createReturn(returningSale.id, { reason: returnReason.trim(), items });
+      if (res.success) {
+        toast({ title: 'Return processed', description: `Return recorded. Refund: ${formatCurrency(res.data.totalRefundAmount)}` });
+        setReturnDialogOpen(false);
+        fetchSales();
+      } else {
+        throw new Error(res.message || 'Failed to process return');
+      }
+    } catch (err) {
+      toast({ title: 'Error', description: getErrorMessage(err), variant: 'destructive' });
+    } finally {
+      setIsSubmittingReturn(false);
+    }
   };
 
   const exportToExcel = async () => {
@@ -236,7 +298,7 @@ export default function SalesPage() {
                 </Button>
                 {(statusFilter !== 'All' || startDate || endDate) && (
                   <Button variant="ghost" onClick={resetFilters} className="text-error h-10">
-                    <XMarkIcon className="h-4 w-4 mr-2" />
+                    <XMarkIcon className="h-4 w-4 mr-1" />
                     Reset
                   </Button>
                 )}
@@ -298,18 +360,19 @@ export default function SalesPage() {
                     <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Amount</th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Method</th>
                     <th className="px-6 py-3 text-left text-xs font-bold text-text-secondary uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-right text-xs font-bold text-text-secondary uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-card divide-y divide-divider">
                   {loading ? (
                     [...Array(5)].map((_, i) => (
                       <tr key={i} className="animate-pulse">
-                        <td colSpan={7} className="px-6 py-4"><div className="h-10 bg-surface rounded w-full"></div></td>
+                        <td colSpan={8} className="px-6 py-4"><div className="h-10 bg-surface rounded w-full"></div></td>
                       </tr>
                     ))
                   ) : filteredSales.length > 0 ? (
                     filteredSales.map((sale) => (
-                      <tr key={sale.id} className="hover:bg-surface transition-colors cursor-pointer">
+                      <tr key={sale.id} className="hover:bg-surface transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-primary">#{sale.receiptNumber}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-text-secondary">{formatDate(sale.createdAt)}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-primary font-medium">{sale.cashierName}</td>
@@ -321,11 +384,33 @@ export default function SalesPage() {
                             {sale.isReturned ? 'Returned' : 'Completed'}
                           </Badge>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              title="View return history"
+                              onClick={() => window.location.href = `/sales/${sale.id}/returns`}
+                            >
+                              <ClipboardDocumentListIcon className="h-4 w-4 text-text-secondary" />
+                            </Button>
+                            {!sale.isReturned && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openReturnDialog(sale)}
+                              >
+                                <ArrowPathIcon className="h-4 w-4 mr-1" />
+                                Return
+                              </Button>
+                            )}
+                          </div>
+                        </td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={7} className="px-6 py-12 text-center text-text-secondary bg-surface/30">
+                      <td colSpan={8} className="px-6 py-12 text-center text-text-secondary bg-surface/30">
                         <ChartBarIcon className="h-10 w-10 mx-auto mb-4 opacity-20" />
                         <p className="font-medium">No sales records found matching your filters</p>
                       </td>
@@ -336,6 +421,71 @@ export default function SalesPage() {
             </div>
           </div>
         </div>
+
+        {/* Partial Return Dialog */}
+        <Dialog open={returnDialogOpen} onOpenChange={(open) => { if (!open) setReturnDialogOpen(false); }}>
+          <DialogContent className="sm:max-w-[560px] overflow-y-auto max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>Process Return</DialogTitle>
+              <DialogDescription>
+                Select items and quantities to return for sale #{returningSale?.receiptNumber}.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-2">
+                <Label>Return Reason</Label>
+                <Input
+                  placeholder="e.g. Defective item, customer changed mind..."
+                  value={returnReason}
+                  onChange={e => setReturnReason(e.target.value)}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Line Items</Label>
+                <div className="border border-divider rounded-lg divide-y divide-divider">
+                  {returningSale?.lineItems.map((item: SaleLineItemResponse) => (
+                    <div key={item.id} className="flex items-center justify-between px-4 py-3 gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-primary truncate">{item.productName}</p>
+                        <p className="text-xs text-text-secondary">SKU: {item.productSku} &middot; {item.quantity} sold @ {formatCurrency(item.unitPrice)}</p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Label className="text-xs text-text-secondary whitespace-nowrap">Qty to return</Label>
+                        <Input
+                          type="number"
+                          min={0}
+                          max={item.quantity}
+                          value={returnItems[item.id] ?? 0}
+                          onChange={e => setReturnItems(prev => ({ ...prev, [item.id]: Math.min(item.quantity, Math.max(0, parseInt(e.target.value) || 0)) }))}
+                          className="w-20 text-center"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {returningSale && (
+                <p className="text-xs text-text-secondary">
+                  Estimated refund:{' '}
+                  <span className="font-bold text-primary">
+                    {formatCurrency(
+                      (returningSale.lineItems || []).reduce((sum, item) => {
+                        const qty = returnItems[item.id] ?? 0;
+                        return sum + qty * item.unitPrice;
+                      }, 0)
+                    )}
+                  </span>
+                </p>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setReturnDialogOpen(false)}>Cancel</Button>
+              <Button onClick={handleReturnSubmit} disabled={isSubmittingReturn}>
+                {isSubmittingReturn ? 'Processing...' : 'Submit Return'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </Layout>
     </AuthGuard>
   );

@@ -29,10 +29,10 @@ const toastVariants = cva(
         variants: {
             variant: {
                 default: "bg-card text-text-primary",
-                success: "bg-success-light text-success border-success/20",
-                warning: "bg-warning-light text-warning border-warning/20",
-                destructive: "bg-error-light   text-error   border-error/20",
-                info: "bg-info-light    text-info     border-info/20",
+                success: "bg-success/5 text-success border-success/20",
+                warning: "bg-warning/5 text-warning border-warning/20",
+                destructive: "bg-error/5 text-error border-error/20",
+                info: "bg-info/5 text-info border-info/20",
             },
         },
         defaultVariants: { variant: "default" },
