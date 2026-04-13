@@ -26,6 +26,36 @@ import {
 import { useToast } from '@/components/ui/toaster';
 import { Label } from '@/components/ui/label';
 
+const TAURA_CATALOG: { name: string; price: number }[] = [
+  { name: 'Cables USB to Classic', price: 0.55 },
+  { name: 'Cables USB to C', price: 0.55 },
+  { name: 'Cables C to C Black 25W', price: 1.10 },
+  { name: 'Cables C to C Black 45W', price: 2.75 },
+  { name: 'Cables C to Lightning 25W', price: 2.75 },
+  { name: 'Cables USB to Lightning', price: 1.10 },
+  { name: 'Car Charger USB & C', price: 5.50 },
+  { name: 'Car Charger USB', price: 5.50 },
+  { name: 'Earpods', price: 5.50 },
+  { name: 'Gift Box', price: 19.25 },
+  { name: '20 Watt Type C Taura Adapter (3 pin)', price: 5.50 },
+  { name: '20 Watt Type C Taura Adapter (2 pin)', price: 2.75 },
+  { name: '20 Watt USB Taura Adapter (3 pin)', price: 2.75 },
+  { name: '20 Watt USB Taura Adapter (2 pin)', price: 2.75 },
+  { name: '45 Watt Type C Taura Adapter (3 pin)', price: 7.15 },
+  { name: '45 Watt Type C Taura Adapter (2 pin)', price: 7.15 },
+  { name: '25 Watt Type C Taura Adapter (3 pin)', price: 4.95 },
+  // { name: '25 Watt Type C Taura Adapter (2 pin)', price: 4.95 },
+  { name: 'PB 5000mAh Battery Pack', price: 4.25 },
+  { name: 'PB 10000mAh Battery Pack', price: 8.50 },
+  { name: 'PB 10000mAh USB Black', price: 8.50 },
+  { name: 'PB 10000mAh White with Gold', price: 12.75 },
+  { name: 'PB 20000mAh Black Powerbank', price: 17.00 },
+  { name: 'Power Bank 40000mAh', price: 25.50 },
+  { name: 'Power Bank 60000mAh', price: 55.25 },
+  { name: 'Ring Lights', price: 12.75 },
+  { name: 'Wireless Car Charger', price: 17.00 },
+];
+
 export default function ProductsPage() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
@@ -141,7 +171,7 @@ export default function ProductsPage() {
             name: item.productName,
             sku: item.productSku,
             category: item.category,
-            price: item.price,
+            price: Number(item.price ?? item.unitPrice ?? item.sellingPrice ?? item.productPrice ?? 0),
             minimumStockThreshold: item.minimumStockThreshold,
             isActive: (item as any).isActive ?? true,
             unitOfMeasure: 'pcs',
@@ -185,6 +215,27 @@ export default function ProductsPage() {
 
     try {
       setIsSubmitting(true);
+
+      // Check for duplicate product name in the selected branch (case-insensitive)
+      if (formData.branchId) {
+        const branchStockCheck = await api.stock.getByBranch(formData.branchId);
+        if (branchStockCheck.success && branchStockCheck.data) {
+          const existsInBranch = branchStockCheck.data.some(
+            (item: any) => (item.productName || '').toLowerCase() === formData.name.toLowerCase()
+          );
+          if (existsInBranch) {
+            const branch = branches.find(b => b.id === formData.branchId);
+            toast({
+              title: 'Product Already Added',
+              description: `"${formData.name}" already exists in ${branch?.name || 'this branch'}.`,
+              variant: 'destructive',
+            });
+            setIsSubmitting(false);
+            return;
+          }
+        }
+      }
+
       const productData = {
         name: formData.name,
         sku: formData.sku,
@@ -467,6 +518,29 @@ export default function ProductsPage() {
                 <form onSubmit={handleCreate} className="space-y-4 py-4">
                   {currentStep === 1 && (
                     <div className="space-y-6">
+                      <div>
+                        <h3 className="text-sm font-semibold text-primary mb-3">Select from Taura Catalog</h3>
+                        <Select
+                          value=""
+                          onValueChange={(value) => {
+                            const item = TAURA_CATALOG.find(p => p.name === value);
+                            if (item) {
+                              setFormData(prev => ({ ...prev, name: item.name, price: item.price }));
+                            }
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose a product to auto-fill name & price..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {TAURA_CATALOG.map((item) => (
+                              <SelectItem key={item.name} value={item.name}>
+                                {item.name} — ${item.price.toFixed(2)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                       <div>
                         <h3 className="text-sm font-semibold text-primary mb-3">Basic Information</h3>
                         <div className="grid grid-cols-2 gap-4">

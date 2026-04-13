@@ -298,7 +298,7 @@ export default function SalesPage() {
                 </Button>
                 {(statusFilter !== 'All' || startDate || endDate) && (
                   <Button variant="ghost" onClick={resetFilters} className="text-error h-10">
-                    <XMarkIcon className="h-4 w-4 mr-1" />
+                    <XMarkIcon className="h-4 w-4 mr-2" />
                     Reset
                   </Button>
                 )}

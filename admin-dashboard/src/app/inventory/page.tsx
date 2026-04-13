@@ -47,7 +47,6 @@ export default function InventoryPage() {
   const [branches, setBranches] = useState<BranchResponse[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState('all-low-stock');
   const [dashboardSummary, setDashboardSummary] = useState<DashboardSummaryResponse | null>(null);
-  const [productPrices, setProductPrices] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -76,23 +75,13 @@ export default function InventoryPage() {
       setLoading(true);
       setError(null);
 
-      const [summaryRes, branchesRes, productsRes] = await Promise.all([
+      const [summaryRes, branchesRes] = await Promise.all([
         api.dashboard.getSummary(),
-        api.branches.getAll(),
-        api.products.getAll({ size: 2000 })
+        api.branches.getAll()
       ]);
 
       if (summaryRes.success && summaryRes.data) {
         setDashboardSummary(summaryRes.data);
-      }
-
-      // Fetch unified prices from product catalog
-      if (productsRes.success && productsRes.data?.content) {
-        const prices: Record<string, number> = {};
-        productsRes.data.content.forEach(p => {
-          prices[p.id] = p.price;
-        });
-        setProductPrices(prices);
       }
 
       let inventoryRes;
@@ -201,10 +190,7 @@ export default function InventoryPage() {
       }
     }
 
-    return filteredInventory.reduce((sum, item) => {
-      const unifiedPrice = productPrices[item.productId] ?? item.price ?? 0;
-      return sum + (item.quantityOnHand * unifiedPrice);
-    }, 0);
+    return filteredInventory.reduce((sum, item) => sum + (item.quantityOnHand * (item.price || 0)), 0);
   };
 
   const openAdjustmentDialog = (item: StockLevelResponse) => {

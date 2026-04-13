@@ -171,12 +171,22 @@ export default function ReportsPage() {
         scale: 2,
         useCORS: true,
         logging: false,
+        backgroundColor: '#ffffff',
         onclone: (clonedDoc) => {
-          // Extra safety: ensure the template doesn't have visibility: hidden in the clone
+
+          const styles = clonedDoc.querySelectorAll('style, link[rel="stylesheet"]');
+          styles.forEach(s => s.remove());
+
+          // Ensure the template is visible and correctly positioned in the clone
           const template = clonedDoc.getElementById('pdf-report-template');
           if (template && template.parentElement) {
             template.parentElement.style.visibility = 'visible';
             template.parentElement.style.position = 'static';
+            template.parentElement.style.display = 'block';
+            template.parentElement.style.opacity = '1';
+            // Fallback colors to ensure contrast if anything is missed
+            template.parentElement.style.color = '#1e293b';
+            template.parentElement.style.backgroundColor = '#ffffff';
           }
         }
       });
@@ -409,11 +419,10 @@ export default function ReportsPage() {
           branchName: item.branchName,
           quantityOnHand: item.quantityOnHand,
           minimumThreshold: item.minimumStockThreshold || 0,
-          unifiedPrice: productPrices[item.productId] ?? item.price ?? 0,
+          price: productPrices[item.productId] ?? item.price ?? 0,
           totalValue: (item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0),
           status: item.stockStatus
         }));
-      } else if (report.id === 'Low_Stock_Report') {
         const res = await api.reports.getLowStock({
           branchId: selectedBranchId === 'all' ? undefined : selectedBranchId
         });
@@ -463,7 +472,7 @@ export default function ReportsPage() {
 
       // Final manual filter for branch if needed (double safety)
       let data = allData;
-      if (selectedBranchId !== 'all' && report.id !== 'Stock_Report' && report.id !== 'Low_Stock_Report') {
+      if (selectedBranchId !== 'all' && report.id !== 'Stock_Report') {
         data = data.filter((item: any) =>
           item.branchId === selectedBranchId ||
           item.branchName?.toLowerCase() === branches.find(b => b.id === selectedBranchId)?.name.toLowerCase()

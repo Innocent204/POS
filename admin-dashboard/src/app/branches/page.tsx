@@ -52,15 +52,13 @@ export default function BranchesPage() {
   const [loadingStock, setLoadingStock] = useState(false);
   const [isStockOpen, setIsStockOpen] = useState(false);
   const [stockSearch, setStockSearch] = useState('');
-  const [productPrices, setProductPrices] = useState<Record<string, number>>({});
 
   const fetchBranches = async () => {
     try {
       setLoading(true);
-      const [branchesResponse, summaryResponse, productsResponse] = await Promise.all([
+      const [branchesResponse, summaryResponse] = await Promise.all([
         api.branches.getAll(),
-        api.dashboard.getSummary(),
-        api.products.getAll({ size: 2000 })
+        api.dashboard.getSummary()
       ]);
 
       if (branchesResponse.success) {
@@ -71,15 +69,6 @@ export default function BranchesPage() {
 
       if (summaryResponse.success && summaryResponse.data) {
         setDashboardSummary(summaryResponse.data);
-      }
-
-      // Fetch unified prices from product catalog
-      if (productsResponse.success && productsResponse.data?.content) {
-        const prices: Record<string, number> = {};
-        productsResponse.data.content.forEach(p => {
-          prices[p.id] = p.price;
-        });
-        setProductPrices(prices);
       }
     } catch (err: unknown) {
       console.error('Fetch branches error:', err);
@@ -108,10 +97,7 @@ export default function BranchesPage() {
       const branchSummary = dashboardSummary.branchSummaries.find(b => b.branchId === stockBranch.id);
       if (branchSummary) return branchSummary.totalStockValue;
     }
-    return stock.reduce((sum, item) => {
-      const unifiedPrice = productPrices[item.productId] ?? item.price ?? 0;
-      return sum + (item.quantityOnHand * unifiedPrice);
-    }, 0);
+    return stock.reduce((sum, item) => sum + (item.quantityOnHand * (item.price || 0)), 0);
   };
 
   useEffect(() => {

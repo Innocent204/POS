@@ -184,8 +184,8 @@ export default function DashboardReportsPage() {
                       <p className="text-xl font-bold text-success">
                         {formatCurrency(
                           stock.reduce((acc, item) => {
-                            const unifiedPrice = productPrices[item.productId] ?? item.price ?? 0;
-                            return acc + ((item.quantityOnHand || 0) * unifiedPrice);
+                            const price = productPrices[item.productId] ?? item.price ?? 0;
+                            return acc + ((item.quantityOnHand || 0) * price);
                           }, 0)
                         )}
                       </p>
