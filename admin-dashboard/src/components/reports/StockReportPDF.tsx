@@ -97,24 +97,31 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                                 </h2>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: isBranchFiltered ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: isBranchFiltered ? '1fr' : 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
                                 {/* Shared Stats */}
-                                <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
-                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#3b82f6', margin: '0 0 8px 0' }}>
-                                        {isBranchFiltered ? stockLevels.length : summary.totalProducts}
-                                    </p>
-                                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
-                                        {isBranchFiltered ? 'Total SKUs' : 'Total Products'}
-                                    </p>
-                                </div>
-                                <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
-                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e3a8a', margin: '0 0 8px 0' }}>{totalBranchUnits}</p>
-                                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total Units</p>
-                                </div>
-                                <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
+                                {!isBranchFiltered && (
+                                    <>
+                                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
+                                            <p style={{ fontSize: '20px', fontWeight: 800, color: '#3b82f6', margin: '0 0 8px 0' }}>{summary.totalProducts}</p>
+                                            <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total Products</p>
+                                        </div>
+                                        <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
+                                            <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e3a8a', margin: '0 0 8px 0' }}>{totalBranchUnits}</p>
+                                            <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total Units</p>
+                                        </div>
+                                    </>
+                                )}
+
+                                <div style={{ 
+                                    border: '1px solid #e2e8f0', 
+                                    borderRadius: '8px', 
+                                    padding: '16px',
+                                    ...(isBranchFiltered ? { textAlign: 'center', backgroundColor: '#f8fafc' } : {}) 
+                                }}>
                                     <p style={{ fontSize: '20px', fontWeight: 800, color: '#10b981', margin: '0 0 8px 0' }}>{formatCurrency(totalBranchValue)}</p>
                                     <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Inventory Value</p>
                                 </div>
+                                
                                 {!isBranchFiltered && (
                                     <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
                                         <p style={{ fontSize: '20px', fontWeight: 800, color: '#64748b', margin: '0 0 8px 0' }}>{summary.totalBranches}</p>
