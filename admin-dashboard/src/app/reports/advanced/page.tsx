@@ -803,6 +803,7 @@ export default function ReportsPage() {
             stockLevels={pdfStockLevels}
             productPrices={productPrices}
             isBranchFiltered={selectedBranchId !== 'all'}
+            branchName={selectedBranchId === 'all' ? undefined : branches.find(b => b.id === selectedBranchId)?.name}
           />
 
         </div>

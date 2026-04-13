@@ -7,10 +7,11 @@ interface StockReportPDFProps {
     stockLevels: StockLevelResponse[];
     productPrices: Record<string, number>;
     isBranchFiltered?: boolean;
+    branchName?: string;
 }
 
 export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockReportPDFProps>(
-    ({ summary, stockLevels, productPrices, isBranchFiltered }, ref) => {
+    ({ summary, stockLevels, productPrices, isBranchFiltered, branchName }, ref) => {
         if (!summary) return null;
 
         // Aggregate by category
@@ -72,7 +73,12 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                         <div style={{ backgroundColor: '#f8fafc', padding: '20px 40px 18px 40px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                             <div>
                                 <p style={{ margin: '0 0 4px 0', fontSize: '11px', fontWeight: 700, color: '#94a3b8', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Report</p>
-                                <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#1e3a5f', margin: 0, letterSpacing: '-0.5px' }}>Stock Levels Report</h1>
+                                <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#1e3a5f', margin: 0, letterSpacing: '-0.5px' }}>
+                                    Stock Levels Report
+                                    {isBranchFiltered && branchName && (
+                                        <span style={{ color: '#3b82f6', fontWeight: 600 }}> — {branchName}</span>
+                                    )}
+                                </h1>
                                 <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>Period: Current Snapshot</p>
                             </div>
                             <div style={{ textAlign: 'right' }}>
@@ -83,35 +89,43 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                     </div>
 
                     <div style={{ padding: '30px 40px' }}>
-                        {/* Inventory Summary Section - Only show for full reports */}
-                        {!isBranchFiltered && (
-                            <div style={{ marginBottom: '10px' }}>
-                                <div style={{ display: 'inline-block', backgroundColor: '#f1f5f9', padding: '8px 16px', borderRadius: '8px', marginBottom: '20px' }}>
-                                    <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#334155', margin: 0 }}>Inventory Summary</h2>
-                                </div>
+                        {/* Inventory Summary Section */}
+                        <div style={{ marginBottom: '10px' }}>
+                            <div style={{ display: 'inline-block', backgroundColor: '#f1f5f9', padding: '8px 16px', borderRadius: '8px', marginBottom: '20px' }}>
+                                <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#334155', margin: 0 }}>
+                                    {isBranchFiltered ? 'Branch Summary' : 'Inventory Summary'}
+                                </h2>
+                            </div>
 
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
-                                    {/* Row 1 */}
-                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
-                                        <p style={{ fontSize: '20px', fontWeight: 800, color: '#3b82f6', margin: '0 0 8px 0' }}>{summary.totalProducts}</p>
-                                        <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total Products</p>
-                                    </div>
-                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
-                                        <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e3a8a', margin: '0 0 8px 0' }}>{totalBranchUnits}</p>
-                                        <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total Units</p>
-                                    </div>
-                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
-                                        <p style={{ fontSize: '20px', fontWeight: 800, color: '#10b981', margin: '0 0 8px 0' }}>{formatCurrency(totalBranchValue)}</p>
-                                        <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Inventory Value</p>
-                                    </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: isBranchFiltered ? 'repeat(3, 1fr)' : 'repeat(4, 1fr)', gap: '16px', marginBottom: '16px' }}>
+                                {/* Shared Stats */}
+                                <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
+                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#3b82f6', margin: '0 0 8px 0' }}>
+                                        {isBranchFiltered ? stockLevels.length : summary.totalProducts}
+                                    </p>
+                                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
+                                        {isBranchFiltered ? 'Total SKUs' : 'Total Products'}
+                                    </p>
+                                </div>
+                                <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
+                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#1e3a8a', margin: '0 0 8px 0' }}>{totalBranchUnits}</p>
+                                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Total Units</p>
+                                </div>
+                                <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
+                                    <p style={{ fontSize: '20px', fontWeight: 800, color: '#10b981', margin: '0 0 8px 0' }}>{formatCurrency(totalBranchValue)}</p>
+                                    <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Inventory Value</p>
+                                </div>
+                                {!isBranchFiltered && (
                                     <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
                                         <p style={{ fontSize: '20px', fontWeight: 800, color: '#64748b', margin: '0 0 8px 0' }}>{summary.totalBranches}</p>
                                         <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Branches</p>
                                     </div>
-                                </div>
+                                )}
+                            </div>
 
+                            {!isBranchFiltered && (
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
-                                    {/* Row 2 */}
+                                    {/* Full Report Details */}
                                     <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
                                         <p style={{ fontSize: '20px', fontWeight: 800, color: '#22c55e', margin: '0 0 8px 0' }}>
                                             {summary.totalProducts - (summary.totalLowStockItems || 0) - (summary.totalOutOfStockItems || 0)}
@@ -131,8 +145,8 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                                         <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Categories</p>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
+                        </div>
 
                         {/* The rest of the tables will be rendered dynamically by jspdf-autotable in page.tsx */}
                     </div>
