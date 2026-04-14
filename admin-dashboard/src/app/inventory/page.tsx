@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import { formatCurrency, getErrorMessage } from '@/lib/utils';
 import {
   AdjustmentsHorizontalIcon,
@@ -248,8 +247,7 @@ export default function InventoryPage() {
   };
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             <div>
@@ -525,6 +523,6 @@ export default function InventoryPage() {
           </DialogContent>
         </Dialog>
       </Layout>
-    </AuthGuard>
-  );
+      );
 }
+

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import {
   BuildingOfficeIcon,
   ArchiveBoxIcon,
@@ -82,8 +81,7 @@ export default function DashboardReportsPage() {
     : summary?.branchSummaries.find(b => b.branchId === selectedBranchId);
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="space-y-6 max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
@@ -262,6 +260,6 @@ export default function DashboardReportsPage() {
           )}
         </div>
       </Layout>
-    </AuthGuard>
-  );
+      );
 }
+

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import {
     ShieldCheckIcon,
     MagnifyingGlassIcon,
@@ -152,8 +151,7 @@ export default function AuditPage() {
     const actionTypes = Object.keys(ACTION_COLORS);
 
     return (
-        <AuthGuard>
-            <Layout>
+                    <Layout>
                 <div className="space-y-6">
                     {/* Page Header */}
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -344,6 +342,6 @@ export default function AuditPage() {
                     </div>
                 </div>
             </Layout>
-        </AuthGuard>
-    );
+            );
 }
+

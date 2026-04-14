@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import {
   DocumentTextIcon,
   ArrowDownTrayIcon,
@@ -645,8 +644,7 @@ export default function ReportsPage() {
   };
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="max-w-6xl mx-auto space-y-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
             <div>
@@ -808,6 +806,6 @@ export default function ReportsPage() {
 
         </div>
       </Layout>
-    </AuthGuard>
-  );
+      );
 }
+

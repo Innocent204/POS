@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import StatCard from '@/components/dashboard/stat-card';
 import RecentActivity from '@/components/dashboard/recent-activity';
 import { ExclamationTriangleIcon, ExclamationCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
@@ -80,8 +79,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="space-y-6 sm:space-y-8">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -223,6 +221,6 @@ export default function DashboardPage() {
 
         </div>
       </Layout>
-    </AuthGuard>
-  );
+      );
 }
+

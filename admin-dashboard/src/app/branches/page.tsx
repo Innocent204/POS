@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import { BuildingOfficeIcon, PlusIcon, MagnifyingGlassIcon, TrashIcon, BuildingStorefrontIcon, CubeIcon, XMarkIcon, PhoneIcon, UserIcon, MapPinIcon, CalendarDaysIcon, CheckCircleIcon, XCircleIcon, ArchiveBoxIcon, ShoppingBagIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { formatDate, formatCurrency, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
@@ -213,8 +212,7 @@ export default function BranchesPage() {
   );
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
@@ -592,7 +590,6 @@ export default function BranchesPage() {
             )}
           </div>
         </div>
-      </Layout>
 
       {/* ─── Branch Detail Slide-over ─────────────────────────────────── */}
       {selectedBranch && (
@@ -822,6 +819,7 @@ export default function BranchesPage() {
           </div>
         </>
       )}
-    </AuthGuard>
+      </Layout>
   );
 }
+

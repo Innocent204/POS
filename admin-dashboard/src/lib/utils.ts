@@ -113,6 +113,7 @@ export function getErrorMessage(err: any): string {
     403: 'Access denied. You do not have permission for this.',
     404: 'The requested information could not be found.',
     405: 'This action is not supported by the system.',
+    409: 'A record with these details already exists (e.g. duplicate SKU or name).',
     500: 'Internal server error. Our team has been notified.',
     502: 'The server is temporarily unavailable.',
     503: 'The service is under maintenance. Please try again later.',

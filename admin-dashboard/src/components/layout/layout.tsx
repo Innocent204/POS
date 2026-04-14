@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Sidebar from './sidebar';
 import Header from './header';
+import AuthGuard from '@/components/auth/auth-guard';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -13,7 +14,8 @@ export default function Layout({ children }: LayoutProps) {
   const [sidebarMinimized, setSidebarMinimized] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <AuthGuard>
+      <div className="min-h-screen bg-background">
       {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div 
@@ -48,5 +50,6 @@ export default function Layout({ children }: LayoutProps) {
         </div>
       </div>
     </div>
+    </AuthGuard>
   );
 }

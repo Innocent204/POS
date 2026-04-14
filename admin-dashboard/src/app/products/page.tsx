@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import { CubeIcon, PlusIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 import { formatCurrency, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
@@ -270,10 +269,9 @@ export default function ProductsPage() {
       }
     } catch (err: unknown) {
       console.error('Create product error:', err);
-      const errorMsg = err instanceof Error ? err.message : 'Failed to create product';
       toast({
         title: 'Error',
-        description: errorMsg,
+        description: getErrorMessage(err),
         variant: 'destructive',
       });
     } finally {
@@ -452,10 +450,9 @@ export default function ProductsPage() {
       }
     } catch (err: unknown) {
       console.error('Delete product error:', err);
-      const errorMsg = err instanceof Error ? err.message : 'Failed to delete product';
       toast({
         title: 'Error',
-        description: errorMsg,
+        description: getErrorMessage(err),
         variant: 'destructive',
       });
     }
@@ -465,8 +462,7 @@ export default function ProductsPage() {
   const displayedProducts = products;
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
@@ -1026,6 +1022,6 @@ export default function ProductsPage() {
           </div>
         </div>
       </Layout>
-    </AuthGuard>
-  );
+      );
 }
+

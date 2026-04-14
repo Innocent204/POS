@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import {
   ArrowsRightLeftIcon,
   MagnifyingGlassIcon,
@@ -389,8 +388,7 @@ export default function TransfersPage() {
   };
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="space-y-6">
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -626,7 +624,6 @@ export default function TransfersPage() {
             )}
           </div>
         </div>
-      </Layout>
 
       {/* ─── Transfer Detail Slide-over ────────────────────────────────── */}
       {selectedTransfer && (
@@ -892,6 +889,7 @@ export default function TransfersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </AuthGuard>
+      </Layout>
   );
 }
+

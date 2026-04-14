@@ -16,6 +16,9 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     const checkAuth = () => {
       const token = localStorage.getItem('access_token');
       if (!token) {
+        // Clear stale cookie so middleware doesn't redirect back here
+        document.cookie = 'access_token=; path=/; max-age=0; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+        setLoading(false);
         router.push('/login');
         return;
       }

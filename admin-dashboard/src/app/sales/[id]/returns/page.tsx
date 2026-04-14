@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import { formatCurrency, formatDate, getErrorMessage } from '@/lib/utils';
 import { ArrowLeftIcon, ReceiptRefundIcon } from '@heroicons/react/24/outline';
 import { api } from '@/lib/api';
@@ -44,8 +43,7 @@ export default function SaleReturnsPage() {
   const totalRefunded = returns.reduce((sum, r) => sum + r.totalRefundAmount, 0);
 
   return (
-    <AuthGuard>
-      <Layout>
+    <Layout>
         <div className="space-y-6">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" onClick={() => window.location.href = '/sales'}>
@@ -181,6 +179,5 @@ export default function SaleReturnsPage() {
           </div>
         </div>
       </Layout>
-    </AuthGuard>
   );
 }

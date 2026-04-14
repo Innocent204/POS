@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import { formatCurrency } from '@/lib/utils';
 import {
   ShoppingCartIcon,
@@ -183,8 +182,7 @@ export default function POSPage() {
   });
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -500,6 +498,6 @@ export default function POSPage() {
           )}
         </div>
       </Layout>
-    </AuthGuard>
-  );
+      );
 }
+

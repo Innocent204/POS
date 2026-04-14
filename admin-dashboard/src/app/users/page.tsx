@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import { UserGroupIcon, PlusIcon, MagnifyingGlassIcon, TrashIcon, ShieldCheckIcon, CheckCircleIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { formatDate, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
@@ -181,8 +180,7 @@ export default function UsersPage() {
     fullName?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '?';
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="space-y-6">
           {/* Page Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -593,6 +591,6 @@ export default function UsersPage() {
           </div>
         </div>
       </Layout>
-    </AuthGuard>
-  );
+      );
 }
+

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import { ArrowTrendingUpIcon, ChartBarIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { formatCurrency, formatNumber, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
@@ -68,8 +67,7 @@ export default function AnalyticsPage() {
   const COLORS = ['var(--primary)', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 
   return (
-    <AuthGuard>
-      <Layout>
+    <Layout>
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <div>
@@ -245,6 +243,5 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </Layout>
-    </AuthGuard>
   );
 }

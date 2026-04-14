@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Layout from '@/components/layout/layout';
-import AuthGuard from '@/components/auth/auth-guard';
 import {
   UserIcon,
   BellIcon,
@@ -88,8 +87,7 @@ export default function SettingsPage() {
   ];
 
   return (
-    <AuthGuard>
-      <Layout>
+          <Layout>
         <div className="max-w-6xl mx-auto space-y-8">
           {/* Header */}
           <div className="flex justify-between items-end">
@@ -288,6 +286,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </Layout>
-    </AuthGuard>
-  );
+      );
 }
+
