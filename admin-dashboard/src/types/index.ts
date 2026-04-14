@@ -241,6 +241,7 @@ export interface CreateBranchRequest {
   location?: string;
   managerName?: string;
   contactNumber?: string;
+  isActive?: boolean;
 }
 
 export interface UpdateBranchRequest {

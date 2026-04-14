@@ -108,7 +108,11 @@ export default function BranchesPage() {
     e.preventDefault();
     try {
       setIsSubmitting(true);
-      const response = await api.branches.create(formData);
+      // Include isActive: true so branch is visible after creation
+      const createData = { ...formData, isActive: true };
+      console.log('Creating branch with data:', createData);
+      const response = await api.branches.create(createData);
+      console.log('Create branch response:', response);
       if (response.success) {
         toast({
           title: 'Success',
@@ -126,10 +130,13 @@ export default function BranchesPage() {
         });
       } else {
         throw new Error(response.message || 'Failed to create branch');
-      }
+        }
     } catch (err: unknown) {
       console.error('Create branch error:', err);
-      const errorMsg = err instanceof Error ? err.message : 'Failed to create branch';
+      const axiosErr = err as { response?: { data?: { message?: string }; status?: number }; message?: string };
+      console.error('Error response data:', axiosErr.response?.data);
+      console.error('Error response status:', axiosErr.response?.status);
+      const errorMsg = axiosErr.response?.data?.message || axiosErr.message || 'Failed to create branch';
       toast({
         title: 'Error',
         description: errorMsg,
