@@ -384,35 +384,15 @@ export default function ProductsPage() {
 
       const response = await api.products.update(editingProduct, productData);
       if (response.success) {
-        // Update stock: use adjust if stock already exists, initialize if new
+        // Update stock: use SET adjustment to set stock to the exact value
         if (formData.branchId && formData.initialQuantity >= 0) {
-          if (stockExistsForBranch) {
-            const delta = formData.initialQuantity - originalStockQty;
-            if (delta !== 0) {
-              // Prevent negative stock when decreasing
-              if (delta < 0 && Math.abs(delta) > originalStockQty) {
-                toast({
-                  title: 'Validation Error',
-                  description: `Cannot decrease stock below 0. Current stock: ${originalStockQty}`,
-                  variant: 'destructive',
-                });
-                return;
-              }
-              await api.stock.adjust({
-                productId: editingProduct,
-                branchId: formData.branchId,
-                adjustmentType: delta > 0 ? 'INCREASE' : 'DECREASE',
-                quantity: Math.abs(delta),
-                reason: 'Manual stock update via product edit'
-              });
-            }
-          } else if (formData.initialQuantity > 0) {
-            await api.stock.initialize({
-              productId: editingProduct,
-              branchId: formData.branchId,
-              initialQuantity: formData.initialQuantity
-            });
-          }
+          await api.stock.adjust({
+            productId: editingProduct,
+            branchId: formData.branchId,
+            adjustmentType: 'SET',
+            quantity: formData.initialQuantity,
+            reason: 'Manual stock update via product edit'
+          });
         }
 
         toast({ title: 'Success', description: 'Product updated successfully' });

@@ -285,7 +285,7 @@ export interface CreateTransferRequest {
 export interface StockAdjustmentRequest {
   branchId: string;
   productId: string;
-  adjustmentType: 'INCREASE' | 'DECREASE';
+  adjustmentType: 'INCREASE' | 'DECREASE' | 'SET';
   quantity: number;
   reason: string;
 }

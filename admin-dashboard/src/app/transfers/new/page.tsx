@@ -189,12 +189,12 @@ export default function NewTransferPage() {
       if (response.success) {
         // Automatically deduct stock from source branch using the same quantities as the transfer
         const stockAdjustments = await Promise.allSettled(
-          transferItems.map(item => 
+          cart.map(item => 
             api.stock.adjust({
               branchId: sourceBranch.id,
-              productId: item.productId,
+              productId: item.product.id,
               adjustmentType: 'DECREASE',
-              quantity: item.quantityRequested,
+              quantity: item.quantity,
               reason: 'Transfer initiated to ' + destinationBranch.name,
             })
           )
