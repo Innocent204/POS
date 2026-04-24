@@ -40,7 +40,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
     return () => clearInterval(id);
   }, []);
 
-  const initials = `${userProfile.firstName[0]}${userProfile.lastName[0]}`;
+  const initials = `${(userProfile.firstName?.[0] || 'A')}${(userProfile.lastName?.[0] || 'U')}`;
 
   return (
     <header className="sticky top-0 z-30 bg-card/80 backdrop-blur-xl border-b border-divider/60 shadow-sm shadow-primary/5">

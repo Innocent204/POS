@@ -377,6 +377,15 @@ export default function ProductsPage() {
           if (stockExistsForBranch) {
             const delta = formData.initialQuantity - originalStockQty;
             if (delta !== 0) {
+              // Prevent negative stock when decreasing
+              if (delta < 0 && Math.abs(delta) > originalStockQty) {
+                toast({
+                  title: 'Validation Error',
+                  description: `Cannot decrease stock below 0. Current stock: ${originalStockQty}`,
+                  variant: 'destructive',
+                });
+                return;
+              }
               await api.stock.adjust({
                 productId: editingProduct,
                 branchId: formData.branchId,
@@ -521,19 +530,25 @@ export default function ProductsPage() {
                           onValueChange={(value) => {
                             const item = TAURA_CATALOG.find(p => p.name === value);
                             if (item) {
-                              setFormData(prev => ({ ...prev, name: item.name, price: item.price }));
+                              // Check if product already exists in database to get its SKU
+                              const existingProduct = products.find(p => p.name === item.name);
+                              const sku = existingProduct?.sku || '';
+                              setFormData(prev => ({ ...prev, name: item.name, price: item.price, sku }));
                             }
                           }}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Choose a product to auto-fill name & price..." />
+                            <SelectValue placeholder="Choose a product to auto-fill name, SKU & price..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {TAURA_CATALOG.map((item) => (
-                              <SelectItem key={item.name} value={item.name}>
-                                {item.name} — ${item.price.toFixed(2)}
-                              </SelectItem>
-                            ))}
+                            {TAURA_CATALOG.map((item) => {
+                              const existingProduct = products.find(p => p.name === item.name);
+                              return (
+                                <SelectItem key={item.name} value={item.name}>
+                                  {item.name} — {existingProduct?.sku || 'New'} — ${item.price.toFixed(2)}
+                                </SelectItem>
+                              );
+                            })}
                           </SelectContent>
                         </Select>
                       </div>

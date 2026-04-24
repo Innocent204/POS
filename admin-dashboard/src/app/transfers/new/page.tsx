@@ -156,33 +156,63 @@ export default function NewTransferPage() {
       return;
     }
 
+    // Validate stock availability before creating transfer
+    const insufficientStock = cart.filter(item => {
+      const stock = sourceStock.find(s => s.productId === item.product.id);
+      return !stock || stock.quantityOnHand < item.quantity;
+    });
+
+    if (insufficientStock.length > 0) {
+      const items = insufficientStock.map(i => `${i.product.name} (requested: ${i.quantity}, available: ${sourceStock.find(s => s.productId === i.product.id)?.quantityOnHand || 0})`).join(', ');
+      toast({
+        title: 'Insufficient Stock',
+        description: `Cannot transfer: ${items}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
+      const transferItems = cart.map(item => ({
+        productId: item.product.id,
+        quantityRequested: item.quantity,
+      }));
+
       const response = await api.transfers.create({
         sourceBranchId: sourceBranch.id,
         destinationBranchId: destinationBranch.id,
         notes: notes.trim() || undefined,
-        items: cart.map(item => ({
-          productId: item.product.id,
-          quantityRequested: item.quantity,
-        }))
+        items: transferItems
       });
 
       if (response.success) {
-        // Automatically deduct stock from source branch
-        Promise.allSettled(
-          cart.map(item => 
+        // Automatically deduct stock from source branch using the same quantities as the transfer
+        const stockAdjustments = await Promise.allSettled(
+          transferItems.map(item => 
             api.stock.adjust({
               branchId: sourceBranch.id,
-              productId: item.product.id,
+              productId: item.productId,
               adjustmentType: 'DECREASE',
-              quantity: item.quantity,
+              quantity: item.quantityRequested,
               reason: 'Transfer initiated to ' + destinationBranch.name,
             })
           )
-        ).catch(err => console.error("Error deducting stock:", err));
+        );
 
-        toast({ title: 'Success', description: 'Transfer created and stock deducted.' });
+        // Check if any stock adjustments failed
+        const failedAdjustments = stockAdjustments.filter(result => result.status === 'rejected');
+        if (failedAdjustments.length > 0) {
+          console.error('Some stock adjustments failed:', failedAdjustments);
+          toast({
+            title: 'Transfer Created with Warnings',
+            description: `Transfer created, but ${failedAdjustments.length} stock adjustment(s) failed. Please verify stock levels manually.`,
+            variant: 'destructive',
+          });
+        } else {
+          toast({ title: 'Success', description: 'Transfer created and stock deducted.' });
+        }
+
         setSourceBranch(null);
         setDestinationBranch(null);
         setNotes('');
@@ -429,9 +459,9 @@ export default function NewTransferPage() {
           <Dialog open={isProductPickerOpen} onOpenChange={setIsProductPickerOpen}>
             <DialogContent className="sm:max-w-[600px] max-h-[80vh]">
               <DialogHeader>
-                <DialogTitle>Add Products</DialogTitle>
+                <DialogTitle>Search Products by Name</DialogTitle>
                 <DialogDescription>
-                  Search and select products to add to the transfer
+                  Find products from {sourceBranch?.name} stock by name or SKU
                 </DialogDescription>
               </DialogHeader>
 
@@ -440,7 +470,7 @@ export default function NewTransferPage() {
                 <div className="relative">
                   <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-text-secondary" />
                   <Input
-                    placeholder="Search products..."
+                    placeholder="Enter product name or SKU..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="!pl-12"

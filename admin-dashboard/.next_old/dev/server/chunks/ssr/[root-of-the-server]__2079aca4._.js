@@ -1,0 +1,1134 @@
+module.exports = [
+"[externals]/next/dist/compiled/next-server/app-page-turbo.runtime.dev.js [external] (next/dist/compiled/next-server/app-page-turbo.runtime.dev.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/compiled/next-server/app-page-turbo.runtime.dev.js", () => require("next/dist/compiled/next-server/app-page-turbo.runtime.dev.js"));
+
+module.exports = mod;
+}),
+"[externals]/next/dist/server/app-render/action-async-storage.external.js [external] (next/dist/server/app-render/action-async-storage.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/server/app-render/action-async-storage.external.js", () => require("next/dist/server/app-render/action-async-storage.external.js"));
+
+module.exports = mod;
+}),
+"[externals]/next/dist/server/app-render/work-unit-async-storage.external.js [external] (next/dist/server/app-render/work-unit-async-storage.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/server/app-render/work-unit-async-storage.external.js", () => require("next/dist/server/app-render/work-unit-async-storage.external.js"));
+
+module.exports = mod;
+}),
+"[externals]/next/dist/server/app-render/work-async-storage.external.js [external] (next/dist/server/app-render/work-async-storage.external.js, cjs)", ((__turbopack_context__, module, exports) => {
+
+const mod = __turbopack_context__.x("next/dist/server/app-render/work-async-storage.external.js", () => require("next/dist/server/app-render/work-async-storage.external.js"));
+
+module.exports = mod;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/src/lib/utils.ts [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "calculatePercentageChange",
+    ()=>calculatePercentageChange,
+    "cn",
+    ()=>cn,
+    "debounce",
+    ()=>debounce,
+    "formatCurrency",
+    ()=>formatCurrency,
+    "formatDate",
+    ()=>formatDate,
+    "formatDateTime",
+    ()=>formatDateTime,
+    "formatNumber",
+    ()=>formatNumber,
+    "getInitials",
+    ()=>getInitials,
+    "getStatusColor",
+    ()=>getStatusColor,
+    "truncateText",
+    ()=>truncateText
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/clsx/dist/clsx.mjs [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tailwind$2d$merge$2f$dist$2f$bundle$2d$mjs$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/tailwind-merge/dist/bundle-mjs.mjs [app-ssr] (ecmascript)");
+;
+;
+function cn(...inputs) {
+    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tailwind$2d$merge$2f$dist$2f$bundle$2d$mjs$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["twMerge"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["clsx"])(inputs));
+}
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+    }).format(amount);
+}
+function formatDate(date) {
+    const d = new Date(date);
+    return d.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+}
+function formatDateTime(date) {
+    const d = new Date(date);
+    return d.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+function formatNumber(num) {
+    return new Intl.NumberFormat('en-US').format(num);
+}
+function getInitials(name) {
+    return name.split(' ').map((word)=>word.charAt(0).toUpperCase()).join('').slice(0, 2);
+}
+function getStatusColor(status) {
+    const colors = {
+        // Transfer statuses
+        pending: 'bg-yellow-100 text-yellow-800',
+        dispatched: 'bg-blue-100 text-blue-800',
+        received: 'bg-green-100 text-green-800',
+        cancelled: 'bg-red-100 text-red-800',
+        // Sale statuses
+        completed: 'bg-green-100 text-green-800',
+        returned: 'bg-orange-100 text-orange-800',
+        // Alert severities
+        low: 'bg-blue-100 text-blue-800',
+        medium: 'bg-yellow-100 text-yellow-800',
+        high: 'bg-orange-100 text-orange-800',
+        critical: 'bg-red-100 text-red-800',
+        // General
+        active: 'bg-green-100 text-green-800',
+        inactive: 'bg-gray-100 text-gray-800'
+    };
+    return colors[status] || 'bg-gray-100 text-gray-800';
+}
+function calculatePercentageChange(current, previous) {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return (current - previous) / previous * 100;
+}
+function truncateText(text, maxLength) {
+    if (text.length <= maxLength) return text;
+    return text.slice(0, maxLength) + '...';
+}
+function debounce(func, wait) {
+    let timeout;
+    return (...args)=>{
+        clearTimeout(timeout);
+        timeout = setTimeout(()=>func(...args), wait);
+    };
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>Sidebar
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/app-dir/link.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/navigation.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$HomeIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__HomeIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/HomeIcon.js [app-ssr] (ecmascript) <export default as HomeIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BuildingOfficeIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__BuildingOfficeIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BuildingOfficeIcon.js [app-ssr] (ecmascript) <export default as BuildingOfficeIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$CubeIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__CubeIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/CubeIcon.js [app-ssr] (ecmascript) <export default as CubeIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ArrowsRightLeftIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowsRightLeftIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ArrowsRightLeftIcon.js [app-ssr] (ecmascript) <export default as ArrowsRightLeftIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ShoppingBagIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ShoppingBagIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ShoppingBagIcon.js [app-ssr] (ecmascript) <export default as ShoppingBagIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChartBarIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChartBarIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ChartBarIcon.js [app-ssr] (ecmascript) <export default as ChartBarIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$DocumentTextIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__DocumentTextIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/DocumentTextIcon.js [app-ssr] (ecmascript) <export default as DocumentTextIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$UserGroupIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__UserGroupIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/UserGroupIcon.js [app-ssr] (ecmascript) <export default as UserGroupIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Cog6ToothIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Cog6ToothIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/Cog6ToothIcon.js [app-ssr] (ecmascript) <export default as Cog6ToothIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ArrowRightOnRectangleIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowRightOnRectangleIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ArrowRightOnRectangleIcon.js [app-ssr] (ecmascript) <export default as ArrowRightOnRectangleIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/src/lib/utils.ts [app-ssr] (ecmascript)");
+'use client';
+;
+;
+;
+;
+;
+const navigation = [
+    {
+        name: 'Dashboard',
+        href: '/',
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$HomeIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__HomeIcon$3e$__["HomeIcon"]
+    },
+    {
+        name: 'Branches',
+        href: '/branches',
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BuildingOfficeIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__BuildingOfficeIcon$3e$__["BuildingOfficeIcon"]
+    },
+    {
+        name: 'Products',
+        href: '/products',
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$CubeIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__CubeIcon$3e$__["CubeIcon"]
+    },
+    {
+        name: 'Stock Transfers',
+        href: '/transfers',
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ArrowsRightLeftIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowsRightLeftIcon$3e$__["ArrowsRightLeftIcon"]
+    },
+    {
+        name: 'Sales',
+        href: '/sales',
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ShoppingBagIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ShoppingBagIcon$3e$__["ShoppingBagIcon"]
+    },
+    {
+        name: 'Analytics',
+        href: '/analytics',
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChartBarIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ChartBarIcon$3e$__["ChartBarIcon"]
+    },
+    {
+        name: 'Reports',
+        href: '/reports',
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$DocumentTextIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__DocumentTextIcon$3e$__["DocumentTextIcon"]
+    },
+    {
+        name: 'Users',
+        href: '/users',
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$UserGroupIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__UserGroupIcon$3e$__["UserGroupIcon"]
+    },
+    {
+        name: 'Settings',
+        href: '/settings',
+        icon: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Cog6ToothIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Cog6ToothIcon$3e$__["Cog6ToothIcon"]
+    }
+];
+function Sidebar({ onClose }) {
+    const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["usePathname"])();
+    const handleLogout = ()=>{
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/login';
+    };
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "flex flex-col h-full bg-surface border-r border-divider",
+        children: [
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "flex items-center h-16 px-4 bg-card border-b border-divider",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex items-center space-x-3",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "w-8 h-8 bg-primary rounded-lg flex items-center justify-center",
+                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                className: "text-white text-sm font-bold",
+                                children: "P"
+                            }, void 0, false, {
+                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                                lineNumber: 50,
+                                columnNumber: 13
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                            lineNumber: 49,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                            className: "text-xl font-bold text-primary",
+                            children: "POS Admin"
+                        }, void 0, false, {
+                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                            lineNumber: 52,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                    lineNumber: 48,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                lineNumber: 47,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("nav", {
+                className: "flex-1 px-2 py-4 space-y-1",
+                children: navigation.map((item)=>{
+                    const isActive = pathname === item.href;
+                    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$client$2f$app$2d$dir$2f$link$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        href: item.href,
+                        onClick: onClose,
+                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('group flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200', isActive ? 'bg-primary text-white shadow-sm' : 'text-text-secondary hover:bg-surface hover:text-primary hover:shadow-sm'),
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(item.icon, {
+                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])('mr-3 h-5 w-5 transition-colors', isActive ? 'text-white' : 'text-text-secondary group-hover:text-primary'),
+                                "aria-hidden": "true"
+                            }, void 0, false, {
+                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                                lineNumber: 72,
+                                columnNumber: 15
+                            }, this),
+                            item.name
+                        ]
+                    }, item.name, true, {
+                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                        lineNumber: 61,
+                        columnNumber: 13
+                    }, this);
+                })
+            }, void 0, false, {
+                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                lineNumber: 57,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "p-2 border-t border-divider",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    onClick: handleLogout,
+                    className: "group flex items-center w-full px-3 py-2 text-sm font-medium text-text-secondary rounded-lg hover:bg-surface hover:text-primary hover:shadow-sm transition-all duration-200",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ArrowRightOnRectangleIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ArrowRightOnRectangleIcon$3e$__["ArrowRightOnRectangleIcon"], {
+                            className: "mr-3 h-5 w-5 text-text-secondary group-hover:text-primary"
+                        }, void 0, false, {
+                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                            lineNumber: 91,
+                            columnNumber: 11
+                        }, this),
+                        "Logout"
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                    lineNumber: 87,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+                lineNumber: 86,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx",
+        lineNumber: 45,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>Header
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Bars3Icon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Bars3Icon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/Bars3Icon.js [app-ssr] (ecmascript) <export default as Bars3Icon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BellIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__BellIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BellIcon.js [app-ssr] (ecmascript) <export default as BellIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+'use client';
+;
+;
+;
+function Header({ onMenuClick }) {
+    const [showNotifications, setShowNotifications] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
+        className: "bg-card shadow-sm border-b border-divider",
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "flex items-center justify-between h-16 px-4",
+            children: [
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                    onClick: onMenuClick,
+                    className: "lg:hidden p-2 rounded-lg text-text-secondary hover:text-primary hover:bg-surface transition-colors",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Bars3Icon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Bars3Icon$3e$__["Bars3Icon"], {
+                        className: "h-6 w-6"
+                    }, void 0, false, {
+                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                        lineNumber: 22,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                    lineNumber: 18,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex-1",
+                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                        className: "text-xl font-semibold text-primary",
+                        children: "Dashboard"
+                    }, void 0, false, {
+                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                        lineNumber: 27,
+                        columnNumber: 11
+                    }, this)
+                }, void 0, false, {
+                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                    lineNumber: 26,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "flex items-center space-x-4",
+                    children: [
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "relative",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                    onClick: ()=>setShowNotifications(!showNotifications),
+                                    className: "p-2 rounded-full text-text-secondary hover:text-primary hover:bg-surface transition-colors relative",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BellIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__BellIcon$3e$__["BellIcon"], {
+                                            className: "h-6 w-6"
+                                        }, void 0, false, {
+                                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                            lineNumber: 38,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            className: "absolute top-0 right-0 h-2 w-2 bg-error rounded-full"
+                                        }, void 0, false, {
+                                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                            lineNumber: 39,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                    lineNumber: 34,
+                                    columnNumber: 13
+                                }, this),
+                                showNotifications && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "absolute right-0 mt-2 w-80 bg-card rounded-lg shadow-lg border border-divider z-50",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "p-4 border-b border-divider",
+                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                className: "text-sm font-medium text-primary",
+                                                children: "Notifications"
+                                            }, void 0, false, {
+                                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                lineNumber: 45,
+                                                columnNumber: 19
+                                            }, this)
+                                        }, void 0, false, {
+                                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                            lineNumber: 44,
+                                            columnNumber: 17
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "max-h-96 overflow-y-auto",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "p-4 border-b border-divider hover:bg-surface transition-colors cursor-pointer",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "flex items-start",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "flex-shrink-0",
+                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "h-2 w-2 bg-warning rounded-full mt-2"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                    lineNumber: 51,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                lineNumber: 50,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "ml-3",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                        className: "text-sm text-primary",
+                                                                        children: "Low stock alert"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                        lineNumber: 54,
+                                                                        columnNumber: 25
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                        className: "text-xs text-text-secondary",
+                                                                        children: "Product XYZ is running low on stock"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                        lineNumber: 55,
+                                                                        columnNumber: 25
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                        className: "text-xs text-text-secondary mt-1",
+                                                                        children: "2 hours ago"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                        lineNumber: 56,
+                                                                        columnNumber: 25
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                lineNumber: 53,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                        lineNumber: 49,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                    lineNumber: 48,
+                                                    columnNumber: 19
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    className: "p-4 hover:bg-surface transition-colors cursor-pointer",
+                                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "flex items-start",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "flex-shrink-0",
+                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                    className: "h-2 w-2 bg-success rounded-full mt-2"
+                                                                }, void 0, false, {
+                                                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                    lineNumber: 63,
+                                                                    columnNumber: 25
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                lineNumber: 62,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "ml-3",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                        className: "text-sm text-primary",
+                                                                        children: "Transfer completed"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                        lineNumber: 66,
+                                                                        columnNumber: 25
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                        className: "text-xs text-text-secondary",
+                                                                        children: "Stock transfer from Branch A to Branch B"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                        lineNumber: 67,
+                                                                        columnNumber: 25
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                                        className: "text-xs text-text-secondary mt-1",
+                                                                        children: "5 hours ago"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                        lineNumber: 68,
+                                                                        columnNumber: 25
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                                lineNumber: 65,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                        lineNumber: 61,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                }, void 0, false, {
+                                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                                    lineNumber: 60,
+                                                    columnNumber: 19
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                            lineNumber: 47,
+                                            columnNumber: 17
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                    lineNumber: 43,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                            lineNumber: 33,
+                            columnNumber: 11
+                        }, this),
+                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "flex items-center space-x-3",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "text-right",
+                                    children: [
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-sm font-medium text-primary",
+                                            children: "Admin User"
+                                        }, void 0, false, {
+                                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                            lineNumber: 80,
+                                            columnNumber: 15
+                                        }, this),
+                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                            className: "text-xs text-text-secondary",
+                                            children: "admin@pos.com"
+                                        }, void 0, false, {
+                                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                            lineNumber: 81,
+                                            columnNumber: 15
+                                        }, this)
+                                    ]
+                                }, void 0, true, {
+                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                    lineNumber: 79,
+                                    columnNumber: 13
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "h-8 w-8 bg-surface border border-divider rounded-full flex items-center justify-center",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                        className: "text-sm font-medium text-primary",
+                                        children: "AU"
+                                    }, void 0, false, {
+                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                        lineNumber: 84,
+                                        columnNumber: 15
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                                    lineNumber: 83,
+                                    columnNumber: 13
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                            lineNumber: 78,
+                            columnNumber: 11
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+                    lineNumber: 31,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+            lineNumber: 16,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx",
+        lineNumber: 15,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/layout.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>Layout
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$components$2f$layout$2f$sidebar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/sidebar.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$components$2f$layout$2f$header$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/header.tsx [app-ssr] (ecmascript)");
+'use client';
+;
+;
+;
+;
+function Layout({ children }) {
+    const [sidebarOpen, setSidebarOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "min-h-screen bg-background",
+        children: [
+            sidebarOpen && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "fixed inset-0 z-40 lg:hidden bg-black/50",
+                onClick: ()=>setSidebarOpen(false)
+            }, void 0, false, {
+                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/layout.tsx",
+                lineNumber: 18,
+                columnNumber: 9
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: `
+        fixed inset-y-0 left-0 z-50 w-64 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+      `,
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$components$2f$layout$2f$sidebar$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                    onClose: ()=>setSidebarOpen(false)
+                }, void 0, false, {
+                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/layout.tsx",
+                    lineNumber: 29,
+                    columnNumber: 9
+                }, this)
+            }, void 0, false, {
+                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/layout.tsx",
+                lineNumber: 25,
+                columnNumber: 7
+            }, this),
+            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "lg:pl-64",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$components$2f$layout$2f$header$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+                        onMenuClick: ()=>setSidebarOpen(true)
+                    }, void 0, false, {
+                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/layout.tsx",
+                        lineNumber: 34,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
+                        className: "p-6",
+                        children: children
+                    }, void 0, false, {
+                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/layout.tsx",
+                        lineNumber: 35,
+                        columnNumber: 9
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/layout.tsx",
+                lineNumber: 33,
+                columnNumber: 7
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/layout.tsx",
+        lineNumber: 15,
+        columnNumber: 5
+    }, this);
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/auth/auth-guard.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>AuthGuard
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/navigation.js [app-ssr] (ecmascript)");
+'use client';
+;
+;
+;
+function AuthGuard({ children }) {
+    const [loading, setLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(true);
+    const [authenticated, setAuthenticated] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(false);
+    const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const checkAuth = ()=>{
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                router.push('/login');
+                return;
+            }
+            setAuthenticated(true);
+            setLoading(false);
+        };
+        checkAuth();
+    }, [
+        router
+    ]);
+    if (loading) {
+        return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+            className: "min-h-screen flex items-center justify-center",
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"
+            }, void 0, false, {
+                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/auth/auth-guard.tsx",
+                lineNumber: 32,
+                columnNumber: 9
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/auth/auth-guard.tsx",
+            lineNumber: 31,
+            columnNumber: 7
+        }, this);
+    }
+    return authenticated ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Fragment"], {
+        children: children
+    }, void 0, false) : null;
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx [app-ssr] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>BranchesPage
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react-jsx-dev-runtime.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/server/route-modules/app-page/vendored/ssr/react.js [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$components$2f$layout$2f$layout$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/layout/layout.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$components$2f$auth$2f$auth$2d$guard$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/src/components/auth/auth-guard.tsx [app-ssr] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BuildingOfficeIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__BuildingOfficeIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BuildingOfficeIcon.js [app-ssr] (ecmascript) <export default as BuildingOfficeIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PlusIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__PlusIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PlusIcon.js [app-ssr] (ecmascript) <export default as PlusIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$MagnifyingGlassIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__MagnifyingGlassIcon$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MagnifyingGlassIcon.js [app-ssr] (ecmascript) <export default as MagnifyingGlassIcon>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/src/lib/utils.ts [app-ssr] (ecmascript)");
+'use client';
+;
+;
+;
+;
+;
+;
+// Mock data for development
+const mockBranches = [
+    {
+        id: '1',
+        name: 'Main Branch',
+        code: 'MAIN',
+        address: '123 Main St, City, State 12345',
+        phone: '+1 (555) 123-4567',
+        email: 'main@pos.com',
+        manager_id: '1',
+        is_active: true,
+        created_at: '2024-01-15T10:30:00Z',
+        updated_at: '2024-03-10T14:20:00Z'
+    },
+    {
+        id: '2',
+        name: 'North Branch',
+        code: 'NORTH',
+        address: '456 North Ave, City, State 67890',
+        phone: '+1 (555) 987-6543',
+        email: 'north@pos.com',
+        manager_id: '2',
+        is_active: true,
+        created_at: '2024-02-01T09:15:00Z',
+        updated_at: '2024-03-05T11:30:00Z'
+    },
+    {
+        id: '3',
+        name: 'East Branch',
+        code: 'EAST',
+        address: '789 East Blvd, City, State 13579',
+        phone: '+1 (555) 246-8135',
+        email: 'east@pos.com',
+        manager_id: '3',
+        is_active: false,
+        created_at: '2024-01-20T13:45:00Z',
+        updated_at: '2024-02-28T16:45:00Z'
+    }
+];
+function BranchesPage() {
+    const [searchTerm, setSearchTerm] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
+    const [filteredBranches, setFilteredBranches] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])(mockBranches);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
+        const filtered = mockBranches.filter((branch)=>branch.name.toLowerCase().includes(searchTerm.toLowerCase()) || branch.code.toLowerCase().includes(searchTerm.toLowerCase()));
+        setFilteredBranches(filtered);
+    }, [
+        searchTerm
+    ]);
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$components$2f$auth$2f$auth$2d$guard$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$components$2f$layout$2f$layout$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
+            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                className: "space-y-6",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "flex justify-between items-center",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
+                                        className: "text-2xl font-bold text-primary",
+                                        children: "Branches"
+                                    }, void 0, false, {
+                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                        lineNumber: 68,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                        className: "mt-1 text-sm text-text-secondary",
+                                        children: "Manage your store locations and their inventory"
+                                    }, void 0, false, {
+                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                        lineNumber: 69,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                lineNumber: 67,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                className: "btn-primary",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PlusIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__PlusIcon$3e$__["PlusIcon"], {
+                                        className: "h-5 w-5 mr-2"
+                                    }, void 0, false, {
+                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                        lineNumber: 74,
+                                        columnNumber: 15
+                                    }, this),
+                                    "Add Branch"
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                lineNumber: 73,
+                                columnNumber: 13
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                        lineNumber: 66,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "card p-4",
+                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                            className: "relative",
+                            children: [
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                    className: "absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none",
+                                    children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$MagnifyingGlassIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__MagnifyingGlassIcon$3e$__["MagnifyingGlassIcon"], {
+                                        className: "h-5 w-5 text-text-secondary"
+                                    }, void 0, false, {
+                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                        lineNumber: 83,
+                                        columnNumber: 17
+                                    }, this)
+                                }, void 0, false, {
+                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                    lineNumber: 82,
+                                    columnNumber: 15
+                                }, this),
+                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                    type: "text",
+                                    placeholder: "Search branches...",
+                                    value: searchTerm,
+                                    onChange: (e)=>setSearchTerm(e.target.value),
+                                    className: "input-field w-full pl-10"
+                                }, void 0, false, {
+                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                    lineNumber: 85,
+                                    columnNumber: 15
+                                }, this)
+                            ]
+                        }, void 0, true, {
+                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                            lineNumber: 81,
+                            columnNumber: 13
+                        }, this)
+                    }, void 0, false, {
+                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                        lineNumber: 80,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+                        children: filteredBranches.map((branch)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                className: "card p-6 hover:shadow-lg transition-shadow",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex items-start justify-between",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex-1",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                        className: "flex items-center space-x-3",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                                                className: "text-lg font-semibold text-primary",
+                                                                children: branch.name
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                                lineNumber: 102,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                className: `px-2 py-1 text-xs font-medium rounded-full ${branch.is_active ? 'status-success' : 'status-error'}`,
+                                                                children: branch.is_active ? 'Active' : 'Inactive'
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                                lineNumber: 103,
+                                                                columnNumber: 23
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                        lineNumber: 101,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-sm text-text-secondary mt-1",
+                                                        children: [
+                                                            "Code: ",
+                                                            branch.code
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                        lineNumber: 109,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-sm text-text-secondary",
+                                                        children: branch.address
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                        lineNumber: 110,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-sm text-text-secondary",
+                                                        children: branch.phone
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                        lineNumber: 111,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                lineNumber: 100,
+                                                columnNumber: 19
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex space-x-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        className: "p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PlusIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__PlusIcon$3e$__["PlusIcon"], {
+                                                            className: "h-4 w-4"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                            lineNumber: 115,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                        lineNumber: 114,
+                                                        columnNumber: 21
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
+                                                        className: "p-2 text-text-secondary hover:bg-surface rounded-lg transition-colors",
+                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BuildingOfficeIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__BuildingOfficeIcon$3e$__["BuildingOfficeIcon"], {
+                                                            className: "h-4 w-4"
+                                                        }, void 0, false, {
+                                                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                            lineNumber: 118,
+                                                            columnNumber: 23
+                                                        }, this)
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                        lineNumber: 117,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                lineNumber: 113,
+                                                columnNumber: 19
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                        lineNumber: 99,
+                                        columnNumber: 17
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "mt-4 pt-4 border-t border-divider",
+                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                            className: "flex justify-between text-xs text-text-secondary",
+                                            children: [
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    children: [
+                                                        "Created: ",
+                                                        (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatDate"])(branch.created_at)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                    lineNumber: 124,
+                                                    columnNumber: 21
+                                                }, this),
+                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                    children: [
+                                                        "Updated: ",
+                                                        (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$src$2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["formatDate"])(branch.updated_at)
+                                                    ]
+                                                }, void 0, true, {
+                                                    fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                                    lineNumber: 125,
+                                                    columnNumber: 21
+                                                }, this)
+                                            ]
+                                        }, void 0, true, {
+                                            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                            lineNumber: 123,
+                                            columnNumber: 19
+                                        }, this)
+                                    }, void 0, false, {
+                                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                        lineNumber: 122,
+                                        columnNumber: 17
+                                    }, this)
+                                ]
+                            }, branch.id, true, {
+                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                lineNumber: 98,
+                                columnNumber: 15
+                            }, this))
+                    }, void 0, false, {
+                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                        lineNumber: 96,
+                        columnNumber: 11
+                    }, this),
+                    filteredBranches.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        className: "text-center py-12",
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BuildingOfficeIcon$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__BuildingOfficeIcon$3e$__["BuildingOfficeIcon"], {
+                                className: "h-12 w-12 text-text-secondary mx-auto mb-4"
+                            }, void 0, false, {
+                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                lineNumber: 134,
+                                columnNumber: 15
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
+                                className: "text-lg font-medium text-primary mb-2",
+                                children: "No branches found"
+                            }, void 0, false, {
+                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                lineNumber: 135,
+                                columnNumber: 15
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                className: "text-text-secondary",
+                                children: "Try adjusting your search criteria"
+                            }, void 0, false, {
+                                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                                lineNumber: 136,
+                                columnNumber: 15
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                        lineNumber: 133,
+                        columnNumber: 13
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+                lineNumber: 64,
+                columnNumber: 9
+            }, this)
+        }, void 0, false, {
+            fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+            lineNumber: 63,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
+        fileName: "[project]/Xul/ecotracker_pos_app/admin-dashboard/src/app/branches/page.tsx",
+        lineNumber: 62,
+        columnNumber: 5
+    }, this);
+}
+}),
+];
+
+//# sourceMappingURL=%5Broot-of-the-server%5D__2079aca4._.js.map

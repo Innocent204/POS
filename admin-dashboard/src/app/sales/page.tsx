@@ -45,6 +45,10 @@ export default function SalesPage() {
   const [statusFilter, setStatusFilter] = useState('All');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [selectedBranchId, setSelectedBranchId] = useState('All');
+  const [selectedCashierId, setSelectedCashierId] = useState('All');
+  const [branches, setBranches] = useState<any[]>([]);
+  const [cashiers, setCashiers] = useState<any[]>([]);
 
   // Return dialog state
   const [returnDialogOpen, setReturnDialogOpen] = useState(false);
@@ -57,9 +61,12 @@ export default function SalesPage() {
     try {
       setLoading(true);
       setError(null);
-      const params: { size: number; from?: string; to?: string } = { size: 500 };
+      const params: any = { size: 500 };
       if (startDate) params.from = `${startDate}T00:00:00`;
       if (endDate) params.to = `${endDate}T23:59:59`;
+      if (selectedBranchId !== 'All') params.branchId = selectedBranchId;
+      if (selectedCashierId !== 'All') params.cashierId = selectedCashierId;
+      
       const response = await api.sales.getAll(params);
       if (response.success) {
         setSales(response.data.content || []);
@@ -76,7 +83,20 @@ export default function SalesPage() {
 
   useEffect(() => {
     fetchSales();
-  }, [startDate, endDate]);
+  }, [startDate, endDate, selectedBranchId, selectedCashierId]);
+
+  useEffect(() => {
+    // Load branches and cashiers for filters
+    api.branches.getAll().then(res => {
+      if (res.success) setBranches(res.data || []);
+    });
+    api.users.getAll().then(res => {
+      if (res.success) {
+        const c = res.data?.filter(u => u.role === 'CASHIER') || [];
+        setCashiers(c);
+      }
+    });
+  }, []);
 
   const filteredSales = sales.filter(sale => {
     const matchesSearch =
@@ -97,6 +117,8 @@ export default function SalesPage() {
     setStatusFilter('All');
     setStartDate('');
     setEndDate('');
+    setSelectedBranchId('All');
+    setSelectedCashierId('All');
     setSearchTerm('');
   };
 
@@ -294,7 +316,7 @@ export default function SalesPage() {
                   <FunnelIcon className="h-4 w-4 mr-2" />
                   {showFilters ? 'Hide Filters' : 'Advanced Filters'}
                 </Button>
-                {(statusFilter !== 'All' || startDate || endDate) && (
+                {(statusFilter !== 'All' || startDate || endDate || selectedBranchId !== 'All' || selectedCashierId !== 'All') && (
                   <Button variant="ghost" onClick={resetFilters} className="text-error h-10">
                     <XMarkIcon className="h-4 w-4 mr-2" />
                     Reset
@@ -334,6 +356,32 @@ export default function SalesPage() {
                     onChange={(e) => setEndDate(e.target.value)}
                     className="h-10"
                   />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase">Branch</label>
+                  <select
+                    value={selectedBranchId}
+                    onChange={(e) => setSelectedBranchId(e.target.value)}
+                    className="w-full bg-surface border border-divider rounded-lg px-3 py-2 text-sm font-bold text-primary focus:ring-1 focus:ring-primary h-10"
+                  >
+                    <option value="All">All Branches</option>
+                    {branches.map(b => (
+                      <option key={b.id} value={b.id}>{b.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-text-secondary uppercase">Cashier</label>
+                  <select
+                    value={selectedCashierId}
+                    onChange={(e) => setSelectedCashierId(e.target.value)}
+                    className="w-full bg-surface border border-divider rounded-lg px-3 py-2 text-sm font-bold text-primary focus:ring-1 focus:ring-primary h-10"
+                  >
+                    <option value="All">All Cashiers</option>
+                    {cashiers.map(c => (
+                      <option key={c.id} value={c.id}>{c.fullName}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             )}

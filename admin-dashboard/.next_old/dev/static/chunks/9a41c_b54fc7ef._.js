@@ -1,0 +1,4996 @@
+(globalThis.TURBOPACK || (globalThis.TURBOPACK = [])).push([typeof document === "object" ? document.currentScript : undefined,
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/router/utils/querystring.js [app-client] (ecmascript)", ((__turbopack_context__, module, exports) => {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+0 && (module.exports = {
+    assign: null,
+    searchParamsToUrlQuery: null,
+    urlQueryToSearchParams: null
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: all[name]
+    });
+}
+_export(exports, {
+    assign: function() {
+        return assign;
+    },
+    searchParamsToUrlQuery: function() {
+        return searchParamsToUrlQuery;
+    },
+    urlQueryToSearchParams: function() {
+        return urlQueryToSearchParams;
+    }
+});
+function searchParamsToUrlQuery(searchParams) {
+    const query = {};
+    for (const [key, value] of searchParams.entries()){
+        const existing = query[key];
+        if (typeof existing === 'undefined') {
+            query[key] = value;
+        } else if (Array.isArray(existing)) {
+            existing.push(value);
+        } else {
+            query[key] = [
+                existing,
+                value
+            ];
+        }
+    }
+    return query;
+}
+function stringifyUrlQueryParam(param) {
+    if (typeof param === 'string') {
+        return param;
+    }
+    if (typeof param === 'number' && !isNaN(param) || typeof param === 'boolean') {
+        return String(param);
+    } else {
+        return '';
+    }
+}
+function urlQueryToSearchParams(query) {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(query)){
+        if (Array.isArray(value)) {
+            for (const item of value){
+                searchParams.append(key, stringifyUrlQueryParam(item));
+            }
+        } else {
+            searchParams.set(key, stringifyUrlQueryParam(value));
+        }
+    }
+    return searchParams;
+}
+function assign(target, ...searchParamsList) {
+    for (const searchParams of searchParamsList){
+        for (const key of searchParams.keys()){
+            target.delete(key);
+        }
+        for (const [key, value] of searchParams.entries()){
+            target.append(key, value);
+        }
+    }
+    return target;
+} //# sourceMappingURL=querystring.js.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/router/utils/format-url.js [app-client] (ecmascript)", ((__turbopack_context__, module, exports) => {
+"use strict";
+
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
+// Format function modified from nodejs
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+0 && (module.exports = {
+    formatUrl: null,
+    formatWithValidation: null,
+    urlObjectKeys: null
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: all[name]
+    });
+}
+_export(exports, {
+    formatUrl: function() {
+        return formatUrl;
+    },
+    formatWithValidation: function() {
+        return formatWithValidation;
+    },
+    urlObjectKeys: function() {
+        return urlObjectKeys;
+    }
+});
+const _interop_require_wildcard = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs [app-client] (ecmascript)");
+const _querystring = /*#__PURE__*/ _interop_require_wildcard._(__turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/router/utils/querystring.js [app-client] (ecmascript)"));
+const slashedProtocols = /https?|ftp|gopher|file/;
+function formatUrl(urlObj) {
+    let { auth, hostname } = urlObj;
+    let protocol = urlObj.protocol || '';
+    let pathname = urlObj.pathname || '';
+    let hash = urlObj.hash || '';
+    let query = urlObj.query || '';
+    let host = false;
+    auth = auth ? encodeURIComponent(auth).replace(/%3A/i, ':') + '@' : '';
+    if (urlObj.host) {
+        host = auth + urlObj.host;
+    } else if (hostname) {
+        host = auth + (~hostname.indexOf(':') ? `[${hostname}]` : hostname);
+        if (urlObj.port) {
+            host += ':' + urlObj.port;
+        }
+    }
+    if (query && typeof query === 'object') {
+        query = String(_querystring.urlQueryToSearchParams(query));
+    }
+    let search = urlObj.search || query && `?${query}` || '';
+    if (protocol && !protocol.endsWith(':')) protocol += ':';
+    if (urlObj.slashes || (!protocol || slashedProtocols.test(protocol)) && host !== false) {
+        host = '//' + (host || '');
+        if (pathname && pathname[0] !== '/') pathname = '/' + pathname;
+    } else if (!host) {
+        host = '';
+    }
+    if (hash && hash[0] !== '#') hash = '#' + hash;
+    if (search && search[0] !== '?') search = '?' + search;
+    pathname = pathname.replace(/[?#]/g, encodeURIComponent);
+    search = search.replace('#', '%23');
+    return `${protocol}${host}${pathname}${search}${hash}`;
+}
+const urlObjectKeys = [
+    'auth',
+    'hash',
+    'host',
+    'hostname',
+    'href',
+    'path',
+    'pathname',
+    'port',
+    'protocol',
+    'query',
+    'search',
+    'slashes'
+];
+function formatWithValidation(url) {
+    if ("TURBOPACK compile-time truthy", 1) {
+        if (url !== null && typeof url === 'object') {
+            Object.keys(url).forEach((key)=>{
+                if (!urlObjectKeys.includes(key)) {
+                    console.warn(`Unknown key passed via urlObject into url.format: ${key}`);
+                }
+            });
+        }
+    }
+    return formatUrl(url);
+} //# sourceMappingURL=format-url.js.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/use-merged-ref.js [app-client] (ecmascript)", ((__turbopack_context__, module, exports) => {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "useMergedRef", {
+    enumerable: true,
+    get: function() {
+        return useMergedRef;
+    }
+});
+const _react = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+function useMergedRef(refA, refB) {
+    const cleanupA = (0, _react.useRef)(null);
+    const cleanupB = (0, _react.useRef)(null);
+    // NOTE: In theory, we could skip the wrapping if only one of the refs is non-null.
+    // (this happens often if the user doesn't pass a ref to Link/Form/Image)
+    // But this can cause us to leak a cleanup-ref into user code (previously via `<Link legacyBehavior>`),
+    // and the user might pass that ref into ref-merging library that doesn't support cleanup refs
+    // (because it hasn't been updated for React 19)
+    // which can then cause things to blow up, because a cleanup-returning ref gets called with `null`.
+    // So in practice, it's safer to be defensive and always wrap the ref, even on React 19.
+    return (0, _react.useCallback)((current)=>{
+        if (current === null) {
+            const cleanupFnA = cleanupA.current;
+            if (cleanupFnA) {
+                cleanupA.current = null;
+                cleanupFnA();
+            }
+            const cleanupFnB = cleanupB.current;
+            if (cleanupFnB) {
+                cleanupB.current = null;
+                cleanupFnB();
+            }
+        } else {
+            if (refA) {
+                cleanupA.current = applyRef(refA, current);
+            }
+            if (refB) {
+                cleanupB.current = applyRef(refB, current);
+            }
+        }
+    }, [
+        refA,
+        refB
+    ]);
+}
+function applyRef(refA, current) {
+    if (typeof refA === 'function') {
+        const cleanup = refA(current);
+        if (typeof cleanup === 'function') {
+            return cleanup;
+        } else {
+            return ()=>refA(null);
+        }
+    } else {
+        refA.current = current;
+        return ()=>{
+            refA.current = null;
+        };
+    }
+}
+if ((typeof exports.default === 'function' || typeof exports.default === 'object' && exports.default !== null) && typeof exports.default.__esModule === 'undefined') {
+    Object.defineProperty(exports.default, '__esModule', {
+        value: true
+    });
+    Object.assign(exports.default, exports);
+    module.exports = exports.default;
+} //# sourceMappingURL=use-merged-ref.js.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/utils.js [app-client] (ecmascript)", ((__turbopack_context__, module, exports) => {
+"use strict";
+
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+0 && (module.exports = {
+    DecodeError: null,
+    MiddlewareNotFoundError: null,
+    MissingStaticPage: null,
+    NormalizeError: null,
+    PageNotFoundError: null,
+    SP: null,
+    ST: null,
+    WEB_VITALS: null,
+    execOnce: null,
+    getDisplayName: null,
+    getLocationOrigin: null,
+    getURL: null,
+    isAbsoluteUrl: null,
+    isResSent: null,
+    loadGetInitialProps: null,
+    normalizeRepeatedSlashes: null,
+    stringifyError: null
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: all[name]
+    });
+}
+_export(exports, {
+    DecodeError: function() {
+        return DecodeError;
+    },
+    MiddlewareNotFoundError: function() {
+        return MiddlewareNotFoundError;
+    },
+    MissingStaticPage: function() {
+        return MissingStaticPage;
+    },
+    NormalizeError: function() {
+        return NormalizeError;
+    },
+    PageNotFoundError: function() {
+        return PageNotFoundError;
+    },
+    SP: function() {
+        return SP;
+    },
+    ST: function() {
+        return ST;
+    },
+    WEB_VITALS: function() {
+        return WEB_VITALS;
+    },
+    execOnce: function() {
+        return execOnce;
+    },
+    getDisplayName: function() {
+        return getDisplayName;
+    },
+    getLocationOrigin: function() {
+        return getLocationOrigin;
+    },
+    getURL: function() {
+        return getURL;
+    },
+    isAbsoluteUrl: function() {
+        return isAbsoluteUrl;
+    },
+    isResSent: function() {
+        return isResSent;
+    },
+    loadGetInitialProps: function() {
+        return loadGetInitialProps;
+    },
+    normalizeRepeatedSlashes: function() {
+        return normalizeRepeatedSlashes;
+    },
+    stringifyError: function() {
+        return stringifyError;
+    }
+});
+const WEB_VITALS = [
+    'CLS',
+    'FCP',
+    'FID',
+    'INP',
+    'LCP',
+    'TTFB'
+];
+function execOnce(fn) {
+    let used = false;
+    let result;
+    return (...args)=>{
+        if (!used) {
+            used = true;
+            result = fn(...args);
+        }
+        return result;
+    };
+}
+// Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
+// Absolute URL: https://tools.ietf.org/html/rfc3986#section-4.3
+const ABSOLUTE_URL_REGEX = /^[a-zA-Z][a-zA-Z\d+\-.]*?:/;
+const isAbsoluteUrl = (url)=>ABSOLUTE_URL_REGEX.test(url);
+function getLocationOrigin() {
+    const { protocol, hostname, port } = window.location;
+    return `${protocol}//${hostname}${port ? ':' + port : ''}`;
+}
+function getURL() {
+    const { href } = window.location;
+    const origin = getLocationOrigin();
+    return href.substring(origin.length);
+}
+function getDisplayName(Component) {
+    return typeof Component === 'string' ? Component : Component.displayName || Component.name || 'Unknown';
+}
+function isResSent(res) {
+    return res.finished || res.headersSent;
+}
+function normalizeRepeatedSlashes(url) {
+    const urlParts = url.split('?');
+    const urlNoQuery = urlParts[0];
+    return urlNoQuery // first we replace any non-encoded backslashes with forward
+    // then normalize repeated forward slashes
+    .replace(/\\/g, '/').replace(/\/\/+/g, '/') + (urlParts[1] ? `?${urlParts.slice(1).join('?')}` : '');
+}
+async function loadGetInitialProps(App, ctx) {
+    if ("TURBOPACK compile-time truthy", 1) {
+        if (App.prototype?.getInitialProps) {
+            const message = `"${getDisplayName(App)}.getInitialProps()" is defined as an instance method - visit https://nextjs.org/docs/messages/get-initial-props-as-an-instance-method for more information.`;
+            throw Object.defineProperty(new Error(message), "__NEXT_ERROR_CODE", {
+                value: "E394",
+                enumerable: false,
+                configurable: true
+            });
+        }
+    }
+    // when called from _app `ctx` is nested in `ctx`
+    const res = ctx.res || ctx.ctx && ctx.ctx.res;
+    if (!App.getInitialProps) {
+        if (ctx.ctx && ctx.Component) {
+            // @ts-ignore pageProps default
+            return {
+                pageProps: await loadGetInitialProps(ctx.Component, ctx.ctx)
+            };
+        }
+        return {};
+    }
+    const props = await App.getInitialProps(ctx);
+    if (res && isResSent(res)) {
+        return props;
+    }
+    if (!props) {
+        const message = `"${getDisplayName(App)}.getInitialProps()" should resolve to an object. But found "${props}" instead.`;
+        throw Object.defineProperty(new Error(message), "__NEXT_ERROR_CODE", {
+            value: "E394",
+            enumerable: false,
+            configurable: true
+        });
+    }
+    if ("TURBOPACK compile-time truthy", 1) {
+        if (Object.keys(props).length === 0 && !ctx.ctx) {
+            console.warn(`${getDisplayName(App)} returned an empty object from \`getInitialProps\`. This de-optimizes and prevents automatic static optimization. https://nextjs.org/docs/messages/empty-object-getInitialProps`);
+        }
+    }
+    return props;
+}
+const SP = typeof performance !== 'undefined';
+const ST = SP && [
+    'mark',
+    'measure',
+    'getEntriesByName'
+].every((method)=>typeof performance[method] === 'function');
+class DecodeError extends Error {
+}
+class NormalizeError extends Error {
+}
+class PageNotFoundError extends Error {
+    constructor(page){
+        super();
+        this.code = 'ENOENT';
+        this.name = 'PageNotFoundError';
+        this.message = `Cannot find module for page: ${page}`;
+    }
+}
+class MissingStaticPage extends Error {
+    constructor(page, message){
+        super();
+        this.message = `Failed to load static file for page: ${page} ${message}`;
+    }
+}
+class MiddlewareNotFoundError extends Error {
+    constructor(){
+        super();
+        this.code = 'ENOENT';
+        this.message = `Cannot find the middleware module`;
+    }
+}
+function stringifyError(error) {
+    return JSON.stringify({
+        message: error.message,
+        stack: error.stack
+    });
+} //# sourceMappingURL=utils.js.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/router/utils/is-local-url.js [app-client] (ecmascript)", ((__turbopack_context__, module, exports) => {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "isLocalURL", {
+    enumerable: true,
+    get: function() {
+        return isLocalURL;
+    }
+});
+const _utils = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/utils.js [app-client] (ecmascript)");
+const _hasbasepath = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/has-base-path.js [app-client] (ecmascript)");
+function isLocalURL(url) {
+    // prevent a hydration mismatch on href for url with anchor refs
+    if (!(0, _utils.isAbsoluteUrl)(url)) return true;
+    try {
+        // absolute urls can be local if they are on the same origin
+        const locationOrigin = (0, _utils.getLocationOrigin)();
+        const resolved = new URL(url, locationOrigin);
+        return resolved.origin === locationOrigin && (0, _hasbasepath.hasBasePath)(resolved.pathname);
+    } catch (_) {
+        return false;
+    }
+} //# sourceMappingURL=is-local-url.js.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/utils/error-once.js [app-client] (ecmascript)", ((__turbopack_context__, module, exports) => {
+"use strict";
+
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+Object.defineProperty(exports, "errorOnce", {
+    enumerable: true,
+    get: function() {
+        return errorOnce;
+    }
+});
+let errorOnce = (_)=>{};
+if ("TURBOPACK compile-time truthy", 1) {
+    const errors = new Set();
+    errorOnce = (msg)=>{
+        if (!errors.has(msg)) {
+            console.error(msg);
+        }
+        errors.add(msg);
+    };
+} //# sourceMappingURL=error-once.js.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/app-dir/link.js [app-client] (ecmascript)", ((__turbopack_context__, module, exports) => {
+"use strict";
+
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
+'use client';
+"use strict";
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+0 && (module.exports = {
+    default: null,
+    useLinkStatus: null
+});
+function _export(target, all) {
+    for(var name in all)Object.defineProperty(target, name, {
+        enumerable: true,
+        get: all[name]
+    });
+}
+_export(exports, {
+    /**
+ * A React component that extends the HTML `<a>` element to provide
+ * [prefetching](https://nextjs.org/docs/app/building-your-application/routing/linking-and-navigating#2-prefetching)
+ * and client-side navigation. This is the primary way to navigate between routes in Next.js.
+ *
+ * @remarks
+ * - Prefetching is only enabled in production.
+ *
+ * @see https://nextjs.org/docs/app/api-reference/components/link
+ */ default: function() {
+        return LinkComponent;
+    },
+    useLinkStatus: function() {
+        return useLinkStatus;
+    }
+});
+const _interop_require_wildcard = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@swc/helpers/cjs/_interop_require_wildcard.cjs [app-client] (ecmascript)");
+const _jsxruntime = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/jsx-runtime.js [app-client] (ecmascript)");
+const _react = /*#__PURE__*/ _interop_require_wildcard._(__turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)"));
+const _formaturl = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/router/utils/format-url.js [app-client] (ecmascript)");
+const _approutercontextsharedruntime = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/app-router-context.shared-runtime.js [app-client] (ecmascript)");
+const _usemergedref = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/use-merged-ref.js [app-client] (ecmascript)");
+const _utils = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/utils.js [app-client] (ecmascript)");
+const _addbasepath = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/add-base-path.js [app-client] (ecmascript)");
+const _warnonce = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/utils/warn-once.js [app-client] (ecmascript)");
+const _links = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/components/links.js [app-client] (ecmascript)");
+const _islocalurl = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/router/utils/is-local-url.js [app-client] (ecmascript)");
+const _types = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/components/segment-cache/types.js [app-client] (ecmascript)");
+const _erroronce = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/shared/lib/utils/error-once.js [app-client] (ecmascript)");
+function isModifiedEvent(event) {
+    const eventTarget = event.currentTarget;
+    const target = eventTarget.getAttribute('target');
+    return target && target !== '_self' || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || // triggers resource download
+    event.nativeEvent && event.nativeEvent.which === 2;
+}
+function linkClicked(e, href, as, linkInstanceRef, replace, scroll, onNavigate) {
+    if (typeof window !== 'undefined') {
+        const { nodeName } = e.currentTarget;
+        // anchors inside an svg have a lowercase nodeName
+        const isAnchorNodeName = nodeName.toUpperCase() === 'A';
+        if (isAnchorNodeName && isModifiedEvent(e) || e.currentTarget.hasAttribute('download')) {
+            // ignore click for browser’s default behavior
+            return;
+        }
+        if (!(0, _islocalurl.isLocalURL)(href)) {
+            if (replace) {
+                // browser default behavior does not replace the history state
+                // so we need to do it manually
+                e.preventDefault();
+                location.replace(href);
+            }
+            // ignore click for browser’s default behavior
+            return;
+        }
+        e.preventDefault();
+        if (onNavigate) {
+            let isDefaultPrevented = false;
+            onNavigate({
+                preventDefault: ()=>{
+                    isDefaultPrevented = true;
+                }
+            });
+            if (isDefaultPrevented) {
+                return;
+            }
+        }
+        const { dispatchNavigateAction } = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/components/app-router-instance.js [app-client] (ecmascript)");
+        _react.default.startTransition(()=>{
+            dispatchNavigateAction(as || href, replace ? 'replace' : 'push', scroll ?? true, linkInstanceRef.current);
+        });
+    }
+}
+function formatStringOrUrl(urlObjOrString) {
+    if (typeof urlObjOrString === 'string') {
+        return urlObjOrString;
+    }
+    return (0, _formaturl.formatUrl)(urlObjOrString);
+}
+function LinkComponent(props) {
+    const [linkStatus, setOptimisticLinkStatus] = (0, _react.useOptimistic)(_links.IDLE_LINK_STATUS);
+    let children;
+    const linkInstanceRef = (0, _react.useRef)(null);
+    const { href: hrefProp, as: asProp, children: childrenProp, prefetch: prefetchProp = null, passHref, replace, shallow, scroll, onClick, onMouseEnter: onMouseEnterProp, onTouchStart: onTouchStartProp, legacyBehavior = false, onNavigate, ref: forwardedRef, unstable_dynamicOnHover, ...restProps } = props;
+    children = childrenProp;
+    if (legacyBehavior && (typeof children === 'string' || typeof children === 'number')) {
+        children = /*#__PURE__*/ (0, _jsxruntime.jsx)("a", {
+            children: children
+        });
+    }
+    const router = _react.default.useContext(_approutercontextsharedruntime.AppRouterContext);
+    const prefetchEnabled = prefetchProp !== false;
+    const fetchStrategy = prefetchProp !== false ? getFetchStrategyFromPrefetchProp(prefetchProp) : _types.FetchStrategy.PPR;
+    if ("TURBOPACK compile-time truthy", 1) {
+        function createPropError(args) {
+            return Object.defineProperty(new Error(`Failed prop type: The prop \`${args.key}\` expects a ${args.expected} in \`<Link>\`, but got \`${args.actual}\` instead.` + (typeof window !== 'undefined' ? "\nOpen your browser's console to view the Component stack trace." : '')), "__NEXT_ERROR_CODE", {
+                value: "E319",
+                enumerable: false,
+                configurable: true
+            });
+        }
+        // TypeScript trick for type-guarding:
+        const requiredPropsGuard = {
+            href: true
+        };
+        const requiredProps = Object.keys(requiredPropsGuard);
+        requiredProps.forEach((key)=>{
+            if (key === 'href') {
+                if (props[key] == null || typeof props[key] !== 'string' && typeof props[key] !== 'object') {
+                    throw createPropError({
+                        key,
+                        expected: '`string` or `object`',
+                        actual: props[key] === null ? 'null' : typeof props[key]
+                    });
+                }
+            } else {
+                // TypeScript trick for type-guarding:
+                const _ = key;
+            }
+        });
+        // TypeScript trick for type-guarding:
+        const optionalPropsGuard = {
+            as: true,
+            replace: true,
+            scroll: true,
+            shallow: true,
+            passHref: true,
+            prefetch: true,
+            unstable_dynamicOnHover: true,
+            onClick: true,
+            onMouseEnter: true,
+            onTouchStart: true,
+            legacyBehavior: true,
+            onNavigate: true
+        };
+        const optionalProps = Object.keys(optionalPropsGuard);
+        optionalProps.forEach((key)=>{
+            const valType = typeof props[key];
+            if (key === 'as') {
+                if (props[key] && valType !== 'string' && valType !== 'object') {
+                    throw createPropError({
+                        key,
+                        expected: '`string` or `object`',
+                        actual: valType
+                    });
+                }
+            } else if (key === 'onClick' || key === 'onMouseEnter' || key === 'onTouchStart' || key === 'onNavigate') {
+                if (props[key] && valType !== 'function') {
+                    throw createPropError({
+                        key,
+                        expected: '`function`',
+                        actual: valType
+                    });
+                }
+            } else if (key === 'replace' || key === 'scroll' || key === 'shallow' || key === 'passHref' || key === 'legacyBehavior' || key === 'unstable_dynamicOnHover') {
+                if (props[key] != null && valType !== 'boolean') {
+                    throw createPropError({
+                        key,
+                        expected: '`boolean`',
+                        actual: valType
+                    });
+                }
+            } else if (key === 'prefetch') {
+                if (props[key] != null && valType !== 'boolean' && props[key] !== 'auto') {
+                    throw createPropError({
+                        key,
+                        expected: '`boolean | "auto"`',
+                        actual: valType
+                    });
+                }
+            } else {
+                // TypeScript trick for type-guarding:
+                const _ = key;
+            }
+        });
+    }
+    if ("TURBOPACK compile-time truthy", 1) {
+        if (props.locale) {
+            (0, _warnonce.warnOnce)('The `locale` prop is not supported in `next/link` while using the `app` router. Read more about app router internalization: https://nextjs.org/docs/app/building-your-application/routing/internationalization');
+        }
+        if (!asProp) {
+            let href;
+            if (typeof hrefProp === 'string') {
+                href = hrefProp;
+            } else if (typeof hrefProp === 'object' && typeof hrefProp.pathname === 'string') {
+                href = hrefProp.pathname;
+            }
+            if (href) {
+                const hasDynamicSegment = href.split('/').some((segment)=>segment.startsWith('[') && segment.endsWith(']'));
+                if (hasDynamicSegment) {
+                    throw Object.defineProperty(new Error(`Dynamic href \`${href}\` found in <Link> while using the \`/app\` router, this is not supported. Read more: https://nextjs.org/docs/messages/app-dir-dynamic-href`), "__NEXT_ERROR_CODE", {
+                        value: "E267",
+                        enumerable: false,
+                        configurable: true
+                    });
+                }
+            }
+        }
+    }
+    const { href, as } = _react.default.useMemo({
+        "LinkComponent.useMemo": ()=>{
+            const resolvedHref = formatStringOrUrl(hrefProp);
+            return {
+                href: resolvedHref,
+                as: asProp ? formatStringOrUrl(asProp) : resolvedHref
+            };
+        }
+    }["LinkComponent.useMemo"], [
+        hrefProp,
+        asProp
+    ]);
+    // This will return the first child, if multiple are provided it will throw an error
+    let child;
+    if (legacyBehavior) {
+        if (children?.$$typeof === Symbol.for('react.lazy')) {
+            throw Object.defineProperty(new Error(`\`<Link legacyBehavior>\` received a direct child that is either a Server Component, or JSX that was loaded with React.lazy(). This is not supported. Either remove legacyBehavior, or make the direct child a Client Component that renders the Link's \`<a>\` tag.`), "__NEXT_ERROR_CODE", {
+                value: "E863",
+                enumerable: false,
+                configurable: true
+            });
+        }
+        if ("TURBOPACK compile-time truthy", 1) {
+            if (onClick) {
+                console.warn(`"onClick" was passed to <Link> with \`href\` of \`${hrefProp}\` but "legacyBehavior" was set. The legacy behavior requires onClick be set on the child of next/link`);
+            }
+            if (onMouseEnterProp) {
+                console.warn(`"onMouseEnter" was passed to <Link> with \`href\` of \`${hrefProp}\` but "legacyBehavior" was set. The legacy behavior requires onMouseEnter be set on the child of next/link`);
+            }
+            try {
+                child = _react.default.Children.only(children);
+            } catch (err) {
+                if (!children) {
+                    throw Object.defineProperty(new Error(`No children were passed to <Link> with \`href\` of \`${hrefProp}\` but one child is required https://nextjs.org/docs/messages/link-no-children`), "__NEXT_ERROR_CODE", {
+                        value: "E320",
+                        enumerable: false,
+                        configurable: true
+                    });
+                }
+                throw Object.defineProperty(new Error(`Multiple children were passed to <Link> with \`href\` of \`${hrefProp}\` but only one child is supported https://nextjs.org/docs/messages/link-multiple-children` + (typeof window !== 'undefined' ? " \nOpen your browser's console to view the Component stack trace." : '')), "__NEXT_ERROR_CODE", {
+                    value: "E266",
+                    enumerable: false,
+                    configurable: true
+                });
+            }
+        } else //TURBOPACK unreachable
+        ;
+    } else {
+        if ("TURBOPACK compile-time truthy", 1) {
+            if (children?.type === 'a') {
+                throw Object.defineProperty(new Error('Invalid <Link> with <a> child. Please remove <a> or use <Link legacyBehavior>.\nLearn more: https://nextjs.org/docs/messages/invalid-new-link-with-extra-anchor'), "__NEXT_ERROR_CODE", {
+                    value: "E209",
+                    enumerable: false,
+                    configurable: true
+                });
+            }
+        }
+    }
+    const childRef = legacyBehavior ? child && typeof child === 'object' && child.ref : forwardedRef;
+    // Use a callback ref to attach an IntersectionObserver to the anchor tag on
+    // mount. In the future we will also use this to keep track of all the
+    // currently mounted <Link> instances, e.g. so we can re-prefetch them after
+    // a revalidation or refresh.
+    const observeLinkVisibilityOnMount = _react.default.useCallback({
+        "LinkComponent.useCallback[observeLinkVisibilityOnMount]": (element)=>{
+            if (router !== null) {
+                linkInstanceRef.current = (0, _links.mountLinkInstance)(element, href, router, fetchStrategy, prefetchEnabled, setOptimisticLinkStatus);
+            }
+            return ({
+                "LinkComponent.useCallback[observeLinkVisibilityOnMount]": ()=>{
+                    if (linkInstanceRef.current) {
+                        (0, _links.unmountLinkForCurrentNavigation)(linkInstanceRef.current);
+                        linkInstanceRef.current = null;
+                    }
+                    (0, _links.unmountPrefetchableInstance)(element);
+                }
+            })["LinkComponent.useCallback[observeLinkVisibilityOnMount]"];
+        }
+    }["LinkComponent.useCallback[observeLinkVisibilityOnMount]"], [
+        prefetchEnabled,
+        href,
+        router,
+        fetchStrategy,
+        setOptimisticLinkStatus
+    ]);
+    const mergedRef = (0, _usemergedref.useMergedRef)(observeLinkVisibilityOnMount, childRef);
+    const childProps = {
+        ref: mergedRef,
+        onClick (e) {
+            if ("TURBOPACK compile-time truthy", 1) {
+                if (!e) {
+                    throw Object.defineProperty(new Error(`Component rendered inside next/link has to pass click event to "onClick" prop.`), "__NEXT_ERROR_CODE", {
+                        value: "E312",
+                        enumerable: false,
+                        configurable: true
+                    });
+                }
+            }
+            if (!legacyBehavior && typeof onClick === 'function') {
+                onClick(e);
+            }
+            if (legacyBehavior && child.props && typeof child.props.onClick === 'function') {
+                child.props.onClick(e);
+            }
+            if (!router) {
+                return;
+            }
+            if (e.defaultPrevented) {
+                return;
+            }
+            linkClicked(e, href, as, linkInstanceRef, replace, scroll, onNavigate);
+        },
+        onMouseEnter (e) {
+            if (!legacyBehavior && typeof onMouseEnterProp === 'function') {
+                onMouseEnterProp(e);
+            }
+            if (legacyBehavior && child.props && typeof child.props.onMouseEnter === 'function') {
+                child.props.onMouseEnter(e);
+            }
+            if (!router) {
+                return;
+            }
+            if ("TURBOPACK compile-time truthy", 1) {
+                return;
+            }
+            //TURBOPACK unreachable
+            ;
+            const upgradeToDynamicPrefetch = undefined;
+        },
+        onTouchStart: ("TURBOPACK compile-time falsy", 0) ? "TURBOPACK unreachable" : function onTouchStart(e) {
+            if (!legacyBehavior && typeof onTouchStartProp === 'function') {
+                onTouchStartProp(e);
+            }
+            if (legacyBehavior && child.props && typeof child.props.onTouchStart === 'function') {
+                child.props.onTouchStart(e);
+            }
+            if (!router) {
+                return;
+            }
+            if (!prefetchEnabled) {
+                return;
+            }
+            const upgradeToDynamicPrefetch = unstable_dynamicOnHover === true;
+            (0, _links.onNavigationIntent)(e.currentTarget, upgradeToDynamicPrefetch);
+        }
+    };
+    // If the url is absolute, we can bypass the logic to prepend the basePath.
+    if ((0, _utils.isAbsoluteUrl)(as)) {
+        childProps.href = as;
+    } else if (!legacyBehavior || passHref || child.type === 'a' && !('href' in child.props)) {
+        childProps.href = (0, _addbasepath.addBasePath)(as);
+    }
+    let link;
+    if (legacyBehavior) {
+        if ("TURBOPACK compile-time truthy", 1) {
+            (0, _erroronce.errorOnce)('`legacyBehavior` is deprecated and will be removed in a future ' + 'release. A codemod is available to upgrade your components:\n\n' + 'npx @next/codemod@latest new-link .\n\n' + 'Learn more: https://nextjs.org/docs/app/building-your-application/upgrading/codemods#remove-a-tags-from-link-components');
+        }
+        link = /*#__PURE__*/ _react.default.cloneElement(child, childProps);
+    } else {
+        link = /*#__PURE__*/ (0, _jsxruntime.jsx)("a", {
+            ...restProps,
+            ...childProps,
+            children: children
+        });
+    }
+    return /*#__PURE__*/ (0, _jsxruntime.jsx)(LinkStatusContext.Provider, {
+        value: linkStatus,
+        children: link
+    });
+}
+const LinkStatusContext = /*#__PURE__*/ (0, _react.createContext)(_links.IDLE_LINK_STATUS);
+const useLinkStatus = ()=>{
+    return (0, _react.useContext)(LinkStatusContext);
+};
+function getFetchStrategyFromPrefetchProp(prefetchProp) {
+    if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
+    ;
+    else {
+        return prefetchProp === null || prefetchProp === 'auto' ? _types.FetchStrategy.PPR : // (although invalid values should've been filtered out by prop validation in dev)
+        _types.FetchStrategy.Full;
+    }
+}
+if ((typeof exports.default === 'function' || typeof exports.default === 'object' && exports.default !== null) && typeof exports.default.__esModule === 'undefined') {
+    Object.defineProperty(exports.default, '__esModule', {
+        value: true
+    });
+    Object.assign(exports.default, exports);
+    module.exports = exports.default;
+} //# sourceMappingURL=link.js.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/navigation.js [app-client] (ecmascript)", ((__turbopack_context__, module, exports) => {
+
+module.exports = __turbopack_context__.r("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/client/components/navigation.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/HomeIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function HomeIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](HomeIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/HomeIcon.js [app-client] (ecmascript) <export default as HomeIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "HomeIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$HomeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$HomeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/HomeIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BuildingOfficeIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function BuildingOfficeIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](BuildingOfficeIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BuildingOfficeIcon.js [app-client] (ecmascript) <export default as BuildingOfficeIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "BuildingOfficeIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BuildingOfficeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BuildingOfficeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BuildingOfficeIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ShoppingCartIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function ShoppingCartIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](ShoppingCartIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ShoppingCartIcon.js [app-client] (ecmascript) <export default as ShoppingCartIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ShoppingCartIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ShoppingCartIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ShoppingCartIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ShoppingCartIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/AdjustmentsHorizontalIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function AdjustmentsHorizontalIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](AdjustmentsHorizontalIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/AdjustmentsHorizontalIcon.js [app-client] (ecmascript) <export default as AdjustmentsHorizontalIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "AdjustmentsHorizontalIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$AdjustmentsHorizontalIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$AdjustmentsHorizontalIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/AdjustmentsHorizontalIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ChartBarIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function ChartBarIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](ChartBarIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ChartBarIcon.js [app-client] (ecmascript) <export default as ChartBarIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ChartBarIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChartBarIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ChartBarIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ChartBarIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/Cog6ToothIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function Cog6ToothIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z"
+    }), /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](Cog6ToothIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/Cog6ToothIcon.js [app-client] (ecmascript) <export default as Cog6ToothIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Cog6ToothIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Cog6ToothIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Cog6ToothIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/Cog6ToothIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ArrowRightOnRectangleIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+/** @deprecated */ function ArrowRightOnRectangleIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](ArrowRightOnRectangleIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ArrowRightOnRectangleIcon.js [app-client] (ecmascript) <export default as ArrowRightOnRectangleIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ArrowRightOnRectangleIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ArrowRightOnRectangleIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ArrowRightOnRectangleIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ArrowRightOnRectangleIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/UserIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function UserIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](UserIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/UserIcon.js [app-client] (ecmascript) <export default as UserIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "UserIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$UserIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$UserIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/UserIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/UserGroupIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function UserGroupIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](UserGroupIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/UserGroupIcon.js [app-client] (ecmascript) <export default as UserGroupIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "UserGroupIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$UserGroupIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$UserGroupIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/UserGroupIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/CubeIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function CubeIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "m21 7.5-9-5.25L3 7.5m18 0-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](CubeIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/CubeIcon.js [app-client] (ecmascript) <export default as CubeIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "CubeIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$CubeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$CubeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/CubeIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BanknotesIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function BanknotesIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 0 1 3 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 0 0-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 0 1-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 0 0 3 15h-.75M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm3 0h.008v.008H18V10.5Zm-12 0h.008v.008H6V10.5Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](BanknotesIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BanknotesIcon.js [app-client] (ecmascript) <export default as BanknotesIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "BanknotesIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BanknotesIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BanknotesIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BanknotesIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ArrowsRightLeftIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function ArrowsRightLeftIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](ArrowsRightLeftIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ArrowsRightLeftIcon.js [app-client] (ecmascript) <export default as ArrowsRightLeftIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ArrowsRightLeftIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ArrowsRightLeftIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ArrowsRightLeftIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ArrowsRightLeftIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ClipboardDocumentCheckIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function ClipboardDocumentCheckIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](ClipboardDocumentCheckIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ClipboardDocumentCheckIcon.js [app-client] (ecmascript) <export default as ClipboardDocumentCheckIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ClipboardDocumentCheckIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ClipboardDocumentCheckIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ClipboardDocumentCheckIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ClipboardDocumentCheckIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/Bars3Icon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function Bars3Icon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](Bars3Icon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/Bars3Icon.js [app-client] (ecmascript) <export default as Bars3Icon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Bars3Icon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Bars3Icon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$Bars3Icon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/Bars3Icon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BellIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function BellIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](BellIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BellIcon.js [app-client] (ecmascript) <export default as BellIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "BellIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BellIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$BellIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/BellIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/SunIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function SunIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](SunIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/SunIcon.js [app-client] (ecmascript) <export default as SunIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "SunIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$SunIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$SunIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/SunIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MoonIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function MoonIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](MoonIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MoonIcon.js [app-client] (ecmascript) <export default as MoonIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "MoonIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$MoonIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$MoonIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MoonIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ClockIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function ClockIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](ClockIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ClockIcon.js [app-client] (ecmascript) <export default as ClockIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "ClockIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ClockIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$ClockIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/ClockIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-slot/dist/index.mjs [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Root",
+    ()=>Slot,
+    "Slot",
+    ()=>Slot,
+    "Slottable",
+    ()=>Slottable,
+    "createSlot",
+    ()=>createSlot,
+    "createSlottable",
+    ()=>createSlottable
+]);
+// src/slot.tsx
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-compose-refs/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/jsx-runtime.js [app-client] (ecmascript)");
+;
+;
+;
+var REACT_LAZY_TYPE = Symbol.for("react.lazy");
+var use = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[" use ".trim().toString()];
+function isPromiseLike(value) {
+    return typeof value === "object" && value !== null && "then" in value;
+}
+function isLazyComponent(element) {
+    return element != null && typeof element === "object" && "$$typeof" in element && element.$$typeof === REACT_LAZY_TYPE && "_payload" in element && isPromiseLike(element._payload);
+}
+// @__NO_SIDE_EFFECTS__
+function createSlot(ownerName) {
+    const SlotClone = /* @__PURE__ */ createSlotClone(ownerName);
+    const Slot2 = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.forwardRef((props, forwardedRef)=>{
+        let { children, ...slotProps } = props;
+        if (isLazyComponent(children) && typeof use === "function") {
+            children = use(children._payload);
+        }
+        const childrenArray = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.Children.toArray(children);
+        const slottable = childrenArray.find(isSlottable);
+        if (slottable) {
+            const newElement = slottable.props.children;
+            const newChildren = childrenArray.map((child)=>{
+                if (child === slottable) {
+                    if (__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.Children.count(newElement) > 1) return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.Children.only(null);
+                    return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.isValidElement(newElement) ? newElement.props.children : null;
+                } else {
+                    return child;
+                }
+            });
+            return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(SlotClone, {
+                ...slotProps,
+                ref: forwardedRef,
+                children: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.isValidElement(newElement) ? __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.cloneElement(newElement, void 0, newChildren) : null
+            });
+        }
+        return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(SlotClone, {
+            ...slotProps,
+            ref: forwardedRef,
+            children
+        });
+    });
+    Slot2.displayName = `${ownerName}.Slot`;
+    return Slot2;
+}
+var Slot = /* @__PURE__ */ createSlot("Slot");
+// @__NO_SIDE_EFFECTS__
+function createSlotClone(ownerName) {
+    const SlotClone = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.forwardRef((props, forwardedRef)=>{
+        let { children, ...slotProps } = props;
+        if (isLazyComponent(children) && typeof use === "function") {
+            children = use(children._payload);
+        }
+        if (__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.isValidElement(children)) {
+            const childrenRef = getElementRef(children);
+            const props2 = mergeProps(slotProps, children.props);
+            if (children.type !== __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.Fragment) {
+                props2.ref = forwardedRef ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["composeRefs"])(forwardedRef, childrenRef) : childrenRef;
+            }
+            return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.cloneElement(children, props2);
+        }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.Children.count(children) > 1 ? __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.Children.only(null) : null;
+    });
+    SlotClone.displayName = `${ownerName}.SlotClone`;
+    return SlotClone;
+}
+var SLOTTABLE_IDENTIFIER = Symbol("radix.slottable");
+// @__NO_SIDE_EFFECTS__
+function createSlottable(ownerName) {
+    const Slottable2 = ({ children })=>{
+        return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+            children
+        });
+    };
+    Slottable2.displayName = `${ownerName}.Slottable`;
+    Slottable2.__radixId = SLOTTABLE_IDENTIFIER;
+    return Slottable2;
+}
+var Slottable = /* @__PURE__ */ createSlottable("Slottable");
+function isSlottable(child) {
+    return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
+}
+function mergeProps(slotProps, childProps) {
+    const overrideProps = {
+        ...childProps
+    };
+    for(const propName in childProps){
+        const slotPropValue = slotProps[propName];
+        const childPropValue = childProps[propName];
+        const isHandler = /^on[A-Z]/.test(propName);
+        if (isHandler) {
+            if (slotPropValue && childPropValue) {
+                overrideProps[propName] = (...args)=>{
+                    const result = childPropValue(...args);
+                    slotPropValue(...args);
+                    return result;
+                };
+            } else if (slotPropValue) {
+                overrideProps[propName] = slotPropValue;
+            }
+        } else if (propName === "style") {
+            overrideProps[propName] = {
+                ...slotPropValue,
+                ...childPropValue
+            };
+        } else if (propName === "className") {
+            overrideProps[propName] = [
+                slotPropValue,
+                childPropValue
+            ].filter(Boolean).join(" ");
+        }
+    }
+    return {
+        ...slotProps,
+        ...overrideProps
+    };
+}
+function getElementRef(element) {
+    let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
+    let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+    if (mayWarn) {
+        return element.ref;
+    }
+    getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
+    mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+    if (mayWarn) {
+        return element.props.ref;
+    }
+    return element.props.ref || element.ref;
+}
+;
+ //# sourceMappingURL=index.mjs.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PlusIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function PlusIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M12 4.5v15m7.5-7.5h-15"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](PlusIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PlusIcon.js [app-client] (ecmascript) <export default as PlusIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "PlusIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PlusIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PlusIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PlusIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MagnifyingGlassIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function MagnifyingGlassIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](MagnifyingGlassIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MagnifyingGlassIcon.js [app-client] (ecmascript) <export default as MagnifyingGlassIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "MagnifyingGlassIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$MagnifyingGlassIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$MagnifyingGlassIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MagnifyingGlassIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/EnvelopeIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function EnvelopeIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](EnvelopeIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/EnvelopeIcon.js [app-client] (ecmascript) <export default as EnvelopeIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "EnvelopeIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EnvelopeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$EnvelopeIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/EnvelopeIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PhoneIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function PhoneIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](PhoneIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PhoneIcon.js [app-client] (ecmascript) <export default as PhoneIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "PhoneIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PhoneIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PhoneIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PhoneIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MapPinIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function MapPinIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+    }), /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](MapPinIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MapPinIcon.js [app-client] (ecmascript) <export default as MapPinIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "MapPinIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$MapPinIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$MapPinIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/MapPinIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PencilIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function PencilIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](PencilIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PencilIcon.js [app-client] (ecmascript) <export default as PencilIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "PencilIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PencilIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$PencilIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/PencilIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/TrashIcon.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function TrashIcon({ title, titleId, ...props }, svgRef) {
+    return /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("svg", Object.assign({
+        xmlns: "http://www.w3.org/2000/svg",
+        fill: "none",
+        viewBox: "0 0 24 24",
+        strokeWidth: 1.5,
+        stroke: "currentColor",
+        "aria-hidden": "true",
+        "data-slot": "icon",
+        ref: svgRef,
+        "aria-labelledby": titleId
+    }, props), title ? /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("title", {
+        id: titleId
+    }, title) : null, /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"]("path", {
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        d: "m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+    }));
+}
+const ForwardRef = /*#__PURE__*/ __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](TrashIcon);
+const __TURBOPACK__default__export__ = ForwardRef;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/TrashIcon.js [app-client] (ecmascript) <export default as TrashIcon>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "TrashIcon",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$TrashIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$heroicons$2f$react$2f$24$2f$outline$2f$esm$2f$TrashIcon$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@heroicons/react/24/outline/esm/TrashIcon.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-id/dist/index.mjs [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useId",
+    ()=>useId
+]);
+// packages/react/id/src/id.tsx
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$use$2d$layout$2d$effect$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-use-layout-effect/dist/index.mjs [app-client] (ecmascript)");
+;
+;
+var useReactId = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__[" useId ".trim().toString()] || (()=>void 0);
+var count = 0;
+function useId(deterministicId) {
+    const [id, setId] = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__.useState(useReactId());
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$use$2d$layout$2d$effect$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLayoutEffect"])({
+        "useId.useLayoutEffect": ()=>{
+            if (!deterministicId) setId({
+                "useId.useLayoutEffect": (reactId)=>reactId ?? String(count++)
+            }["useId.useLayoutEffect"]);
+        }
+    }["useId.useLayoutEffect"], [
+        deterministicId
+    ]);
+    return deterministicId || (id ? `radix-${id}` : "");
+}
+;
+ //# sourceMappingURL=index.mjs.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-focus-scope/dist/index.mjs [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "FocusScope",
+    ()=>FocusScope,
+    "Root",
+    ()=>Root
+]);
+// src/focus-scope.tsx
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-compose-refs/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-primitive/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$use$2d$callback$2d$ref$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-use-callback-ref/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/jsx-runtime.js [app-client] (ecmascript)");
+"use client";
+;
+;
+;
+;
+;
+var AUTOFOCUS_ON_MOUNT = "focusScope.autoFocusOnMount";
+var AUTOFOCUS_ON_UNMOUNT = "focusScope.autoFocusOnUnmount";
+var EVENT_OPTIONS = {
+    bubbles: false,
+    cancelable: true
+};
+var FOCUS_SCOPE_NAME = "FocusScope";
+var FocusScope = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const { loop = false, trapped = false, onMountAutoFocus: onMountAutoFocusProp, onUnmountAutoFocus: onUnmountAutoFocusProp, ...scopeProps } = props;
+    const [container, setContainer] = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](null);
+    const onMountAutoFocus = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$use$2d$callback$2d$ref$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallbackRef"])(onMountAutoFocusProp);
+    const onUnmountAutoFocus = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$use$2d$callback$2d$ref$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallbackRef"])(onUnmountAutoFocusProp);
+    const lastFocusedElementRef = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](null);
+    const composedRefs = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useComposedRefs"])(forwardedRef, {
+        "FocusScope.useComposedRefs[composedRefs]": (node)=>setContainer(node)
+    }["FocusScope.useComposedRefs[composedRefs]"]);
+    const focusScope = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"]({
+        paused: false,
+        pause () {
+            this.paused = true;
+        },
+        resume () {
+            this.paused = false;
+        }
+    }).current;
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "FocusScope.useEffect": ()=>{
+            if (trapped) {
+                let handleFocusIn2 = {
+                    "FocusScope.useEffect.handleFocusIn2": function(event) {
+                        if (focusScope.paused || !container) return;
+                        const target = event.target;
+                        if (container.contains(target)) {
+                            lastFocusedElementRef.current = target;
+                        } else {
+                            focus(lastFocusedElementRef.current, {
+                                select: true
+                            });
+                        }
+                    }
+                }["FocusScope.useEffect.handleFocusIn2"], handleFocusOut2 = {
+                    "FocusScope.useEffect.handleFocusOut2": function(event) {
+                        if (focusScope.paused || !container) return;
+                        const relatedTarget = event.relatedTarget;
+                        if (relatedTarget === null) return;
+                        if (!container.contains(relatedTarget)) {
+                            focus(lastFocusedElementRef.current, {
+                                select: true
+                            });
+                        }
+                    }
+                }["FocusScope.useEffect.handleFocusOut2"], handleMutations2 = {
+                    "FocusScope.useEffect.handleMutations2": function(mutations) {
+                        const focusedElement = document.activeElement;
+                        if (focusedElement !== document.body) return;
+                        for (const mutation of mutations){
+                            if (mutation.removedNodes.length > 0) focus(container);
+                        }
+                    }
+                }["FocusScope.useEffect.handleMutations2"];
+                var handleFocusIn = handleFocusIn2, handleFocusOut = handleFocusOut2, handleMutations = handleMutations2;
+                document.addEventListener("focusin", handleFocusIn2);
+                document.addEventListener("focusout", handleFocusOut2);
+                const mutationObserver = new MutationObserver(handleMutations2);
+                if (container) mutationObserver.observe(container, {
+                    childList: true,
+                    subtree: true
+                });
+                return ({
+                    "FocusScope.useEffect": ()=>{
+                        document.removeEventListener("focusin", handleFocusIn2);
+                        document.removeEventListener("focusout", handleFocusOut2);
+                        mutationObserver.disconnect();
+                    }
+                })["FocusScope.useEffect"];
+            }
+        }
+    }["FocusScope.useEffect"], [
+        trapped,
+        container,
+        focusScope.paused
+    ]);
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "FocusScope.useEffect": ()=>{
+            if (container) {
+                focusScopesStack.add(focusScope);
+                const previouslyFocusedElement = document.activeElement;
+                const hasFocusedCandidate = container.contains(previouslyFocusedElement);
+                if (!hasFocusedCandidate) {
+                    const mountEvent = new CustomEvent(AUTOFOCUS_ON_MOUNT, EVENT_OPTIONS);
+                    container.addEventListener(AUTOFOCUS_ON_MOUNT, onMountAutoFocus);
+                    container.dispatchEvent(mountEvent);
+                    if (!mountEvent.defaultPrevented) {
+                        focusFirst(removeLinks(getTabbableCandidates(container)), {
+                            select: true
+                        });
+                        if (document.activeElement === previouslyFocusedElement) {
+                            focus(container);
+                        }
+                    }
+                }
+                return ({
+                    "FocusScope.useEffect": ()=>{
+                        container.removeEventListener(AUTOFOCUS_ON_MOUNT, onMountAutoFocus);
+                        setTimeout({
+                            "FocusScope.useEffect": ()=>{
+                                const unmountEvent = new CustomEvent(AUTOFOCUS_ON_UNMOUNT, EVENT_OPTIONS);
+                                container.addEventListener(AUTOFOCUS_ON_UNMOUNT, onUnmountAutoFocus);
+                                container.dispatchEvent(unmountEvent);
+                                if (!unmountEvent.defaultPrevented) {
+                                    focus(previouslyFocusedElement ?? document.body, {
+                                        select: true
+                                    });
+                                }
+                                container.removeEventListener(AUTOFOCUS_ON_UNMOUNT, onUnmountAutoFocus);
+                                focusScopesStack.remove(focusScope);
+                            }
+                        }["FocusScope.useEffect"], 0);
+                    }
+                })["FocusScope.useEffect"];
+            }
+        }
+    }["FocusScope.useEffect"], [
+        container,
+        onMountAutoFocus,
+        onUnmountAutoFocus,
+        focusScope
+    ]);
+    const handleKeyDown = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "FocusScope.useCallback[handleKeyDown]": (event)=>{
+            if (!loop && !trapped) return;
+            if (focusScope.paused) return;
+            const isTabKey = event.key === "Tab" && !event.altKey && !event.ctrlKey && !event.metaKey;
+            const focusedElement = document.activeElement;
+            if (isTabKey && focusedElement) {
+                const container2 = event.currentTarget;
+                const [first, last] = getTabbableEdges(container2);
+                const hasTabbableElementsInside = first && last;
+                if (!hasTabbableElementsInside) {
+                    if (focusedElement === container2) event.preventDefault();
+                } else {
+                    if (!event.shiftKey && focusedElement === last) {
+                        event.preventDefault();
+                        if (loop) focus(first, {
+                            select: true
+                        });
+                    } else if (event.shiftKey && focusedElement === first) {
+                        event.preventDefault();
+                        if (loop) focus(last, {
+                            select: true
+                        });
+                    }
+                }
+            }
+        }
+    }["FocusScope.useCallback[handleKeyDown]"], [
+        loop,
+        trapped,
+        focusScope.paused
+    ]);
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Primitive"].div, {
+        tabIndex: -1,
+        ...scopeProps,
+        ref: composedRefs,
+        onKeyDown: handleKeyDown
+    });
+});
+FocusScope.displayName = FOCUS_SCOPE_NAME;
+function focusFirst(candidates, { select = false } = {}) {
+    const previouslyFocusedElement = document.activeElement;
+    for (const candidate of candidates){
+        focus(candidate, {
+            select
+        });
+        if (document.activeElement !== previouslyFocusedElement) return;
+    }
+}
+function getTabbableEdges(container) {
+    const candidates = getTabbableCandidates(container);
+    const first = findVisible(candidates, container);
+    const last = findVisible(candidates.reverse(), container);
+    return [
+        first,
+        last
+    ];
+}
+function getTabbableCandidates(container) {
+    const nodes = [];
+    const walker = document.createTreeWalker(container, NodeFilter.SHOW_ELEMENT, {
+        acceptNode: (node)=>{
+            const isHiddenInput = node.tagName === "INPUT" && node.type === "hidden";
+            if (node.disabled || node.hidden || isHiddenInput) return NodeFilter.FILTER_SKIP;
+            return node.tabIndex >= 0 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+        }
+    });
+    while(walker.nextNode())nodes.push(walker.currentNode);
+    return nodes;
+}
+function findVisible(elements, container) {
+    for (const element of elements){
+        if (!isHidden(element, {
+            upTo: container
+        })) return element;
+    }
+}
+function isHidden(node, { upTo }) {
+    if (getComputedStyle(node).visibility === "hidden") return true;
+    while(node){
+        if (upTo !== void 0 && node === upTo) return false;
+        if (getComputedStyle(node).display === "none") return true;
+        node = node.parentElement;
+    }
+    return false;
+}
+function isSelectableInput(element) {
+    return element instanceof HTMLInputElement && "select" in element;
+}
+function focus(element, { select = false } = {}) {
+    if (element && element.focus) {
+        const previouslyFocusedElement = document.activeElement;
+        element.focus({
+            preventScroll: true
+        });
+        if (element !== previouslyFocusedElement && isSelectableInput(element) && select) element.select();
+    }
+}
+var focusScopesStack = createFocusScopesStack();
+function createFocusScopesStack() {
+    let stack = [];
+    return {
+        add (focusScope) {
+            const activeFocusScope = stack[0];
+            if (focusScope !== activeFocusScope) {
+                activeFocusScope?.pause();
+            }
+            stack = arrayRemove(stack, focusScope);
+            stack.unshift(focusScope);
+        },
+        remove (focusScope) {
+            stack = arrayRemove(stack, focusScope);
+            stack[0]?.resume();
+        }
+    };
+}
+function arrayRemove(array, item) {
+    const updatedArray = [
+        ...array
+    ];
+    const index = updatedArray.indexOf(item);
+    if (index !== -1) {
+        updatedArray.splice(index, 1);
+    }
+    return updatedArray;
+}
+function removeLinks(items) {
+    return items.filter((item)=>item.tagName !== "A");
+}
+var Root = FocusScope;
+;
+ //# sourceMappingURL=index.mjs.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-focus-guards/dist/index.mjs [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "FocusGuards",
+    ()=>FocusGuards,
+    "Root",
+    ()=>FocusGuards,
+    "useFocusGuards",
+    ()=>useFocusGuards
+]);
+// src/focus-guards.tsx
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+"use client";
+;
+var count = 0;
+function FocusGuards(props) {
+    useFocusGuards();
+    return props.children;
+}
+function useFocusGuards() {
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "useFocusGuards.useEffect": ()=>{
+            const edgeGuards = document.querySelectorAll("[data-radix-focus-guard]");
+            document.body.insertAdjacentElement("afterbegin", edgeGuards[0] ?? createFocusGuard());
+            document.body.insertAdjacentElement("beforeend", edgeGuards[1] ?? createFocusGuard());
+            count++;
+            return ({
+                "useFocusGuards.useEffect": ()=>{
+                    if (count === 1) {
+                        document.querySelectorAll("[data-radix-focus-guard]").forEach({
+                            "useFocusGuards.useEffect": (node)=>node.remove()
+                        }["useFocusGuards.useEffect"]);
+                    }
+                    count--;
+                }
+            })["useFocusGuards.useEffect"];
+        }
+    }["useFocusGuards.useEffect"], []);
+}
+function createFocusGuard() {
+    const element = document.createElement("span");
+    element.setAttribute("data-radix-focus-guard", "");
+    element.tabIndex = 0;
+    element.style.outline = "none";
+    element.style.opacity = "0";
+    element.style.position = "fixed";
+    element.style.pointerEvents = "none";
+    return element;
+}
+;
+ //# sourceMappingURL=index.mjs.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/tslib/tslib.es6.mjs [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "__addDisposableResource",
+    ()=>__addDisposableResource,
+    "__assign",
+    ()=>__assign,
+    "__asyncDelegator",
+    ()=>__asyncDelegator,
+    "__asyncGenerator",
+    ()=>__asyncGenerator,
+    "__asyncValues",
+    ()=>__asyncValues,
+    "__await",
+    ()=>__await,
+    "__awaiter",
+    ()=>__awaiter,
+    "__classPrivateFieldGet",
+    ()=>__classPrivateFieldGet,
+    "__classPrivateFieldIn",
+    ()=>__classPrivateFieldIn,
+    "__classPrivateFieldSet",
+    ()=>__classPrivateFieldSet,
+    "__createBinding",
+    ()=>__createBinding,
+    "__decorate",
+    ()=>__decorate,
+    "__disposeResources",
+    ()=>__disposeResources,
+    "__esDecorate",
+    ()=>__esDecorate,
+    "__exportStar",
+    ()=>__exportStar,
+    "__extends",
+    ()=>__extends,
+    "__generator",
+    ()=>__generator,
+    "__importDefault",
+    ()=>__importDefault,
+    "__importStar",
+    ()=>__importStar,
+    "__makeTemplateObject",
+    ()=>__makeTemplateObject,
+    "__metadata",
+    ()=>__metadata,
+    "__param",
+    ()=>__param,
+    "__propKey",
+    ()=>__propKey,
+    "__read",
+    ()=>__read,
+    "__rest",
+    ()=>__rest,
+    "__rewriteRelativeImportExtension",
+    ()=>__rewriteRelativeImportExtension,
+    "__runInitializers",
+    ()=>__runInitializers,
+    "__setFunctionName",
+    ()=>__setFunctionName,
+    "__spread",
+    ()=>__spread,
+    "__spreadArray",
+    ()=>__spreadArray,
+    "__spreadArrays",
+    ()=>__spreadArrays,
+    "__values",
+    ()=>__values,
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+/******************************************************************************
+Copyright (c) Microsoft Corporation.
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
+REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
+AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
+INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
+OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+***************************************************************************** */ /* global Reflect, Promise, SuppressedError, Symbol, Iterator */ var extendStatics = function(d, b) {
+    extendStatics = Object.setPrototypeOf || ({
+        __proto__: []
+    }) instanceof Array && function(d, b) {
+        d.__proto__ = b;
+    } || function(d, b) {
+        for(var p in b)if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p];
+    };
+    return extendStatics(d, b);
+};
+function __extends(d, b) {
+    if (typeof b !== "function" && b !== null) throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
+    extendStatics(d, b);
+    function __() {
+        this.constructor = d;
+    }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+}
+var __assign = function() {
+    __assign = Object.assign || function __assign(t) {
+        for(var s, i = 1, n = arguments.length; i < n; i++){
+            s = arguments[i];
+            for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+function __rest(s, e) {
+    var t = {};
+    for(var p in s)if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function") for(var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++){
+        if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i])) t[p[i]] = s[p[i]];
+    }
+    return t;
+}
+function __decorate(decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for(var i = decorators.length - 1; i >= 0; i--)if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+}
+function __param(paramIndex, decorator) {
+    return function(target, key) {
+        decorator(target, key, paramIndex);
+    };
+}
+function __esDecorate(ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
+    function accept(f) {
+        if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected");
+        return f;
+    }
+    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
+    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
+    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
+    var _, done = false;
+    for(var i = decorators.length - 1; i >= 0; i--){
+        var context = {};
+        for(var p in contextIn)context[p] = p === "access" ? {} : contextIn[p];
+        for(var p in contextIn.access)context.access[p] = contextIn.access[p];
+        context.addInitializer = function(f) {
+            if (done) throw new TypeError("Cannot add initializers after decoration has completed");
+            extraInitializers.push(accept(f || null));
+        };
+        var result = (0, decorators[i])(kind === "accessor" ? {
+            get: descriptor.get,
+            set: descriptor.set
+        } : descriptor[key], context);
+        if (kind === "accessor") {
+            if (result === void 0) continue;
+            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
+            if (_ = accept(result.get)) descriptor.get = _;
+            if (_ = accept(result.set)) descriptor.set = _;
+            if (_ = accept(result.init)) initializers.unshift(_);
+        } else if (_ = accept(result)) {
+            if (kind === "field") initializers.unshift(_);
+            else descriptor[key] = _;
+        }
+    }
+    if (target) Object.defineProperty(target, contextIn.name, descriptor);
+    done = true;
+}
+;
+function __runInitializers(thisArg, initializers, value) {
+    var useValue = arguments.length > 2;
+    for(var i = 0; i < initializers.length; i++){
+        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    }
+    return useValue ? value : void 0;
+}
+;
+function __propKey(x) {
+    return typeof x === "symbol" ? x : "".concat(x);
+}
+;
+function __setFunctionName(f, name, prefix) {
+    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
+    return Object.defineProperty(f, "name", {
+        configurable: true,
+        value: prefix ? "".concat(prefix, " ", name) : name
+    });
+}
+;
+function __metadata(metadataKey, metadataValue) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(metadataKey, metadataValue);
+}
+function __awaiter(thisArg, _arguments, P, generator) {
+    function adopt(value) {
+        return value instanceof P ? value : new P(function(resolve) {
+            resolve(value);
+        });
+    }
+    return new (P || (P = Promise))(function(resolve, reject) {
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            } catch (e) {
+                reject(e);
+            }
+        }
+        function step(result) {
+            result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
+        }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+}
+function __generator(thisArg, body) {
+    var _ = {
+        label: 0,
+        sent: function() {
+            if (t[0] & 1) throw t[1];
+            return t[1];
+        },
+        trys: [],
+        ops: []
+    }, f, y, t, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
+    return g.next = verb(0), g["throw"] = verb(1), g["return"] = verb(2), typeof Symbol === "function" && (g[Symbol.iterator] = function() {
+        return this;
+    }), g;
+    //TURBOPACK unreachable
+    ;
+    function verb(n) {
+        return function(v) {
+            return step([
+                n,
+                v
+            ]);
+        };
+    }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while(g && (g = 0, op[0] && (_ = 0)), _)try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [
+                op[0] & 2,
+                t.value
+            ];
+            switch(op[0]){
+                case 0:
+                case 1:
+                    t = op;
+                    break;
+                case 4:
+                    _.label++;
+                    return {
+                        value: op[1],
+                        done: false
+                    };
+                case 5:
+                    _.label++;
+                    y = op[1];
+                    op = [
+                        0
+                    ];
+                    continue;
+                case 7:
+                    op = _.ops.pop();
+                    _.trys.pop();
+                    continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                        _ = 0;
+                        continue;
+                    }
+                    if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+                        _.label = op[1];
+                        break;
+                    }
+                    if (op[0] === 6 && _.label < t[1]) {
+                        _.label = t[1];
+                        t = op;
+                        break;
+                    }
+                    if (t && _.label < t[2]) {
+                        _.label = t[2];
+                        _.ops.push(op);
+                        break;
+                    }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop();
+                    continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) {
+            op = [
+                6,
+                e
+            ];
+            y = 0;
+        } finally{
+            f = t = 0;
+        }
+        if (op[0] & 5) throw op[1];
+        return {
+            value: op[0] ? op[1] : void 0,
+            done: true
+        };
+    }
+}
+var __createBinding = Object.create ? function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+        desc = {
+            enumerable: true,
+            get: function() {
+                return m[k];
+            }
+        };
+    }
+    Object.defineProperty(o, k2, desc);
+} : function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+};
+function __exportStar(m, o) {
+    for(var p in m)if (p !== "default" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);
+}
+function __values(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function() {
+            if (o && i >= o.length) o = void 0;
+            return {
+                value: o && o[i++],
+                done: !o
+            };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+}
+function __read(o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while((n === void 0 || n-- > 0) && !(r = i.next()).done)ar.push(r.value);
+    } catch (error) {
+        e = {
+            error: error
+        };
+    } finally{
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        } finally{
+            if (e) throw e.error;
+        }
+    }
+    return ar;
+}
+function __spread() {
+    for(var ar = [], i = 0; i < arguments.length; i++)ar = ar.concat(__read(arguments[i]));
+    return ar;
+}
+function __spreadArrays() {
+    for(var s = 0, i = 0, il = arguments.length; i < il; i++)s += arguments[i].length;
+    for(var r = Array(s), k = 0, i = 0; i < il; i++)for(var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)r[k] = a[j];
+    return r;
+}
+function __spreadArray(to, from, pack) {
+    if (pack || arguments.length === 2) for(var i = 0, l = from.length, ar; i < l; i++){
+        if (ar || !(i in from)) {
+            if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+            ar[i] = from[i];
+        }
+    }
+    return to.concat(ar || Array.prototype.slice.call(from));
+}
+function __await(v) {
+    return this instanceof __await ? (this.v = v, this) : new __await(v);
+}
+function __asyncGenerator(thisArg, _arguments, generator) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var g = generator.apply(thisArg, _arguments || []), i, q = [];
+    return i = Object.create((typeof AsyncIterator === "function" ? AsyncIterator : Object).prototype), verb("next"), verb("throw"), verb("return", awaitReturn), i[Symbol.asyncIterator] = function() {
+        return this;
+    }, i;
+    //TURBOPACK unreachable
+    ;
+    function awaitReturn(f) {
+        return function(v) {
+            return Promise.resolve(v).then(f, reject);
+        };
+    }
+    function verb(n, f) {
+        if (g[n]) {
+            i[n] = function(v) {
+                return new Promise(function(a, b) {
+                    q.push([
+                        n,
+                        v,
+                        a,
+                        b
+                    ]) > 1 || resume(n, v);
+                });
+            };
+            if (f) i[n] = f(i[n]);
+        }
+    }
+    function resume(n, v) {
+        try {
+            step(g[n](v));
+        } catch (e) {
+            settle(q[0][3], e);
+        }
+    }
+    function step(r) {
+        r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r);
+    }
+    function fulfill(value) {
+        resume("next", value);
+    }
+    function reject(value) {
+        resume("throw", value);
+    }
+    function settle(f, v) {
+        if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]);
+    }
+}
+function __asyncDelegator(o) {
+    var i, p;
+    return i = {}, verb("next"), verb("throw", function(e) {
+        throw e;
+    }), verb("return"), i[Symbol.iterator] = function() {
+        return this;
+    }, i;
+    //TURBOPACK unreachable
+    ;
+    function verb(n, f) {
+        i[n] = o[n] ? function(v) {
+            return (p = !p) ? {
+                value: __await(o[n](v)),
+                done: false
+            } : f ? f(v) : v;
+        } : f;
+    }
+}
+function __asyncValues(o) {
+    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
+    var m = o[Symbol.asyncIterator], i;
+    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
+        return this;
+    }, i);
+    //TURBOPACK unreachable
+    ;
+    function verb(n) {
+        i[n] = o[n] && function(v) {
+            return new Promise(function(resolve, reject) {
+                v = o[n](v), settle(resolve, reject, v.done, v.value);
+            });
+        };
+    }
+    function settle(resolve, reject, d, v) {
+        Promise.resolve(v).then(function(v) {
+            resolve({
+                value: v,
+                done: d
+            });
+        }, reject);
+    }
+}
+function __makeTemplateObject(cooked, raw) {
+    if (Object.defineProperty) {
+        Object.defineProperty(cooked, "raw", {
+            value: raw
+        });
+    } else {
+        cooked.raw = raw;
+    }
+    return cooked;
+}
+;
+var __setModuleDefault = Object.create ? function(o, v) {
+    Object.defineProperty(o, "default", {
+        enumerable: true,
+        value: v
+    });
+} : function(o, v) {
+    o["default"] = v;
+};
+var ownKeys = function(o) {
+    ownKeys = Object.getOwnPropertyNames || function(o) {
+        var ar = [];
+        for(var k in o)if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+        return ar;
+    };
+    return ownKeys(o);
+};
+function __importStar(mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) {
+        for(var k = ownKeys(mod), i = 0; i < k.length; i++)if (k[i] !== "default") __createBinding(result, mod, k[i]);
+    }
+    __setModuleDefault(result, mod);
+    return result;
+}
+function __importDefault(mod) {
+    return mod && mod.__esModule ? mod : {
+        default: mod
+    };
+}
+function __classPrivateFieldGet(receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+}
+function __classPrivateFieldSet(receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value), value;
+}
+function __classPrivateFieldIn(state, receiver) {
+    if (receiver === null || typeof receiver !== "object" && typeof receiver !== "function") throw new TypeError("Cannot use 'in' operator on non-object");
+    return typeof state === "function" ? receiver === state : state.has(receiver);
+}
+function __addDisposableResource(env, value, async) {
+    if (value !== null && value !== void 0) {
+        if (typeof value !== "object" && typeof value !== "function") throw new TypeError("Object expected.");
+        var dispose, inner;
+        if (async) {
+            if (!Symbol.asyncDispose) throw new TypeError("Symbol.asyncDispose is not defined.");
+            dispose = value[Symbol.asyncDispose];
+        }
+        if (dispose === void 0) {
+            if (!Symbol.dispose) throw new TypeError("Symbol.dispose is not defined.");
+            dispose = value[Symbol.dispose];
+            if (async) inner = dispose;
+        }
+        if (typeof dispose !== "function") throw new TypeError("Object not disposable.");
+        if (inner) dispose = function() {
+            try {
+                inner.call(this);
+            } catch (e) {
+                return Promise.reject(e);
+            }
+        };
+        env.stack.push({
+            value: value,
+            dispose: dispose,
+            async: async
+        });
+    } else if (async) {
+        env.stack.push({
+            async: true
+        });
+    }
+    return value;
+}
+var _SuppressedError = typeof SuppressedError === "function" ? SuppressedError : function(error, suppressed, message) {
+    var e = new Error(message);
+    return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
+function __disposeResources(env) {
+    function fail(e) {
+        env.error = env.hasError ? new _SuppressedError(e, env.error, "An error was suppressed during disposal.") : e;
+        env.hasError = true;
+    }
+    var r, s = 0;
+    function next() {
+        while(r = env.stack.pop()){
+            try {
+                if (!r.async && s === 1) return s = 0, env.stack.push(r), Promise.resolve().then(next);
+                if (r.dispose) {
+                    var result = r.dispose.call(r.value);
+                    if (r.async) return s |= 2, Promise.resolve(result).then(next, function(e) {
+                        fail(e);
+                        return next();
+                    });
+                } else s |= 1;
+            } catch (e) {
+                fail(e);
+            }
+        }
+        if (s === 1) return env.hasError ? Promise.reject(env.error) : Promise.resolve();
+        if (env.hasError) throw env.error;
+    }
+    return next();
+}
+function __rewriteRelativeImportExtension(path, preserveJsx) {
+    if (typeof path === "string" && /^\.\.?\//.test(path)) {
+        return path.replace(/\.(tsx)$|((?:\.d)?)((?:\.[^./]+?)?)\.([cm]?)ts$/i, function(m, tsx, d, ext, cm) {
+            return tsx ? preserveJsx ? ".jsx" : ".js" : d && (!ext || !cm) ? m : d + ext + "." + cm.toLowerCase() + "js";
+        });
+    }
+    return path;
+}
+const __TURBOPACK__default__export__ = {
+    __extends,
+    __assign,
+    __rest,
+    __decorate,
+    __param,
+    __esDecorate,
+    __runInitializers,
+    __propKey,
+    __setFunctionName,
+    __metadata,
+    __awaiter,
+    __generator,
+    __createBinding,
+    __exportStar,
+    __values,
+    __read,
+    __spread,
+    __spreadArrays,
+    __spreadArray,
+    __await,
+    __asyncGenerator,
+    __asyncDelegator,
+    __asyncValues,
+    __makeTemplateObject,
+    __importStar,
+    __importDefault,
+    __classPrivateFieldGet,
+    __classPrivateFieldSet,
+    __classPrivateFieldIn,
+    __addDisposableResource,
+    __disposeResources,
+    __rewriteRelativeImportExtension
+};
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/constants.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "fullWidthClassName",
+    ()=>fullWidthClassName,
+    "noScrollbarsClassName",
+    ()=>noScrollbarsClassName,
+    "removedBarSizeVariable",
+    ()=>removedBarSizeVariable,
+    "zeroRightClassName",
+    ()=>zeroRightClassName
+]);
+var zeroRightClassName = 'right-scroll-bar-position';
+var fullWidthClassName = 'width-before-scroll-bar';
+var noScrollbarsClassName = 'with-scroll-bars-hidden';
+var removedBarSizeVariable = '--removed-body-scroll-bar-size';
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-callback-ref/dist/es2015/assignRef.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+/**
+ * Assigns a value for a given ref, no matter of the ref format
+ * @param {RefObject} ref - a callback function or ref object
+ * @param value - a new value
+ *
+ * @see https://github.com/theKashey/use-callback-ref#assignref
+ * @example
+ * const refObject = useRef();
+ * const refFn = (ref) => {....}
+ *
+ * assignRef(refObject, "refValue");
+ * assignRef(refFn, "refValue");
+ */ __turbopack_context__.s([
+    "assignRef",
+    ()=>assignRef
+]);
+function assignRef(ref, value) {
+    if (typeof ref === 'function') {
+        ref(value);
+    } else if (ref) {
+        ref.current = value;
+    }
+    return ref;
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-callback-ref/dist/es2015/useRef.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useCallbackRef",
+    ()=>useCallbackRef
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+function useCallbackRef(initialValue, callback) {
+    var ref = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({
+        "useCallbackRef.useState": function() {
+            return {
+                // value
+                value: initialValue,
+                // last callback
+                callback: callback,
+                // "memoized" public interface
+                facade: {
+                    get current () {
+                        return ref.value;
+                    },
+                    set current (value){
+                        var last = ref.value;
+                        if (last !== value) {
+                            ref.value = value;
+                            ref.callback(value, last);
+                        }
+                    }
+                }
+            };
+        }
+    }["useCallbackRef.useState"])[0];
+    // update callback
+    ref.callback = callback;
+    return ref.facade;
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-callback-ref/dist/es2015/useMergeRef.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "useMergeRefs",
+    ()=>useMergeRefs
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$callback$2d$ref$2f$dist$2f$es2015$2f$assignRef$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-callback-ref/dist/es2015/assignRef.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$callback$2d$ref$2f$dist$2f$es2015$2f$useRef$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-callback-ref/dist/es2015/useRef.js [app-client] (ecmascript)");
+;
+;
+;
+var useIsomorphicLayoutEffect = typeof window !== 'undefined' ? __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useLayoutEffect"] : __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"];
+var currentValues = new WeakMap();
+function useMergeRefs(refs, defaultValue) {
+    var callbackRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$callback$2d$ref$2f$dist$2f$es2015$2f$useRef$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallbackRef"])(defaultValue || null, {
+        "useMergeRefs.useCallbackRef[callbackRef]": function(newValue) {
+            return refs.forEach({
+                "useMergeRefs.useCallbackRef[callbackRef]": function(ref) {
+                    return (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$callback$2d$ref$2f$dist$2f$es2015$2f$assignRef$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["assignRef"])(ref, newValue);
+                }
+            }["useMergeRefs.useCallbackRef[callbackRef]"]);
+        }
+    }["useMergeRefs.useCallbackRef[callbackRef]"]);
+    // handle refs changes - added or removed
+    useIsomorphicLayoutEffect({
+        "useMergeRefs.useIsomorphicLayoutEffect": function() {
+            var oldValue = currentValues.get(callbackRef);
+            if (oldValue) {
+                var prevRefs_1 = new Set(oldValue);
+                var nextRefs_1 = new Set(refs);
+                var current_1 = callbackRef.current;
+                prevRefs_1.forEach({
+                    "useMergeRefs.useIsomorphicLayoutEffect": function(ref) {
+                        if (!nextRefs_1.has(ref)) {
+                            (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$callback$2d$ref$2f$dist$2f$es2015$2f$assignRef$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["assignRef"])(ref, null);
+                        }
+                    }
+                }["useMergeRefs.useIsomorphicLayoutEffect"]);
+                nextRefs_1.forEach({
+                    "useMergeRefs.useIsomorphicLayoutEffect": function(ref) {
+                        if (!prevRefs_1.has(ref)) {
+                            (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$callback$2d$ref$2f$dist$2f$es2015$2f$assignRef$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["assignRef"])(ref, current_1);
+                        }
+                    }
+                }["useMergeRefs.useIsomorphicLayoutEffect"]);
+            }
+            currentValues.set(callbackRef, refs);
+        }
+    }["useMergeRefs.useIsomorphicLayoutEffect"], [
+        refs
+    ]);
+    return callbackRef;
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-sidecar/dist/es2015/medium.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "createMedium",
+    ()=>createMedium,
+    "createSidecarMedium",
+    ()=>createSidecarMedium
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/tslib/tslib.es6.mjs [app-client] (ecmascript)");
+;
+function ItoI(a) {
+    return a;
+}
+function innerCreateMedium(defaults, middleware) {
+    if (middleware === void 0) {
+        middleware = ItoI;
+    }
+    var buffer = [];
+    var assigned = false;
+    var medium = {
+        read: function() {
+            if (assigned) {
+                throw new Error('Sidecar: could not `read` from an `assigned` medium. `read` could be used only with `useMedium`.');
+            }
+            if (buffer.length) {
+                return buffer[buffer.length - 1];
+            }
+            return defaults;
+        },
+        useMedium: function(data) {
+            var item = middleware(data, assigned);
+            buffer.push(item);
+            return function() {
+                buffer = buffer.filter(function(x) {
+                    return x !== item;
+                });
+            };
+        },
+        assignSyncMedium: function(cb) {
+            assigned = true;
+            while(buffer.length){
+                var cbs = buffer;
+                buffer = [];
+                cbs.forEach(cb);
+            }
+            buffer = {
+                push: function(x) {
+                    return cb(x);
+                },
+                filter: function() {
+                    return buffer;
+                }
+            };
+        },
+        assignMedium: function(cb) {
+            assigned = true;
+            var pendingQueue = [];
+            if (buffer.length) {
+                var cbs = buffer;
+                buffer = [];
+                cbs.forEach(cb);
+                pendingQueue = buffer;
+            }
+            var executeQueue = function() {
+                var cbs = pendingQueue;
+                pendingQueue = [];
+                cbs.forEach(cb);
+            };
+            var cycle = function() {
+                return Promise.resolve().then(executeQueue);
+            };
+            cycle();
+            buffer = {
+                push: function(x) {
+                    pendingQueue.push(x);
+                    cycle();
+                },
+                filter: function(filter) {
+                    pendingQueue = pendingQueue.filter(filter);
+                    return buffer;
+                }
+            };
+        }
+    };
+    return medium;
+}
+function createMedium(defaults, middleware) {
+    if (middleware === void 0) {
+        middleware = ItoI;
+    }
+    return innerCreateMedium(defaults, middleware);
+}
+function createSidecarMedium(options) {
+    if (options === void 0) {
+        options = {};
+    }
+    var medium = innerCreateMedium(null);
+    medium.options = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__assign"])({
+        async: true,
+        ssr: false
+    }, options);
+    return medium;
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/medium.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "effectCar",
+    ()=>effectCar
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$sidecar$2f$dist$2f$es2015$2f$medium$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-sidecar/dist/es2015/medium.js [app-client] (ecmascript)");
+;
+var effectCar = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$sidecar$2f$dist$2f$es2015$2f$medium$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createSidecarMedium"])();
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/UI.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "RemoveScroll",
+    ()=>RemoveScroll
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/tslib/tslib.es6.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/constants.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$callback$2d$ref$2f$dist$2f$es2015$2f$useMergeRef$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-callback-ref/dist/es2015/useMergeRef.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$medium$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/medium.js [app-client] (ecmascript)");
+;
+;
+;
+;
+;
+var nothing = function() {
+    return;
+};
+/**
+ * Removes scrollbar from the page and contain the scroll within the Lock
+ */ var RemoveScroll = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](function(props, parentRef) {
+    var ref = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](null);
+    var _a = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"]({
+        onScrollCapture: nothing,
+        onWheelCapture: nothing,
+        onTouchMoveCapture: nothing
+    }), callbacks = _a[0], setCallbacks = _a[1];
+    var forwardProps = props.forwardProps, children = props.children, className = props.className, removeScrollBar = props.removeScrollBar, enabled = props.enabled, shards = props.shards, sideCar = props.sideCar, noRelative = props.noRelative, noIsolation = props.noIsolation, inert = props.inert, allowPinchZoom = props.allowPinchZoom, _b = props.as, Container = _b === void 0 ? 'div' : _b, gapMode = props.gapMode, rest = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__rest"])(props, [
+        "forwardProps",
+        "children",
+        "className",
+        "removeScrollBar",
+        "enabled",
+        "shards",
+        "sideCar",
+        "noRelative",
+        "noIsolation",
+        "inert",
+        "allowPinchZoom",
+        "as",
+        "gapMode"
+    ]);
+    var SideCar = sideCar;
+    var containerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$callback$2d$ref$2f$dist$2f$es2015$2f$useMergeRef$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMergeRefs"])([
+        ref,
+        parentRef
+    ]);
+    var containerProps = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__assign"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__assign"])({}, rest), callbacks);
+    return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], null, enabled && __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](SideCar, {
+        sideCar: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$medium$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["effectCar"],
+        removeScrollBar: removeScrollBar,
+        shards: shards,
+        noRelative: noRelative,
+        noIsolation: noIsolation,
+        inert: inert,
+        setCallbacks: setCallbacks,
+        allowPinchZoom: !!allowPinchZoom,
+        lockRef: ref,
+        gapMode: gapMode
+    }), forwardProps ? __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cloneElement"](__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Children"].only(children), (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__assign"])((0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__assign"])({}, containerProps), {
+        ref: containerRef
+    })) : __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](Container, (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__assign"])({}, containerProps, {
+        className: className,
+        ref: containerRef
+    }), children));
+});
+RemoveScroll.defaultProps = {
+    enabled: true,
+    removeScrollBar: true,
+    inert: false
+};
+RemoveScroll.classNames = {
+    fullWidth: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fullWidthClassName"],
+    zeroRight: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["zeroRightClassName"]
+};
+;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-sidecar/dist/es2015/exports.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "exportSidecar",
+    ()=>exportSidecar
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/tslib/tslib.es6.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+;
+;
+var SideCar = function(_a) {
+    var sideCar = _a.sideCar, rest = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__rest"])(_a, [
+        "sideCar"
+    ]);
+    if (!sideCar) {
+        throw new Error('Sidecar: please provide `sideCar` property to import the right car');
+    }
+    var Target = sideCar.read();
+    if (!Target) {
+        throw new Error('Sidecar medium not found');
+    }
+    return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](Target, (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__assign"])({}, rest));
+};
+SideCar.isSideCarExport = true;
+function exportSidecar(medium, exported) {
+    medium.useMedium(exported);
+    return SideCar;
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/get-nonce/dist/es2015/index.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "getNonce",
+    ()=>getNonce,
+    "setNonce",
+    ()=>setNonce
+]);
+var currentNonce;
+var setNonce = function(nonce) {
+    currentNonce = nonce;
+};
+var getNonce = function() {
+    if (currentNonce) {
+        return currentNonce;
+    }
+    if (typeof __webpack_nonce__ !== 'undefined') {
+        return __webpack_nonce__;
+    }
+    return undefined;
+};
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/singleton.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "stylesheetSingleton",
+    ()=>stylesheetSingleton
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$get$2d$nonce$2f$dist$2f$es2015$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/get-nonce/dist/es2015/index.js [app-client] (ecmascript)");
+;
+function makeStyleTag() {
+    if (!document) return null;
+    var tag = document.createElement('style');
+    tag.type = 'text/css';
+    var nonce = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$get$2d$nonce$2f$dist$2f$es2015$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getNonce"])();
+    if (nonce) {
+        tag.setAttribute('nonce', nonce);
+    }
+    return tag;
+}
+function injectStyles(tag, css) {
+    // @ts-ignore
+    if (tag.styleSheet) {
+        // @ts-ignore
+        tag.styleSheet.cssText = css;
+    } else {
+        tag.appendChild(document.createTextNode(css));
+    }
+}
+function insertStyleTag(tag) {
+    var head = document.head || document.getElementsByTagName('head')[0];
+    head.appendChild(tag);
+}
+var stylesheetSingleton = function() {
+    var counter = 0;
+    var stylesheet = null;
+    return {
+        add: function(style) {
+            if (counter == 0) {
+                if (stylesheet = makeStyleTag()) {
+                    injectStyles(stylesheet, style);
+                    insertStyleTag(stylesheet);
+                }
+            }
+            counter++;
+        },
+        remove: function() {
+            counter--;
+            if (!counter && stylesheet) {
+                stylesheet.parentNode && stylesheet.parentNode.removeChild(stylesheet);
+                stylesheet = null;
+            }
+        }
+    };
+};
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/hook.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "styleHookSingleton",
+    ()=>styleHookSingleton
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$singleton$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/singleton.js [app-client] (ecmascript)");
+;
+;
+var styleHookSingleton = function() {
+    var sheet = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$singleton$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["stylesheetSingleton"])();
+    return function(styles, isDynamic) {
+        __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+            "styleHookSingleton.useEffect": function() {
+                sheet.add(styles);
+                return ({
+                    "styleHookSingleton.useEffect": function() {
+                        sheet.remove();
+                    }
+                })["styleHookSingleton.useEffect"];
+            }
+        }["styleHookSingleton.useEffect"], [
+            styles && isDynamic
+        ]);
+    };
+};
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/component.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "styleSingleton",
+    ()=>styleSingleton
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$hook$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/hook.js [app-client] (ecmascript)");
+;
+var styleSingleton = function() {
+    var useStyle = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$hook$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["styleHookSingleton"])();
+    var Sheet = function(_a) {
+        var styles = _a.styles, dynamic = _a.dynamic;
+        useStyle(styles, dynamic);
+        return null;
+    };
+    return Sheet;
+};
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/index.js [app-client] (ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$component$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/component.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$singleton$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/singleton.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$hook$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/hook.js [app-client] (ecmascript)");
+;
+;
+;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/utils.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "getGapWidth",
+    ()=>getGapWidth,
+    "zeroGap",
+    ()=>zeroGap
+]);
+var zeroGap = {
+    left: 0,
+    top: 0,
+    right: 0,
+    gap: 0
+};
+var parse = function(x) {
+    return parseInt(x || '', 10) || 0;
+};
+var getOffset = function(gapMode) {
+    var cs = window.getComputedStyle(document.body);
+    var left = cs[gapMode === 'padding' ? 'paddingLeft' : 'marginLeft'];
+    var top = cs[gapMode === 'padding' ? 'paddingTop' : 'marginTop'];
+    var right = cs[gapMode === 'padding' ? 'paddingRight' : 'marginRight'];
+    return [
+        parse(left),
+        parse(top),
+        parse(right)
+    ];
+};
+var getGapWidth = function(gapMode) {
+    if (gapMode === void 0) {
+        gapMode = 'margin';
+    }
+    if (typeof window === 'undefined') {
+        return zeroGap;
+    }
+    var offsets = getOffset(gapMode);
+    var documentWidth = document.documentElement.clientWidth;
+    var windowWidth = window.innerWidth;
+    return {
+        left: offsets[0],
+        top: offsets[1],
+        right: offsets[2],
+        gap: Math.max(0, windowWidth - documentWidth + offsets[2] - offsets[0])
+    };
+};
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/component.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "RemoveScrollBar",
+    ()=>RemoveScrollBar,
+    "lockAttribute",
+    ()=>lockAttribute,
+    "useLockAttribute",
+    ()=>useLockAttribute
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/index.js [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$component$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/component.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/constants.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$utils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/utils.js [app-client] (ecmascript)");
+;
+;
+;
+;
+var Style = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$component$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["styleSingleton"])();
+var lockAttribute = 'data-scroll-locked';
+// important tip - once we measure scrollBar width and remove them
+// we could not repeat this operation
+// thus we are using style-singleton - only the first "yet correct" style will be applied.
+var getStyles = function(_a, allowRelative, gapMode, important) {
+    var left = _a.left, top = _a.top, right = _a.right, gap = _a.gap;
+    if (gapMode === void 0) {
+        gapMode = 'margin';
+    }
+    return "\n  .".concat(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["noScrollbarsClassName"], " {\n   overflow: hidden ").concat(important, ";\n   padding-right: ").concat(gap, "px ").concat(important, ";\n  }\n  body[").concat(lockAttribute, "] {\n    overflow: hidden ").concat(important, ";\n    overscroll-behavior: contain;\n    ").concat([
+        allowRelative && "position: relative ".concat(important, ";"),
+        gapMode === 'margin' && "\n    padding-left: ".concat(left, "px;\n    padding-top: ").concat(top, "px;\n    padding-right: ").concat(right, "px;\n    margin-left:0;\n    margin-top:0;\n    margin-right: ").concat(gap, "px ").concat(important, ";\n    "),
+        gapMode === 'padding' && "padding-right: ".concat(gap, "px ").concat(important, ";")
+    ].filter(Boolean).join(''), "\n  }\n  \n  .").concat(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["zeroRightClassName"], " {\n    right: ").concat(gap, "px ").concat(important, ";\n  }\n  \n  .").concat(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fullWidthClassName"], " {\n    margin-right: ").concat(gap, "px ").concat(important, ";\n  }\n  \n  .").concat(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["zeroRightClassName"], " .").concat(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["zeroRightClassName"], " {\n    right: 0 ").concat(important, ";\n  }\n  \n  .").concat(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fullWidthClassName"], " .").concat(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["fullWidthClassName"], " {\n    margin-right: 0 ").concat(important, ";\n  }\n  \n  body[").concat(lockAttribute, "] {\n    ").concat(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["removedBarSizeVariable"], ": ").concat(gap, "px;\n  }\n");
+};
+var getCurrentUseCounter = function() {
+    var counter = parseInt(document.body.getAttribute(lockAttribute) || '0', 10);
+    return isFinite(counter) ? counter : 0;
+};
+var useLockAttribute = function() {
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "useLockAttribute.useEffect": function() {
+            document.body.setAttribute(lockAttribute, (getCurrentUseCounter() + 1).toString());
+            return ({
+                "useLockAttribute.useEffect": function() {
+                    var newCounter = getCurrentUseCounter() - 1;
+                    if (newCounter <= 0) {
+                        document.body.removeAttribute(lockAttribute);
+                    } else {
+                        document.body.setAttribute(lockAttribute, newCounter.toString());
+                    }
+                }
+            })["useLockAttribute.useEffect"];
+        }
+    }["useLockAttribute.useEffect"], []);
+};
+var RemoveScrollBar = function(_a) {
+    var noRelative = _a.noRelative, noImportant = _a.noImportant, _b = _a.gapMode, gapMode = _b === void 0 ? 'margin' : _b;
+    useLockAttribute();
+    /*
+     gap will be measured on every component mount
+     however it will be used only by the "first" invocation
+     due to singleton nature of <Style
+     */ var gap = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"]({
+        "RemoveScrollBar.useMemo[gap]": function() {
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$utils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["getGapWidth"])(gapMode);
+        }
+    }["RemoveScrollBar.useMemo[gap]"], [
+        gapMode
+    ]);
+    return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](Style, {
+        styles: getStyles(gap, !noRelative, gapMode, !noImportant ? '!important' : '')
+    });
+};
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/index.js [app-client] (ecmascript) <locals>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$component$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/component.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$constants$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/constants.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$utils$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/utils.js [app-client] (ecmascript)");
+;
+;
+;
+;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/aggresiveCapture.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "nonPassive",
+    ()=>nonPassive
+]);
+var passiveSupported = false;
+if (typeof window !== 'undefined') {
+    try {
+        var options = Object.defineProperty({}, 'passive', {
+            get: function() {
+                passiveSupported = true;
+                return true;
+            }
+        });
+        // @ts-ignore
+        window.addEventListener('test', options, options);
+        // @ts-ignore
+        window.removeEventListener('test', options, options);
+    } catch (err) {
+        passiveSupported = false;
+    }
+}
+var nonPassive = passiveSupported ? {
+    passive: false
+} : false;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/handleScroll.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "handleScroll",
+    ()=>handleScroll,
+    "locationCouldBeScrolled",
+    ()=>locationCouldBeScrolled
+]);
+var alwaysContainsScroll = function(node) {
+    // textarea will always _contain_ scroll inside self. It only can be hidden
+    return node.tagName === 'TEXTAREA';
+};
+var elementCanBeScrolled = function(node, overflow) {
+    if (!(node instanceof Element)) {
+        return false;
+    }
+    var styles = window.getComputedStyle(node);
+    return(// not-not-scrollable
+    styles[overflow] !== 'hidden' && // contains scroll inside self
+    !(styles.overflowY === styles.overflowX && !alwaysContainsScroll(node) && styles[overflow] === 'visible'));
+};
+var elementCouldBeVScrolled = function(node) {
+    return elementCanBeScrolled(node, 'overflowY');
+};
+var elementCouldBeHScrolled = function(node) {
+    return elementCanBeScrolled(node, 'overflowX');
+};
+var locationCouldBeScrolled = function(axis, node) {
+    var ownerDocument = node.ownerDocument;
+    var current = node;
+    do {
+        // Skip over shadow root
+        if (typeof ShadowRoot !== 'undefined' && current instanceof ShadowRoot) {
+            current = current.host;
+        }
+        var isScrollable = elementCouldBeScrolled(axis, current);
+        if (isScrollable) {
+            var _a = getScrollVariables(axis, current), scrollHeight = _a[1], clientHeight = _a[2];
+            if (scrollHeight > clientHeight) {
+                return true;
+            }
+        }
+        current = current.parentNode;
+    }while (current && current !== ownerDocument.body)
+    return false;
+};
+var getVScrollVariables = function(_a) {
+    var scrollTop = _a.scrollTop, scrollHeight = _a.scrollHeight, clientHeight = _a.clientHeight;
+    return [
+        scrollTop,
+        scrollHeight,
+        clientHeight
+    ];
+};
+var getHScrollVariables = function(_a) {
+    var scrollLeft = _a.scrollLeft, scrollWidth = _a.scrollWidth, clientWidth = _a.clientWidth;
+    return [
+        scrollLeft,
+        scrollWidth,
+        clientWidth
+    ];
+};
+var elementCouldBeScrolled = function(axis, node) {
+    return axis === 'v' ? elementCouldBeVScrolled(node) : elementCouldBeHScrolled(node);
+};
+var getScrollVariables = function(axis, node) {
+    return axis === 'v' ? getVScrollVariables(node) : getHScrollVariables(node);
+};
+var getDirectionFactor = function(axis, direction) {
+    /**
+     * If the element's direction is rtl (right-to-left), then scrollLeft is 0 when the scrollbar is at its rightmost position,
+     * and then increasingly negative as you scroll towards the end of the content.
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/Element/scrollLeft
+     */ return axis === 'h' && direction === 'rtl' ? -1 : 1;
+};
+var handleScroll = function(axis, endTarget, event, sourceDelta, noOverscroll) {
+    var directionFactor = getDirectionFactor(axis, window.getComputedStyle(endTarget).direction);
+    var delta = directionFactor * sourceDelta;
+    // find scrollable target
+    var target = event.target;
+    var targetInLock = endTarget.contains(target);
+    var shouldCancelScroll = false;
+    var isDeltaPositive = delta > 0;
+    var availableScroll = 0;
+    var availableScrollTop = 0;
+    do {
+        if (!target) {
+            break;
+        }
+        var _a = getScrollVariables(axis, target), position = _a[0], scroll_1 = _a[1], capacity = _a[2];
+        var elementScroll = scroll_1 - capacity - directionFactor * position;
+        if (position || elementScroll) {
+            if (elementCouldBeScrolled(axis, target)) {
+                availableScroll += elementScroll;
+                availableScrollTop += position;
+            }
+        }
+        var parent_1 = target.parentNode;
+        // we will "bubble" from ShadowDom in case we are, or just to the parent in normal case
+        // this is the same logic used in focus-lock
+        target = parent_1 && parent_1.nodeType === Node.DOCUMENT_FRAGMENT_NODE ? parent_1.host : parent_1;
+    }while (// portaled content
+    !targetInLock && target !== document.body || targetInLock && (endTarget.contains(target) || endTarget === target))
+    // handle epsilon around 0 (non standard zoom levels)
+    if (isDeltaPositive && (noOverscroll && Math.abs(availableScroll) < 1 || !noOverscroll && delta > availableScroll)) {
+        shouldCancelScroll = true;
+    } else if (!isDeltaPositive && (noOverscroll && Math.abs(availableScrollTop) < 1 || !noOverscroll && -delta > availableScrollTop)) {
+        shouldCancelScroll = true;
+    }
+    return shouldCancelScroll;
+};
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/SideEffect.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "RemoveScrollSideCar",
+    ()=>RemoveScrollSideCar,
+    "getDeltaXY",
+    ()=>getDeltaXY,
+    "getTouchXY",
+    ()=>getTouchXY
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/tslib/tslib.es6.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/index.js [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$component$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll-bar/dist/es2015/component.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$locals$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/index.js [app-client] (ecmascript) <locals>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$component$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-style-singleton/dist/es2015/component.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$aggresiveCapture$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/aggresiveCapture.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$handleScroll$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/handleScroll.js [app-client] (ecmascript)");
+;
+;
+;
+;
+;
+;
+var getTouchXY = function(event) {
+    return 'changedTouches' in event ? [
+        event.changedTouches[0].clientX,
+        event.changedTouches[0].clientY
+    ] : [
+        0,
+        0
+    ];
+};
+var getDeltaXY = function(event) {
+    return [
+        event.deltaX,
+        event.deltaY
+    ];
+};
+var extractRef = function(ref) {
+    return ref && 'current' in ref ? ref.current : ref;
+};
+var deltaCompare = function(x, y) {
+    return x[0] === y[0] && x[1] === y[1];
+};
+var generateStyle = function(id) {
+    return "\n  .block-interactivity-".concat(id, " {pointer-events: none;}\n  .allow-interactivity-").concat(id, " {pointer-events: all;}\n");
+};
+var idCounter = 0;
+var lockStack = [];
+function RemoveScrollSideCar(props) {
+    var shouldPreventQueue = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"]([]);
+    var touchStartRef = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"]([
+        0,
+        0
+    ]);
+    var activeAxis = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"]();
+    var id = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](idCounter++)[0];
+    var Style = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"](__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$style$2d$singleton$2f$dist$2f$es2015$2f$component$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["styleSingleton"])[0];
+    var lastProps = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](props);
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "RemoveScrollSideCar.useEffect": function() {
+            lastProps.current = props;
+        }
+    }["RemoveScrollSideCar.useEffect"], [
+        props
+    ]);
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "RemoveScrollSideCar.useEffect": function() {
+            if (props.inert) {
+                document.body.classList.add("block-interactivity-".concat(id));
+                var allow_1 = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__spreadArray"])([
+                    props.lockRef.current
+                ], (props.shards || []).map(extractRef), true).filter(Boolean);
+                allow_1.forEach({
+                    "RemoveScrollSideCar.useEffect": function(el) {
+                        return el.classList.add("allow-interactivity-".concat(id));
+                    }
+                }["RemoveScrollSideCar.useEffect"]);
+                return ({
+                    "RemoveScrollSideCar.useEffect": function() {
+                        document.body.classList.remove("block-interactivity-".concat(id));
+                        allow_1.forEach({
+                            "RemoveScrollSideCar.useEffect": function(el) {
+                                return el.classList.remove("allow-interactivity-".concat(id));
+                            }
+                        }["RemoveScrollSideCar.useEffect"]);
+                    }
+                })["RemoveScrollSideCar.useEffect"];
+            }
+            return;
+        }
+    }["RemoveScrollSideCar.useEffect"], [
+        props.inert,
+        props.lockRef.current,
+        props.shards
+    ]);
+    var shouldCancelEvent = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "RemoveScrollSideCar.useCallback[shouldCancelEvent]": function(event, parent) {
+            if ('touches' in event && event.touches.length === 2 || event.type === 'wheel' && event.ctrlKey) {
+                return !lastProps.current.allowPinchZoom;
+            }
+            var touch = getTouchXY(event);
+            var touchStart = touchStartRef.current;
+            var deltaX = 'deltaX' in event ? event.deltaX : touchStart[0] - touch[0];
+            var deltaY = 'deltaY' in event ? event.deltaY : touchStart[1] - touch[1];
+            var currentAxis;
+            var target = event.target;
+            var moveDirection = Math.abs(deltaX) > Math.abs(deltaY) ? 'h' : 'v';
+            // allow horizontal touch move on Range inputs. They will not cause any scroll
+            if ('touches' in event && moveDirection === 'h' && target.type === 'range') {
+                return false;
+            }
+            // allow drag selection (iOS); check if selection's anchorNode is the same as target or contains target
+            var selection = window.getSelection();
+            var anchorNode = selection && selection.anchorNode;
+            var isTouchingSelection = anchorNode ? anchorNode === target || anchorNode.contains(target) : false;
+            if (isTouchingSelection) {
+                return false;
+            }
+            var canBeScrolledInMainDirection = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$handleScroll$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["locationCouldBeScrolled"])(moveDirection, target);
+            if (!canBeScrolledInMainDirection) {
+                return true;
+            }
+            if (canBeScrolledInMainDirection) {
+                currentAxis = moveDirection;
+            } else {
+                currentAxis = moveDirection === 'v' ? 'h' : 'v';
+                canBeScrolledInMainDirection = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$handleScroll$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["locationCouldBeScrolled"])(moveDirection, target);
+            // other axis might be not scrollable
+            }
+            if (!canBeScrolledInMainDirection) {
+                return false;
+            }
+            if (!activeAxis.current && 'changedTouches' in event && (deltaX || deltaY)) {
+                activeAxis.current = currentAxis;
+            }
+            if (!currentAxis) {
+                return true;
+            }
+            var cancelingAxis = activeAxis.current || currentAxis;
+            return (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$handleScroll$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["handleScroll"])(cancelingAxis, parent, event, cancelingAxis === 'h' ? deltaX : deltaY, true);
+        }
+    }["RemoveScrollSideCar.useCallback[shouldCancelEvent]"], []);
+    var shouldPrevent = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "RemoveScrollSideCar.useCallback[shouldPrevent]": function(_event) {
+            var event = _event;
+            if (!lockStack.length || lockStack[lockStack.length - 1] !== Style) {
+                // not the last active
+                return;
+            }
+            var delta = 'deltaY' in event ? getDeltaXY(event) : getTouchXY(event);
+            var sourceEvent = shouldPreventQueue.current.filter({
+                "RemoveScrollSideCar.useCallback[shouldPrevent]": function(e) {
+                    return e.name === event.type && (e.target === event.target || event.target === e.shadowParent) && deltaCompare(e.delta, delta);
+                }
+            }["RemoveScrollSideCar.useCallback[shouldPrevent]"])[0];
+            // self event, and should be canceled
+            if (sourceEvent && sourceEvent.should) {
+                if (event.cancelable) {
+                    event.preventDefault();
+                }
+                return;
+            }
+            // outside or shard event
+            if (!sourceEvent) {
+                var shardNodes = (lastProps.current.shards || []).map(extractRef).filter(Boolean).filter({
+                    "RemoveScrollSideCar.useCallback[shouldPrevent].shardNodes": function(node) {
+                        return node.contains(event.target);
+                    }
+                }["RemoveScrollSideCar.useCallback[shouldPrevent].shardNodes"]);
+                var shouldStop = shardNodes.length > 0 ? shouldCancelEvent(event, shardNodes[0]) : !lastProps.current.noIsolation;
+                if (shouldStop) {
+                    if (event.cancelable) {
+                        event.preventDefault();
+                    }
+                }
+            }
+        }
+    }["RemoveScrollSideCar.useCallback[shouldPrevent]"], []);
+    var shouldCancel = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "RemoveScrollSideCar.useCallback[shouldCancel]": function(name, delta, target, should) {
+            var event = {
+                name: name,
+                delta: delta,
+                target: target,
+                should: should,
+                shadowParent: getOutermostShadowParent(target)
+            };
+            shouldPreventQueue.current.push(event);
+            setTimeout({
+                "RemoveScrollSideCar.useCallback[shouldCancel]": function() {
+                    shouldPreventQueue.current = shouldPreventQueue.current.filter({
+                        "RemoveScrollSideCar.useCallback[shouldCancel]": function(e) {
+                            return e !== event;
+                        }
+                    }["RemoveScrollSideCar.useCallback[shouldCancel]"]);
+                }
+            }["RemoveScrollSideCar.useCallback[shouldCancel]"], 1);
+        }
+    }["RemoveScrollSideCar.useCallback[shouldCancel]"], []);
+    var scrollTouchStart = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "RemoveScrollSideCar.useCallback[scrollTouchStart]": function(event) {
+            touchStartRef.current = getTouchXY(event);
+            activeAxis.current = undefined;
+        }
+    }["RemoveScrollSideCar.useCallback[scrollTouchStart]"], []);
+    var scrollWheel = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "RemoveScrollSideCar.useCallback[scrollWheel]": function(event) {
+            shouldCancel(event.type, getDeltaXY(event), event.target, shouldCancelEvent(event, props.lockRef.current));
+        }
+    }["RemoveScrollSideCar.useCallback[scrollWheel]"], []);
+    var scrollTouchMove = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+        "RemoveScrollSideCar.useCallback[scrollTouchMove]": function(event) {
+            shouldCancel(event.type, getTouchXY(event), event.target, shouldCancelEvent(event, props.lockRef.current));
+        }
+    }["RemoveScrollSideCar.useCallback[scrollTouchMove]"], []);
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "RemoveScrollSideCar.useEffect": function() {
+            lockStack.push(Style);
+            props.setCallbacks({
+                onScrollCapture: scrollWheel,
+                onWheelCapture: scrollWheel,
+                onTouchMoveCapture: scrollTouchMove
+            });
+            document.addEventListener('wheel', shouldPrevent, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$aggresiveCapture$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["nonPassive"]);
+            document.addEventListener('touchmove', shouldPrevent, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$aggresiveCapture$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["nonPassive"]);
+            document.addEventListener('touchstart', scrollTouchStart, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$aggresiveCapture$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["nonPassive"]);
+            return ({
+                "RemoveScrollSideCar.useEffect": function() {
+                    lockStack = lockStack.filter({
+                        "RemoveScrollSideCar.useEffect": function(inst) {
+                            return inst !== Style;
+                        }
+                    }["RemoveScrollSideCar.useEffect"]);
+                    document.removeEventListener('wheel', shouldPrevent, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$aggresiveCapture$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["nonPassive"]);
+                    document.removeEventListener('touchmove', shouldPrevent, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$aggresiveCapture$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["nonPassive"]);
+                    document.removeEventListener('touchstart', scrollTouchStart, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$aggresiveCapture$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["nonPassive"]);
+                }
+            })["RemoveScrollSideCar.useEffect"];
+        }
+    }["RemoveScrollSideCar.useEffect"], []);
+    var removeScrollBar = props.removeScrollBar, inert = props.inert;
+    return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], null, inert ? __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](Style, {
+        styles: generateStyle(id)
+    }) : null, removeScrollBar ? __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2d$bar$2f$dist$2f$es2015$2f$component$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RemoveScrollBar"], {
+        noRelative: props.noRelative,
+        gapMode: props.gapMode
+    }) : null);
+}
+function getOutermostShadowParent(node) {
+    var shadowParent = null;
+    while(node !== null){
+        if (node instanceof ShadowRoot) {
+            shadowParent = node.host;
+            node = node.host;
+        }
+        node = node.parentNode;
+    }
+    return shadowParent;
+}
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/sidecar.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$sidecar$2f$dist$2f$es2015$2f$exports$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/use-sidecar/dist/es2015/exports.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$SideEffect$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/SideEffect.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$medium$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/medium.js [app-client] (ecmascript)");
+;
+;
+;
+const __TURBOPACK__default__export__ = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$use$2d$sidecar$2f$dist$2f$es2015$2f$exports$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["exportSidecar"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$medium$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["effectCar"], __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$SideEffect$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RemoveScrollSideCar"]);
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/Combination.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "default",
+    ()=>__TURBOPACK__default__export__
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/tslib/tslib.es6.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$UI$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/UI.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$sidecar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/sidecar.js [app-client] (ecmascript)");
+;
+;
+;
+;
+var ReactRemoveScroll = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"](function(props, ref) {
+    return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createElement"](__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$UI$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RemoveScroll"], (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$tslib$2f$tslib$2e$es6$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["__assign"])({}, props, {
+        ref: ref,
+        sideCar: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$sidecar$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+    }));
+});
+ReactRemoveScroll.classNames = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$UI$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["RemoveScroll"].classNames;
+const __TURBOPACK__default__export__ = ReactRemoveScroll;
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/Combination.js [app-client] (ecmascript) <export default as RemoveScroll>", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "RemoveScroll",
+    ()=>__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$Combination$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"]
+]);
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$Combination$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/Combination.js [app-client] (ecmascript)");
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/aria-hidden/dist/es2015/index.js [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "hideOthers",
+    ()=>hideOthers,
+    "inertOthers",
+    ()=>inertOthers,
+    "supportsInert",
+    ()=>supportsInert,
+    "suppressOthers",
+    ()=>suppressOthers
+]);
+var getDefaultParent = function(originalTarget) {
+    if (typeof document === 'undefined') {
+        return null;
+    }
+    var sampleTarget = Array.isArray(originalTarget) ? originalTarget[0] : originalTarget;
+    return sampleTarget.ownerDocument.body;
+};
+var counterMap = new WeakMap();
+var uncontrolledNodes = new WeakMap();
+var markerMap = {};
+var lockCount = 0;
+var unwrapHost = function(node) {
+    return node && (node.host || unwrapHost(node.parentNode));
+};
+var correctTargets = function(parent, targets) {
+    return targets.map(function(target) {
+        if (parent.contains(target)) {
+            return target;
+        }
+        var correctedTarget = unwrapHost(target);
+        if (correctedTarget && parent.contains(correctedTarget)) {
+            return correctedTarget;
+        }
+        console.error('aria-hidden', target, 'in not contained inside', parent, '. Doing nothing');
+        return null;
+    }).filter(function(x) {
+        return Boolean(x);
+    });
+};
+/**
+ * Marks everything except given node(or nodes) as aria-hidden
+ * @param {Element | Element[]} originalTarget - elements to keep on the page
+ * @param [parentNode] - top element, defaults to document.body
+ * @param {String} [markerName] - a special attribute to mark every node
+ * @param {String} [controlAttribute] - html Attribute to control
+ * @return {Undo} undo command
+ */ var applyAttributeToOthers = function(originalTarget, parentNode, markerName, controlAttribute) {
+    var targets = correctTargets(parentNode, Array.isArray(originalTarget) ? originalTarget : [
+        originalTarget
+    ]);
+    if (!markerMap[markerName]) {
+        markerMap[markerName] = new WeakMap();
+    }
+    var markerCounter = markerMap[markerName];
+    var hiddenNodes = [];
+    var elementsToKeep = new Set();
+    var elementsToStop = new Set(targets);
+    var keep = function(el) {
+        if (!el || elementsToKeep.has(el)) {
+            return;
+        }
+        elementsToKeep.add(el);
+        keep(el.parentNode);
+    };
+    targets.forEach(keep);
+    var deep = function(parent) {
+        if (!parent || elementsToStop.has(parent)) {
+            return;
+        }
+        Array.prototype.forEach.call(parent.children, function(node) {
+            if (elementsToKeep.has(node)) {
+                deep(node);
+            } else {
+                try {
+                    var attr = node.getAttribute(controlAttribute);
+                    var alreadyHidden = attr !== null && attr !== 'false';
+                    var counterValue = (counterMap.get(node) || 0) + 1;
+                    var markerValue = (markerCounter.get(node) || 0) + 1;
+                    counterMap.set(node, counterValue);
+                    markerCounter.set(node, markerValue);
+                    hiddenNodes.push(node);
+                    if (counterValue === 1 && alreadyHidden) {
+                        uncontrolledNodes.set(node, true);
+                    }
+                    if (markerValue === 1) {
+                        node.setAttribute(markerName, 'true');
+                    }
+                    if (!alreadyHidden) {
+                        node.setAttribute(controlAttribute, 'true');
+                    }
+                } catch (e) {
+                    console.error('aria-hidden: cannot operate on ', node, e);
+                }
+            }
+        });
+    };
+    deep(parentNode);
+    elementsToKeep.clear();
+    lockCount++;
+    return function() {
+        hiddenNodes.forEach(function(node) {
+            var counterValue = counterMap.get(node) - 1;
+            var markerValue = markerCounter.get(node) - 1;
+            counterMap.set(node, counterValue);
+            markerCounter.set(node, markerValue);
+            if (!counterValue) {
+                if (!uncontrolledNodes.has(node)) {
+                    node.removeAttribute(controlAttribute);
+                }
+                uncontrolledNodes.delete(node);
+            }
+            if (!markerValue) {
+                node.removeAttribute(markerName);
+            }
+        });
+        lockCount--;
+        if (!lockCount) {
+            // clear
+            counterMap = new WeakMap();
+            counterMap = new WeakMap();
+            uncontrolledNodes = new WeakMap();
+            markerMap = {};
+        }
+    };
+};
+var hideOthers = function(originalTarget, parentNode, markerName) {
+    if (markerName === void 0) {
+        markerName = 'data-aria-hidden';
+    }
+    var targets = Array.from(Array.isArray(originalTarget) ? originalTarget : [
+        originalTarget
+    ]);
+    var activeParentNode = parentNode || getDefaultParent(originalTarget);
+    if (!activeParentNode) {
+        return function() {
+            return null;
+        };
+    }
+    // we should not hide aria-live elements - https://github.com/theKashey/aria-hidden/issues/10
+    // and script elements, as they have no impact on accessibility.
+    targets.push.apply(targets, Array.from(activeParentNode.querySelectorAll('[aria-live], script')));
+    return applyAttributeToOthers(targets, activeParentNode, markerName, 'aria-hidden');
+};
+var inertOthers = function(originalTarget, parentNode, markerName) {
+    if (markerName === void 0) {
+        markerName = 'data-inert-ed';
+    }
+    var activeParentNode = parentNode || getDefaultParent(originalTarget);
+    if (!activeParentNode) {
+        return function() {
+            return null;
+        };
+    }
+    return applyAttributeToOthers(originalTarget, activeParentNode, markerName, 'inert');
+};
+var supportsInert = function() {
+    return typeof HTMLElement !== 'undefined' && HTMLElement.prototype.hasOwnProperty('inert');
+};
+var suppressOthers = function(originalTarget, parentNode, markerName) {
+    if (markerName === void 0) {
+        markerName = 'data-suppressed';
+    }
+    return (supportsInert() ? inertOthers : hideOthers)(originalTarget, parentNode, markerName);
+};
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-dialog/node_modules/@radix-ui/react-slot/dist/index.mjs [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Root",
+    ()=>Slot,
+    "Slot",
+    ()=>Slot,
+    "Slottable",
+    ()=>Slottable,
+    "createSlot",
+    ()=>createSlot,
+    "createSlottable",
+    ()=>createSlottable
+]);
+// src/slot.tsx
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-compose-refs/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/jsx-runtime.js [app-client] (ecmascript)");
+;
+;
+;
+// @__NO_SIDE_EFFECTS__
+function createSlot(ownerName) {
+    const SlotClone = /* @__PURE__ */ createSlotClone(ownerName);
+    const Slot2 = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+        const { children, ...slotProps } = props;
+        const childrenArray = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Children"].toArray(children);
+        const slottable = childrenArray.find(isSlottable);
+        if (slottable) {
+            const newElement = slottable.props.children;
+            const newChildren = childrenArray.map((child)=>{
+                if (child === slottable) {
+                    if (__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Children"].count(newElement) > 1) return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Children"].only(null);
+                    return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidElement"](newElement) ? newElement.props.children : null;
+                } else {
+                    return child;
+                }
+            });
+            return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(SlotClone, {
+                ...slotProps,
+                ref: forwardedRef,
+                children: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidElement"](newElement) ? __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cloneElement"](newElement, void 0, newChildren) : null
+            });
+        }
+        return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(SlotClone, {
+            ...slotProps,
+            ref: forwardedRef,
+            children
+        });
+    });
+    Slot2.displayName = `${ownerName}.Slot`;
+    return Slot2;
+}
+var Slot = /* @__PURE__ */ createSlot("Slot");
+// @__NO_SIDE_EFFECTS__
+function createSlotClone(ownerName) {
+    const SlotClone = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+        const { children, ...slotProps } = props;
+        if (__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidElement"](children)) {
+            const childrenRef = getElementRef(children);
+            const props2 = mergeProps(slotProps, children.props);
+            if (children.type !== __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"]) {
+                props2.ref = forwardedRef ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["composeRefs"])(forwardedRef, childrenRef) : childrenRef;
+            }
+            return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cloneElement"](children, props2);
+        }
+        return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Children"].count(children) > 1 ? __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Children"].only(null) : null;
+    });
+    SlotClone.displayName = `${ownerName}.SlotClone`;
+    return SlotClone;
+}
+var SLOTTABLE_IDENTIFIER = Symbol("radix.slottable");
+// @__NO_SIDE_EFFECTS__
+function createSlottable(ownerName) {
+    const Slottable2 = ({ children })=>{
+        return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+            children
+        });
+    };
+    Slottable2.displayName = `${ownerName}.Slottable`;
+    Slottable2.__radixId = SLOTTABLE_IDENTIFIER;
+    return Slottable2;
+}
+var Slottable = /* @__PURE__ */ createSlottable("Slottable");
+function isSlottable(child) {
+    return __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["isValidElement"](child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
+}
+function mergeProps(slotProps, childProps) {
+    const overrideProps = {
+        ...childProps
+    };
+    for(const propName in childProps){
+        const slotPropValue = slotProps[propName];
+        const childPropValue = childProps[propName];
+        const isHandler = /^on[A-Z]/.test(propName);
+        if (isHandler) {
+            if (slotPropValue && childPropValue) {
+                overrideProps[propName] = (...args)=>{
+                    const result = childPropValue(...args);
+                    slotPropValue(...args);
+                    return result;
+                };
+            } else if (slotPropValue) {
+                overrideProps[propName] = slotPropValue;
+            }
+        } else if (propName === "style") {
+            overrideProps[propName] = {
+                ...slotPropValue,
+                ...childPropValue
+            };
+        } else if (propName === "className") {
+            overrideProps[propName] = [
+                slotPropValue,
+                childPropValue
+            ].filter(Boolean).join(" ");
+        }
+    }
+    return {
+        ...slotProps,
+        ...overrideProps
+    };
+}
+function getElementRef(element) {
+    let getter = Object.getOwnPropertyDescriptor(element.props, "ref")?.get;
+    let mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+    if (mayWarn) {
+        return element.ref;
+    }
+    getter = Object.getOwnPropertyDescriptor(element, "ref")?.get;
+    mayWarn = getter && "isReactWarning" in getter && getter.isReactWarning;
+    if (mayWarn) {
+        return element.props.ref;
+    }
+    return element.props.ref || element.ref;
+}
+;
+ //# sourceMappingURL=index.mjs.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-dialog/dist/index.mjs [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Close",
+    ()=>Close,
+    "Content",
+    ()=>Content,
+    "Description",
+    ()=>Description,
+    "Dialog",
+    ()=>Dialog,
+    "DialogClose",
+    ()=>DialogClose,
+    "DialogContent",
+    ()=>DialogContent,
+    "DialogDescription",
+    ()=>DialogDescription,
+    "DialogOverlay",
+    ()=>DialogOverlay,
+    "DialogPortal",
+    ()=>DialogPortal,
+    "DialogTitle",
+    ()=>DialogTitle,
+    "DialogTrigger",
+    ()=>DialogTrigger,
+    "Overlay",
+    ()=>Overlay,
+    "Portal",
+    ()=>Portal,
+    "Root",
+    ()=>Root,
+    "Title",
+    ()=>Title,
+    "Trigger",
+    ()=>Trigger,
+    "WarningProvider",
+    ()=>WarningProvider,
+    "createDialogScope",
+    ()=>createDialogScope
+]);
+// src/dialog.tsx
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/primitive/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-compose-refs/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$context$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-context/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$id$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-id/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$use$2d$controllable$2d$state$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-use-controllable-state/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dismissable$2d$layer$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-dismissable-layer/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$focus$2d$scope$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-focus-scope/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$portal$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-portal/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$presence$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-presence/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-primitive/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$focus$2d$guards$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-focus-guards/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$Combination$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RemoveScroll$3e$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/react-remove-scroll/dist/es2015/Combination.js [app-client] (ecmascript) <export default as RemoveScroll>");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$aria$2d$hidden$2f$dist$2f$es2015$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/aria-hidden/dist/es2015/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$slot$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-dialog/node_modules/@radix-ui/react-slot/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/jsx-runtime.js [app-client] (ecmascript)");
+"use client";
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+;
+var DIALOG_NAME = "Dialog";
+var [createDialogContext, createDialogScope] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$context$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createContextScope"])(DIALOG_NAME);
+var [DialogProvider, useDialogContext] = createDialogContext(DIALOG_NAME);
+var Dialog = (props)=>{
+    const { __scopeDialog, children, open: openProp, defaultOpen, onOpenChange, modal = true } = props;
+    const triggerRef = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](null);
+    const contentRef = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](null);
+    const [open, setOpen] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$use$2d$controllable$2d$state$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useControllableState"])({
+        prop: openProp,
+        defaultProp: defaultOpen ?? false,
+        onChange: onOpenChange,
+        caller: DIALOG_NAME
+    });
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(DialogProvider, {
+        scope: __scopeDialog,
+        triggerRef,
+        contentRef,
+        contentId: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$id$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useId"])(),
+        titleId: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$id$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useId"])(),
+        descriptionId: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$id$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useId"])(),
+        open,
+        onOpenChange: setOpen,
+        onOpenToggle: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"]({
+            "Dialog.useCallback": ()=>setOpen({
+                    "Dialog.useCallback": (prevOpen)=>!prevOpen
+                }["Dialog.useCallback"])
+        }["Dialog.useCallback"], [
+            setOpen
+        ]),
+        modal,
+        children
+    });
+};
+Dialog.displayName = DIALOG_NAME;
+var TRIGGER_NAME = "DialogTrigger";
+var DialogTrigger = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const { __scopeDialog, ...triggerProps } = props;
+    const context = useDialogContext(TRIGGER_NAME, __scopeDialog);
+    const composedTriggerRef = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useComposedRefs"])(forwardedRef, context.triggerRef);
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Primitive"].button, {
+        type: "button",
+        "aria-haspopup": "dialog",
+        "aria-expanded": context.open,
+        "aria-controls": context.contentId,
+        "data-state": getState(context.open),
+        ...triggerProps,
+        ref: composedTriggerRef,
+        onClick: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["composeEventHandlers"])(props.onClick, context.onOpenToggle)
+    });
+});
+DialogTrigger.displayName = TRIGGER_NAME;
+var PORTAL_NAME = "DialogPortal";
+var [PortalProvider, usePortalContext] = createDialogContext(PORTAL_NAME, {
+    forceMount: void 0
+});
+var DialogPortal = (props)=>{
+    const { __scopeDialog, forceMount, children, container } = props;
+    const context = useDialogContext(PORTAL_NAME, __scopeDialog);
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(PortalProvider, {
+        scope: __scopeDialog,
+        forceMount,
+        children: __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Children"].map(children, (child)=>/* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$presence$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Presence"], {
+                present: forceMount || context.open,
+                children: /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$portal$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Portal"], {
+                    asChild: true,
+                    container,
+                    children: child
+                })
+            }))
+    });
+};
+DialogPortal.displayName = PORTAL_NAME;
+var OVERLAY_NAME = "DialogOverlay";
+var DialogOverlay = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const portalContext = usePortalContext(OVERLAY_NAME, props.__scopeDialog);
+    const { forceMount = portalContext.forceMount, ...overlayProps } = props;
+    const context = useDialogContext(OVERLAY_NAME, props.__scopeDialog);
+    return context.modal ? /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$presence$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Presence"], {
+        present: forceMount || context.open,
+        children: /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(DialogOverlayImpl, {
+            ...overlayProps,
+            ref: forwardedRef
+        })
+    }) : null;
+});
+DialogOverlay.displayName = OVERLAY_NAME;
+var Slot = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dialog$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$slot$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createSlot"])("DialogOverlay.RemoveScroll");
+var DialogOverlayImpl = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const { __scopeDialog, ...overlayProps } = props;
+    const context = useDialogContext(OVERLAY_NAME, __scopeDialog);
+    return(// Make sure `Content` is scrollable even when it doesn't live inside `RemoveScroll`
+    // ie. when `Overlay` and `Content` are siblings
+    /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$react$2d$remove$2d$scroll$2f$dist$2f$es2015$2f$Combination$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RemoveScroll$3e$__["RemoveScroll"], {
+        as: Slot,
+        allowPinchZoom: true,
+        shards: [
+            context.contentRef
+        ],
+        children: /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Primitive"].div, {
+            "data-state": getState(context.open),
+            ...overlayProps,
+            ref: forwardedRef,
+            style: {
+                pointerEvents: "auto",
+                ...overlayProps.style
+            }
+        })
+    }));
+});
+var CONTENT_NAME = "DialogContent";
+var DialogContent = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const portalContext = usePortalContext(CONTENT_NAME, props.__scopeDialog);
+    const { forceMount = portalContext.forceMount, ...contentProps } = props;
+    const context = useDialogContext(CONTENT_NAME, props.__scopeDialog);
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$presence$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Presence"], {
+        present: forceMount || context.open,
+        children: context.modal ? /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(DialogContentModal, {
+            ...contentProps,
+            ref: forwardedRef
+        }) : /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(DialogContentNonModal, {
+            ...contentProps,
+            ref: forwardedRef
+        })
+    });
+});
+DialogContent.displayName = CONTENT_NAME;
+var DialogContentModal = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const context = useDialogContext(CONTENT_NAME, props.__scopeDialog);
+    const contentRef = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](null);
+    const composedRefs = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useComposedRefs"])(forwardedRef, context.contentRef, contentRef);
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "DialogContentModal.useEffect": ()=>{
+            const content = contentRef.current;
+            if (content) return (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$aria$2d$hidden$2f$dist$2f$es2015$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["hideOthers"])(content);
+        }
+    }["DialogContentModal.useEffect"], []);
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(DialogContentImpl, {
+        ...props,
+        ref: composedRefs,
+        trapFocus: context.open,
+        disableOutsidePointerEvents: true,
+        onCloseAutoFocus: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["composeEventHandlers"])(props.onCloseAutoFocus, (event)=>{
+            event.preventDefault();
+            context.triggerRef.current?.focus();
+        }),
+        onPointerDownOutside: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["composeEventHandlers"])(props.onPointerDownOutside, (event)=>{
+            const originalEvent = event.detail.originalEvent;
+            const ctrlLeftClick = originalEvent.button === 0 && originalEvent.ctrlKey === true;
+            const isRightClick = originalEvent.button === 2 || ctrlLeftClick;
+            if (isRightClick) event.preventDefault();
+        }),
+        onFocusOutside: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["composeEventHandlers"])(props.onFocusOutside, (event)=>event.preventDefault())
+    });
+});
+var DialogContentNonModal = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const context = useDialogContext(CONTENT_NAME, props.__scopeDialog);
+    const hasInteractedOutsideRef = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](false);
+    const hasPointerDownOutsideRef = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](false);
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(DialogContentImpl, {
+        ...props,
+        ref: forwardedRef,
+        trapFocus: false,
+        disableOutsidePointerEvents: false,
+        onCloseAutoFocus: (event)=>{
+            props.onCloseAutoFocus?.(event);
+            if (!event.defaultPrevented) {
+                if (!hasInteractedOutsideRef.current) context.triggerRef.current?.focus();
+                event.preventDefault();
+            }
+            hasInteractedOutsideRef.current = false;
+            hasPointerDownOutsideRef.current = false;
+        },
+        onInteractOutside: (event)=>{
+            props.onInteractOutside?.(event);
+            if (!event.defaultPrevented) {
+                hasInteractedOutsideRef.current = true;
+                if (event.detail.originalEvent.type === "pointerdown") {
+                    hasPointerDownOutsideRef.current = true;
+                }
+            }
+            const target = event.target;
+            const targetIsTrigger = context.triggerRef.current?.contains(target);
+            if (targetIsTrigger) event.preventDefault();
+            if (event.detail.originalEvent.type === "focusin" && hasPointerDownOutsideRef.current) {
+                event.preventDefault();
+            }
+        }
+    });
+});
+var DialogContentImpl = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const { __scopeDialog, trapFocus, onOpenAutoFocus, onCloseAutoFocus, ...contentProps } = props;
+    const context = useDialogContext(CONTENT_NAME, __scopeDialog);
+    const contentRef = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRef"](null);
+    const composedRefs = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$compose$2d$refs$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useComposedRefs"])(forwardedRef, contentRef);
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$focus$2d$guards$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useFocusGuards"])();
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxs"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+        children: [
+            /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$focus$2d$scope$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["FocusScope"], {
+                asChild: true,
+                loop: true,
+                trapped: trapFocus,
+                onMountAutoFocus: onOpenAutoFocus,
+                onUnmountAutoFocus: onCloseAutoFocus,
+                children: /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$dismissable$2d$layer$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DismissableLayer"], {
+                    role: "dialog",
+                    id: context.contentId,
+                    "aria-describedby": context.descriptionId,
+                    "aria-labelledby": context.titleId,
+                    "data-state": getState(context.open),
+                    ...contentProps,
+                    ref: composedRefs,
+                    onDismiss: ()=>context.onOpenChange(false)
+                })
+            }),
+            /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxs"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
+                children: [
+                    /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(TitleWarning, {
+                        titleId: context.titleId
+                    }),
+                    /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(DescriptionWarning, {
+                        contentRef,
+                        descriptionId: context.descriptionId
+                    })
+                ]
+            })
+        ]
+    });
+});
+var TITLE_NAME = "DialogTitle";
+var DialogTitle = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const { __scopeDialog, ...titleProps } = props;
+    const context = useDialogContext(TITLE_NAME, __scopeDialog);
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Primitive"].h2, {
+        id: context.titleId,
+        ...titleProps,
+        ref: forwardedRef
+    });
+});
+DialogTitle.displayName = TITLE_NAME;
+var DESCRIPTION_NAME = "DialogDescription";
+var DialogDescription = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const { __scopeDialog, ...descriptionProps } = props;
+    const context = useDialogContext(DESCRIPTION_NAME, __scopeDialog);
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Primitive"].p, {
+        id: context.descriptionId,
+        ...descriptionProps,
+        ref: forwardedRef
+    });
+});
+DialogDescription.displayName = DESCRIPTION_NAME;
+var CLOSE_NAME = "DialogClose";
+var DialogClose = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    const { __scopeDialog, ...closeProps } = props;
+    const context = useDialogContext(CLOSE_NAME, __scopeDialog);
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Primitive"].button, {
+        type: "button",
+        ...closeProps,
+        ref: forwardedRef,
+        onClick: (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["composeEventHandlers"])(props.onClick, ()=>context.onOpenChange(false))
+    });
+});
+DialogClose.displayName = CLOSE_NAME;
+function getState(open) {
+    return open ? "open" : "closed";
+}
+var TITLE_WARNING_NAME = "DialogTitleWarning";
+var [WarningProvider, useWarningContext] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$context$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createContext"])(TITLE_WARNING_NAME, {
+    contentName: CONTENT_NAME,
+    titleName: TITLE_NAME,
+    docsSlug: "dialog"
+});
+var TitleWarning = ({ titleId })=>{
+    const titleWarningContext = useWarningContext(TITLE_WARNING_NAME);
+    const MESSAGE = `\`${titleWarningContext.contentName}\` requires a \`${titleWarningContext.titleName}\` for the component to be accessible for screen reader users.
+
+If you want to hide the \`${titleWarningContext.titleName}\`, you can wrap it with our VisuallyHidden component.
+
+For more information, see https://radix-ui.com/primitives/docs/components/${titleWarningContext.docsSlug}`;
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "TitleWarning.useEffect": ()=>{
+            if (titleId) {
+                const hasTitle = document.getElementById(titleId);
+                if (!hasTitle) console.error(MESSAGE);
+            }
+        }
+    }["TitleWarning.useEffect"], [
+        MESSAGE,
+        titleId
+    ]);
+    return null;
+};
+var DESCRIPTION_WARNING_NAME = "DialogDescriptionWarning";
+var DescriptionWarning = ({ contentRef, descriptionId })=>{
+    const descriptionWarningContext = useWarningContext(DESCRIPTION_WARNING_NAME);
+    const MESSAGE = `Warning: Missing \`Description\` or \`aria-describedby={undefined}\` for {${descriptionWarningContext.contentName}}.`;
+    __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"]({
+        "DescriptionWarning.useEffect": ()=>{
+            const describedById = contentRef.current?.getAttribute("aria-describedby");
+            if (descriptionId && describedById) {
+                const hasDescription = document.getElementById(descriptionId);
+                if (!hasDescription) console.warn(MESSAGE);
+            }
+        }
+    }["DescriptionWarning.useEffect"], [
+        MESSAGE,
+        contentRef,
+        descriptionId
+    ]);
+    return null;
+};
+var Root = Dialog;
+var Trigger = DialogTrigger;
+var Portal = DialogPortal;
+var Overlay = DialogOverlay;
+var Content = DialogContent;
+var Title = DialogTitle;
+var Description = DialogDescription;
+var Close = DialogClose;
+;
+ //# sourceMappingURL=index.mjs.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-label/node_modules/@radix-ui/react-primitive/dist/index.mjs [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Primitive",
+    ()=>Primitive,
+    "Root",
+    ()=>Root,
+    "dispatchDiscreteCustomEvent",
+    ()=>dispatchDiscreteCustomEvent
+]);
+// src/primitive.tsx
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2d$dom$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react-dom/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$slot$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-slot/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/jsx-runtime.js [app-client] (ecmascript)");
+;
+;
+;
+;
+var NODES = [
+    "a",
+    "button",
+    "div",
+    "form",
+    "h2",
+    "h3",
+    "img",
+    "input",
+    "label",
+    "li",
+    "nav",
+    "ol",
+    "p",
+    "select",
+    "span",
+    "svg",
+    "ul"
+];
+var Primitive = NODES.reduce((primitive, node)=>{
+    const Slot = (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$slot$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["createSlot"])(`Primitive.${node}`);
+    const Node = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+        const { asChild, ...primitiveProps } = props;
+        const Comp = asChild ? Slot : node;
+        if (typeof window !== "undefined") {
+            window[Symbol.for("radix-ui")] = true;
+        }
+        return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(Comp, {
+            ...primitiveProps,
+            ref: forwardedRef
+        });
+    });
+    Node.displayName = `Primitive.${node}`;
+    return {
+        ...primitive,
+        [node]: Node
+    };
+}, {});
+function dispatchDiscreteCustomEvent(target, event) {
+    if (target) __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2d$dom$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["flushSync"](()=>target.dispatchEvent(event));
+}
+var Root = Primitive;
+;
+ //# sourceMappingURL=index.mjs.map
+}),
+"[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-label/dist/index.mjs [app-client] (ecmascript)", ((__turbopack_context__) => {
+"use strict";
+
+__turbopack_context__.s([
+    "Label",
+    ()=>Label,
+    "Root",
+    ()=>Root
+]);
+// src/label.tsx
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/index.js [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$label$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/@radix-ui/react-label/node_modules/@radix-ui/react-primitive/dist/index.mjs [app-client] (ecmascript)");
+var __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/dist/compiled/react/jsx-runtime.js [app-client] (ecmascript)");
+"use client";
+;
+;
+;
+var NAME = "Label";
+var Label = __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["forwardRef"]((props, forwardedRef)=>{
+    return /* @__PURE__ */ (0, __TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsx"])(__TURBOPACK__imported__module__$5b$project$5d2f$Xul$2f$ecotracker_pos_app$2f$admin$2d$dashboard$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$label$2f$node_modules$2f40$radix$2d$ui$2f$react$2d$primitive$2f$dist$2f$index$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Primitive"].label, {
+        ...props,
+        ref: forwardedRef,
+        onMouseDown: (event)=>{
+            const target = event.target;
+            if (target.closest("button, input, select, textarea")) return;
+            props.onMouseDown?.(event);
+            if (!event.defaultPrevented && event.detail > 1) event.preventDefault();
+        }
+    });
+});
+Label.displayName = NAME;
+var Root = Label;
+;
+ //# sourceMappingURL=index.mjs.map
+}),
+]);
+
+//# sourceMappingURL=9a41c_b54fc7ef._.js.map

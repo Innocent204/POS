@@ -49,13 +49,20 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Stock adjustment dialog state
+  // Single item stock adjustment state
   const [adjustmentOpen, setAdjustmentOpen] = useState(false);
   const [adjustmentItem, setAdjustmentItem] = useState<StockLevelResponse | null>(null);
   const [adjustmentType, setAdjustmentType] = useState<'INCREASE' | 'DECREASE'>('INCREASE');
   const [adjustmentQuantity, setAdjustmentQuantity] = useState('');
   const [adjustmentReason, setAdjustmentReason] = useState('');
   const [isAdjusting, setIsAdjusting] = useState(false);
+
+  // New Global Stock adjustment state
+  const [globalAdjustmentOpen, setGlobalAdjustmentOpen] = useState(false);
+  const [globalBranchId, setGlobalBranchId] = useState('');
+  const [globalProductId, setGlobalProductId] = useState('');
+  const [globalProducts, setGlobalProducts] = useState<StockLevelResponse[]>([]);
+  const [fetchingGlobalProducts, setFetchingGlobalProducts] = useState(false);
 
   const fetchBranches = async () => {
     try {
@@ -133,6 +140,20 @@ export default function InventoryPage() {
     fetchData();
   }, [selectedBranchId]);
 
+  useEffect(() => {
+    if (globalBranchId) {
+      setFetchingGlobalProducts(true);
+      api.stock.getByBranch(globalBranchId)
+        .then(res => {
+          if (res.success) setGlobalProducts(res.data || []);
+        })
+        .finally(() => setFetchingGlobalProducts(false));
+    } else {
+      setGlobalProducts([]);
+    }
+    setGlobalProductId('');
+  }, [globalBranchId]);
+
   const getStockStatus = (item: StockLevelResponse) => {
     if (!item.stockStatus) return 'Unknown';
     return item.stockStatus
@@ -204,7 +225,19 @@ export default function InventoryPage() {
     if (!adjustmentItem || !adjustmentQuantity || parseInt(adjustmentQuantity) <= 0) {
       toast({
         title: 'Validation Error',
-        description: 'Please enter a valid quantity',
+        description: 'Please enter a valid quantity (minimum 1)',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const quantity = parseInt(adjustmentQuantity);
+
+    // Prevent negative stock when decreasing
+    if (adjustmentType === 'DECREASE' && quantity > adjustmentItem.quantityOnHand) {
+      toast({
+        title: 'Validation Error',
+        description: `Cannot decrease below current stock (${adjustmentItem.quantityOnHand})`,
         variant: 'destructive',
       });
       return;
@@ -216,7 +249,7 @@ export default function InventoryPage() {
         productId: adjustmentItem.productId,
         branchId: adjustmentItem.branchId,
         adjustmentType: adjustmentType,
-        quantity: parseInt(adjustmentQuantity),
+        quantity: quantity,
         reason: adjustmentReason.trim() || 'Manual adjustment'
       };
 
@@ -229,6 +262,9 @@ export default function InventoryPage() {
         });
 
         setAdjustmentOpen(false);
+        setGlobalAdjustmentOpen(false);
+        setGlobalBranchId('');
+        setGlobalProductId('');
         setAdjustmentItem(null);
         fetchData();
       } else {
@@ -259,7 +295,11 @@ export default function InventoryPage() {
                 <ArrowPathIcon className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Button onClick={() => window.location.href = '/products'}>
+              <Button variant="outline" size="sm" onClick={() => setGlobalAdjustmentOpen(true)}>
+                <AdjustmentsHorizontalIcon className="h-4 w-4 mr-2" />
+                Update Stock Level
+              </Button>
+              <Button size="sm" onClick={() => window.location.href = '/products'}>
                 Manage Products
               </Button>
             </div>
@@ -443,6 +483,7 @@ export default function InventoryPage() {
         </div>
 
         <Dialog open={adjustmentOpen} onOpenChange={setAdjustmentOpen}>
+          {/* ... (existing dialog content for single item adjustment) */}
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Adjust Stock</DialogTitle>
@@ -518,6 +559,120 @@ export default function InventoryPage() {
                 disabled={isAdjusting || !adjustmentQuantity || parseInt(adjustmentQuantity) <= 0}
               >
                 {isAdjusting ? 'Processing...' : 'Adjust Stock'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* New Branch-Based Stock Adjustment Dialog */}
+        <Dialog open={globalAdjustmentOpen} onOpenChange={setGlobalAdjustmentOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Stock Level Update</DialogTitle>
+              <DialogDescription>
+                Update product quantities at specific branches
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>1. Select Branch</Label>
+                <Select value={globalBranchId} onValueChange={setGlobalBranchId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose branch..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {branches.map(branch => (
+                      <SelectItem key={branch.id} value={branch.id}>{branch.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>2. Select Product</Label>
+                <Select 
+                  value={globalProductId} 
+                  onValueChange={(val) => {
+                    setGlobalProductId(val);
+                    const item = globalProducts.find(p => p.productId === val);
+                    if (item) {
+                      setAdjustmentItem(item);
+                      setAdjustmentQuantity('');
+                      setAdjustmentReason('');
+                      setAdjustmentType('INCREASE');
+                    }
+                  }}
+                  disabled={!globalBranchId || fetchingGlobalProducts}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={fetchingGlobalProducts ? "Loading stock..." : "Choose product from branch stock..."} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {globalProducts.map(item => (
+                      <SelectItem key={item.productId} value={item.productId}>
+                        {item.productName} ({item.quantityOnHand} in stock)
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {globalProductId && (
+                <div className="space-y-6 pt-4 border-t border-divider">
+                  <div>
+                    <Label className="text-sm font-semibold text-primary mb-3">3. Adjustment Type</Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setAdjustmentType('INCREASE')}
+                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'INCREASE' ? 'border-success bg-success/10 text-success' : 'border-divider'}`}
+                      >
+                        <ArrowUpTrayIcon className="h-6 w-6 mx-auto mb-2" />
+                        <div className="text-sm font-medium">Increase</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAdjustmentType('DECREASE')}
+                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'DECREASE' ? 'border-error bg-error/10 text-error' : 'border-divider'}`}
+                      >
+                        <ArrowDownTrayIcon className="h-6 w-6 mx-auto mb-2" />
+                        <div className="text-sm font-medium">Decrease</div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="global_quantity">4. Quantity</Label>
+                    <Input
+                      id="global_quantity"
+                      type="number"
+                      value={adjustmentQuantity}
+                      onChange={(e) => setAdjustmentQuantity(e.target.value)}
+                      placeholder="Enter quantity to adjust"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="global_reason">5. Reason (optional)</Label>
+                    <Input
+                      id="global_reason"
+                      value={adjustmentReason}
+                      onChange={(e) => setAdjustmentReason(e.target.value)}
+                      placeholder="Manual adjustment"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setGlobalAdjustmentOpen(false)}>Cancel</Button>
+              <Button
+                onClick={handleStockAdjustment}
+                disabled={isAdjusting || !globalProductId || !adjustmentQuantity || parseInt(adjustmentQuantity) <= 0}
+              >
+                {isAdjusting ? 'Processing...' : 'Update Stock'}
               </Button>
             </DialogFooter>
           </DialogContent>
