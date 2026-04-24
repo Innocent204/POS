@@ -271,7 +271,7 @@ export interface UpdateProductRequest {
 }
 
 export interface TransferItemRequest {
-  productId: string;
+  productName: string;
   quantityRequested: number;
 }
 

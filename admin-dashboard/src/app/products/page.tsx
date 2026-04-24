@@ -5,7 +5,7 @@ import Layout from '@/components/layout/layout';
 import { CubeIcon, PlusIcon, MagnifyingGlassIcon, PencilIcon, TrashIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline';
 import { formatCurrency, getErrorMessage } from '@/lib/utils';
 import { api } from '@/lib/api';
-import { ProductResponse, BranchResponse } from '@/types';
+import { ProductResponse, BranchResponse, StockLevelResponse } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -70,6 +70,8 @@ export default function ProductsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<string | null>(null);
+  const [editingFromBranchId, setEditingFromBranchId] = useState<string | null>(null);
+  const [productStockRecords, setProductStockRecords] = useState<StockLevelResponse[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
   const [originalStockQty, setOriginalStockQty] = useState(0);
@@ -279,7 +281,7 @@ export default function ProductsPage() {
     }
   };
 
-  const openEditDialog = async (product: ProductResponse) => {
+  const openEditDialog = async (product: ProductResponse, branchId?: string) => {
     try {
       setLoading(true);
 
@@ -291,6 +293,7 @@ export default function ProductsPage() {
 
       const fullProduct = response.data;
       setEditingProduct(fullProduct.id);
+      setEditingFromBranchId(branchId || null);
 
       // Ensure branches are loaded for the dropdown
       if (branches.length === 0) {
@@ -307,7 +310,7 @@ export default function ProductsPage() {
         minimumStockThreshold: fullProduct.minimumStockThreshold,
         description: fullProduct.description || '',
         isActive: fullProduct.isActive,
-        branchId: '',
+        branchId: branchId || '',
         initialQuantity: 0
       }));
 
@@ -316,15 +319,24 @@ export default function ProductsPage() {
       setStockExistsForBranch(false);
 
       const stockRes = await api.stock.getByProduct(fullProduct.id);
-      if (stockRes.success && stockRes.data && stockRes.data.length > 0) {
-        const primaryStock = stockRes.data[0];
-        setFormData(prev => ({
-          ...prev,
-          branchId: primaryStock.branchId,
-          initialQuantity: primaryStock.quantityOnHand
-        }));
-        setOriginalStockQty(primaryStock.quantityOnHand);
-        setStockExistsForBranch(true);
+      if (stockRes.success && stockRes.data) {
+        setProductStockRecords(stockRes.data);
+        
+        if (stockRes.data.length > 0) {
+          // If a specific branch was provided, use that branch's stock
+          // Otherwise, use the first stock record
+          const targetStock = branchId 
+            ? stockRes.data.find(s => s.branchId === branchId) || stockRes.data[0]
+            : stockRes.data[0];
+          
+          setFormData(prev => ({
+            ...prev,
+            branchId: targetStock.branchId,
+            initialQuantity: targetStock.quantityOnHand
+          }));
+          setOriginalStockQty(targetStock.quantityOnHand);
+          setStockExistsForBranch(true);
+        }
       }
 
       setIsEditOpen(true);
@@ -715,6 +727,8 @@ export default function ProductsPage() {
               setIsEditOpen(open);
               if (!open) {
                 setEditingProduct(null);
+                setEditingFromBranchId(null);
+                setProductStockRecords([]);
                 resetForm();
               }
             }}>
@@ -805,11 +819,41 @@ export default function ProductsPage() {
                     <div>
                       <h3 className="text-sm font-semibold text-primary mb-3">Inventory & Stock Setup</h3>
                       <div className="space-y-4">
+                        {productStockRecords.length > 0 && (
+                          <div className="bg-surface/50 rounded-lg p-3 border border-divider">
+                            <p className="text-xs font-bold text-text-secondary uppercase mb-2">Stock by Branch</p>
+                            <div className="space-y-1">
+                              {productStockRecords.map((stock) => (
+                                <div key={stock.branchId} className="flex justify-between text-xs">
+                                  <span className="text-text-secondary">{stock.branchName}</span>
+                                  <span className={`font-medium ${stock.branchId === formData.branchId ? 'text-primary' : ''}`}>
+                                    {stock.quantityOnHand} units
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                         <div className="space-y-2">
-                          <Label htmlFor="edit-branchId">Primary Branch</Label>
+                          <Label htmlFor="edit-branchId">
+                            {productStockRecords.length > 0 ? 'Edit Stock for Branch' : 'Add Stock to Branch'}
+                          </Label>
                           <Select
                             value={formData.branchId}
-                            onValueChange={(value: string) => setFormData({ ...formData, branchId: value })}
+                            onValueChange={(value: string) => {
+                              setFormData({ ...formData, branchId: value });
+                              // Pre-fill quantity if stock exists for this branch
+                              const existingStock = productStockRecords.find(s => s.branchId === value);
+                              if (existingStock) {
+                                setFormData(prev => ({ ...prev, initialQuantity: existingStock.quantityOnHand }));
+                                setOriginalStockQty(existingStock.quantityOnHand);
+                                setStockExistsForBranch(true);
+                              } else {
+                                setFormData(prev => ({ ...prev, initialQuantity: 0 }));
+                                setOriginalStockQty(0);
+                                setStockExistsForBranch(false);
+                              }
+                            }}
                           >
                             <SelectTrigger id="edit-branchId">
                               <SelectValue placeholder="Select a branch" />
@@ -817,14 +861,23 @@ export default function ProductsPage() {
                             <SelectContent>
                               {branches.map((branch) => (
                                 <SelectItem key={branch.id} value={branch.id}>
-                                  {branch.name} {branch.branchType === 'WAREHOUSE' && '(Warehouse)'}
+                                  <div className="flex items-center justify-between w-full">
+                                    <span>{branch.name} {branch.branchType === 'WAREHOUSE' && '(Warehouse)'}</span>
+                                    {productStockRecords.find(s => s.branchId === branch.id) && (
+                                      <span className="text-xs text-text-secondary ml-2">
+                                        ({productStockRecords.find(s => s.branchId === branch.id)?.quantityOnHand})
+                                      </span>
+                                    )}
+                                  </div>
                                 </SelectItem>
                               ))}
                             </SelectContent>
                           </Select>
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="edit-initialQuantity">Current Stock / Initial Quantity</Label>
+                          <Label htmlFor="edit-initialQuantity">
+                            {stockExistsForBranch ? 'Update Stock Quantity' : 'Initial Stock Quantity'}
+                          </Label>
                           <Input
                             id="edit-initialQuantity"
                             type="number"
@@ -832,7 +885,12 @@ export default function ProductsPage() {
                             onChange={e => setFormData({ ...formData, initialQuantity: parseInt(e.target.value) || 0 })}
                             placeholder="0"
                           />
-                          <p className="text-[10px] text-text-secondary">Changing this will perform a stock initialization/reset for the selected branch.</p>
+                          <p className="text-[10px] text-text-secondary">
+                            {stockExistsForBranch 
+                              ? `Current: ${originalStockQty}. Stock will be adjusted to the new value.`
+                              : 'This will initialize stock for this branch.'
+                            }
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -984,7 +1042,7 @@ export default function ProductsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                           <div className="flex justify-end gap-2">
-                            <Button variant="ghost" size="icon" title="Edit" onClick={() => openEditDialog(product)}>
+                            <Button variant="ghost" size="icon" title="Edit" onClick={() => openEditDialog(product, selectedFilterBranch !== 'all' ? selectedFilterBranch : undefined)}>
                               <PencilIcon className="h-4 w-4 text-text-secondary" />
                             </Button>
                             <Button variant="ghost" size="icon" title="Delete" onClick={() => handleDelete(product.id)}>

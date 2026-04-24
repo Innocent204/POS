@@ -175,7 +175,7 @@ export default function NewTransferPage() {
     try {
       setIsSubmitting(true);
       const transferItems = cart.map(item => ({
-        productId: item.product.id,
+        productName: item.product.name,
         quantityRequested: item.quantity,
       }));
 
