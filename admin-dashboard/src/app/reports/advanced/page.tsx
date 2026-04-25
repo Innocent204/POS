@@ -227,17 +227,15 @@ export default function ReportsPage() {
         const branchRows = currentSummary.branchSummaries.map(b => [
           b.branchName,
           b.totalUnits.toString(),
-          b.outOfStockCount.toString(),
           formatCurrency(b.totalStockValue)
         ]);
         const totalBranchUnits = currentSummary.branchSummaries.reduce((acc, b) => acc + b.totalUnits, 0);
-        const totalBranchOut = currentSummary.branchSummaries.reduce((acc, b) => acc + b.outOfStockCount, 0);
         const totalBranchVal = currentSummary.branchSummaries.reduce((acc, b) => acc + b.totalStockValue, 0);
-        branchRows.push(['TOTAL', totalBranchUnits.toString(), totalBranchOut.toString(), formatCurrency(totalBranchVal)]);
+        branchRows.push(['TOTAL', totalBranchUnits.toString(), formatCurrency(totalBranchVal)]);
 
         autoTable(pdf, {
           startY: currentY + 20,
-          head: [['Branch', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
+          head: [['Branch', 'Units On Hand', 'Inventory Value']],
           body: branchRows,
           theme: 'grid',
           headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
@@ -270,7 +268,6 @@ export default function ReportsPage() {
           .map(([cat, stats]) => [
             cat,
             stats.units.toString(),
-            stats.outOfStock.toString(),
             formatCurrency(stats.value)
           ]);
 
@@ -278,7 +275,7 @@ export default function ReportsPage() {
 
         autoTable(pdf, {
           startY: currentY + 20,
-          head: [['Category', 'Units On Hand', 'Out of Stock', 'Inventory Value']],
+          head: [['Category', 'Units On Hand', 'Inventory Value']],
           body: categoryRows,
           theme: 'grid',
           headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
@@ -391,55 +388,67 @@ export default function ReportsPage() {
       let currentPage = 0;
       let totalPages = 1;
 
-      // Special handling for Stock_Report to match PDF data source
-      if (report.id === 'Stock_Report') {
+      // Special handling for Inventory Reports
+      if (report.type === 'Inventory') {
         let allStock: StockLevelResponse[] = [];
-        if (selectedBranchId === 'all') {
-          const branchesRes = await api.branches.getAll();
-          if (branchesRes.success && branchesRes.data) {
-            const promises = branchesRes.data.map((b: any) => api.stock.getByBranch(b.id));
-            const results = await Promise.all(promises);
-            results.forEach(res => {
-              if (res.success && res.data) {
-                allStock = [...allStock, ...res.data];
-              }
-            });
+        
+        if (report.id === 'Stock_Report') {
+          // Fetch current snapshots for the selected scope
+          if (selectedBranchId === 'all') {
+            const branchesRes = await api.branches.getAll();
+            if (branchesRes.success && branchesRes.data) {
+              const promises = branchesRes.data.map((b: any) => api.stock.getByBranch(b.id));
+              const results = await Promise.all(promises);
+              results.forEach(res => {
+                if (res.success && res.data) {
+                  allStock = [...allStock, ...res.data];
+                }
+              });
+            }
+          } else {
+            const res = await api.stock.getByBranch(selectedBranchId);
+            if (res.success && res.data) {
+              allStock = res.data;
+            }
           }
-        } else {
-          const res = await api.stock.getByBranch(selectedBranchId);
-          if (res.success && res.data) {
-            allStock = res.data;
-          }
-        }
-        allData = allStock.map(item => ({
-          productName: item.productName,
-          productSku: item.productSku,
-          category: item.category || 'N/A',
-          branchName: item.branchName,
-          quantityOnHand: item.quantityOnHand,
-          minimumThreshold: item.minimumStockThreshold || 0,
-          price: productPrices[item.productId] ?? item.price ?? 0,
-          totalValue: (item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0),
-          status: item.stockStatus
-        }));
-        const res = await api.reports.getLowStock({
-          branchId: selectedBranchId === 'all' ? undefined : selectedBranchId
-        });
-        if (res.success && res.data) {
-          allData = res.data.map((item: any) => ({
-            productName: item.productName,
-            productSku: item.productSku,
-            category: item.category || 'N/A',
-            branchName: item.branchName,
-            openingStock: item.openingStock,
-            stockIn: item.stockIn,
-            stockOut: item.stockOut,
-            closingStock: item.closingStock,
-            totalSalesValue: item.totalSalesValue
+
+          allData = allStock.map(item => ({
+            'Product Name': item.productName,
+            'SKU': item.productSku,
+            'Category': item.category || 'N/A',
+            'Branch': item.branchName,
+            'Qty On Hand': item.quantityOnHand || 0,
+            'Min Threshold': item.minimumStockThreshold || 0,
+            'Unit Price': productPrices[item.productId] ?? item.price ?? 0,
+            'Total Value': (item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0)
           }));
+        } 
+        else if (report.id === 'Low_Stock_Report') {
+          // Fetch specifically low stock items
+          const res = await api.stock.getLowStock();
+          if (res.success && res.data) {
+            let lowStock = res.data;
+            // Filter by branch if needed
+            if (selectedBranchId !== 'all') {
+              lowStock = lowStock.filter(item => item.branchId === selectedBranchId);
+            }
+            
+            allData = lowStock.map(item => ({
+              'Product Name': item.productName,
+              'SKU': item.productSku,
+              'Category': item.category || 'N/A',
+              'Branch': item.branchName,
+              'Current Stock': item.quantityOnHand || 0,
+              'Min Threshold': item.minimumStockThreshold || 0,
+              'Shortfall': (item.minimumStockThreshold || 0) - (item.quantityOnHand || 0),
+              'Unit Price': productPrices[item.productId] ?? item.price ?? 0,
+              'Valuation': (item.quantityOnHand || 0) * (productPrices[item.productId] ?? item.price ?? 0)
+            }));
+          }
         }
-      } else {
-        // Paged fetching for other reports (like Sales)
+      } 
+      else if (report.type === 'Sales') {
+        // Paged fetching for Sales reports
         while (currentPage < totalPages) {
           const response = await (api.reports as any)[report.endpoint]({ ...params, page: currentPage });
 
@@ -447,17 +456,26 @@ export default function ReportsPage() {
             throw new Error(response.message || 'Failed to generate report');
           }
 
-          const pageData = Array.isArray(response.data) ? response.data :
+          const pageData: any[] = Array.isArray(response.data) ? response.data :
             (response.data?.content || []);
 
           allData = [...allData, ...pageData];
 
-          // Break if not paged or if we've received everything
           if (!Array.isArray(response.data?.content) || response.data.last || pageData.length < params.size) {
             break;
           }
           currentPage++;
         }
+
+        // Map Sales data to friendly columns
+        allData = allData.map(sale => ({
+          'Receipt #': sale.receiptNumber,
+          'Date': formatDate(sale.createdAt),
+          'Branch': sale.branchName,
+          'Cashier': sale.cashierName,
+          'Payment Method': sale.paymentMethod,
+          'Total Amount': sale.totalAmount
+        }));
       }
 
       if (allData.length === 0) {
@@ -527,10 +545,7 @@ export default function ReportsPage() {
       worksheet.addRow([]);
 
       // Row 4 — Column headers
-      const friendlyHeaders = headers.map(h =>
-        h.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).trim()
-      );
-      worksheet.addRow(friendlyHeaders);
+      worksheet.addRow(headers);
       const headerRow = worksheet.getRow(4);
       headerRow.height = 22;
       headerRow.font = { name: 'Calibri', bold: true, size: 10, color: { argb: 'FFFFFFFF' } };
@@ -587,7 +602,7 @@ export default function ReportsPage() {
       // Auto-fit column widths
       worksheet.columns.forEach((column, colIdx) => {
         const key = headers[colIdx];
-        let maxLen = friendlyHeaders[colIdx]?.length || 10;
+        let maxLen = key.length || 10;
         data.forEach((row: any) => {
           const val = row[key];
           const len = val != null ? String(val).length : 0;

@@ -131,7 +131,7 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                             </div>
 
                             {!isBranchFiltered && (
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px' }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                                     {/* Full Report Details */}
                                     <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
                                         <p style={{ fontSize: '20px', fontWeight: 800, color: '#22c55e', margin: '0 0 8px 0' }}>
@@ -142,10 +142,6 @@ export const StockReportPDFTemplate = React.forwardRef<HTMLDivElement, StockRepo
                                     <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
                                         <p style={{ fontSize: '20px', fontWeight: 800, color: '#f59e0b', margin: '0 0 8px 0' }}>{summary.totalLowStockItems}</p>
                                         <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Low Stock</p>
-                                    </div>
-                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
-                                        <p style={{ fontSize: '20px', fontWeight: 800, color: '#ef4444', margin: '0 0 8px 0' }}>{summary.totalOutOfStockItems}</p>
-                                        <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Out of Stock</p>
                                     </div>
                                     <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '16px' }}>
                                         <p style={{ fontSize: '20px', fontWeight: 800, color: '#8b5cf6', margin: '0 0 8px 0' }}>{categoryData.length}</p>
