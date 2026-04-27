@@ -217,18 +217,20 @@ export default function ProductsPage() {
     try {
       setIsSubmitting(true);
 
-      // Check for duplicate product name in the selected branch (case-insensitive)
+      // Check for duplicate product name or SKU in the selected branch (case-insensitive)
       if (formData.branchId) {
         const branchStockCheck = await api.stock.getByBranch(formData.branchId);
         if (branchStockCheck.success && branchStockCheck.data) {
           const existsInBranch = branchStockCheck.data.some(
-            (item: any) => (item.productName || '').toLowerCase() === formData.name.toLowerCase()
+            (item: any) => 
+              (item.productName || '').toLowerCase() === formData.name.toLowerCase() ||
+              (item.productSku || '').toLowerCase() === formData.sku.toLowerCase()
           );
           if (existsInBranch) {
             const branch = branches.find(b => b.id === formData.branchId);
             toast({
-              title: 'Product Already Added',
-              description: `"${formData.name}" already exists in ${branch?.name || 'this branch'}.`,
+              title: 'Product Already in Branch',
+              description: `"${formData.name}" (SKU: ${formData.sku}) already exists in ${branch?.name || 'this branch'}.`,
               variant: 'destructive',
             });
             setIsSubmitting(false);
@@ -247,28 +249,55 @@ export default function ProductsPage() {
         description: formData.description,
       };
 
-      const response = await api.products.create(productData);
+      let productId: string;
+      try {
+        const response = await api.products.create(productData);
+        if (response.success && response.data) {
+          productId = response.data.id;
+        } else {
+          throw new Error(response.message || 'Failed to create product');
+        }
+      } catch (err: any) {
+        // If conflict error (409), try to find the existing product by SKU or Name
+        if (err.response?.status === 409) {
+          const searchRes = await api.products.getAll({ search: formData.sku });
+          const existing = searchRes.data?.content?.find(p => 
+            p.sku.toLowerCase() === formData.sku.toLowerCase() || 
+            p.name.toLowerCase() === formData.name.toLowerCase()
+          );
+          
+          if (existing) {
+            productId = existing.id;
+          } else {
+            throw err; // Original error if we can't find the record
+          }
+        } else {
+          throw err;
+        }
+      }
 
-      if (response.success && response.data) {
-        const newProduct = response.data;
-        if (formData.branchId && formData.initialQuantity > 0) {
+      if (formData.branchId && formData.initialQuantity > 0) {
+        try {
           await api.stock.initialize({
-            productId: newProduct.id,
+            productId: productId,
             branchId: formData.branchId,
             initialQuantity: formData.initialQuantity
           });
+        } catch (stockErr: any) {
+          // If stock also already exists (409), we ignore as it's already there
+          if (stockErr.response?.status !== 409) {
+            throw stockErr;
+          }
         }
-
-        toast({
-          title: 'Success',
-          description: 'Product created successfully',
-        });
-        setIsAddOpen(false);
-        fetchProducts();
-        resetForm();
-      } else {
-        throw new Error(response.message || 'Failed to create product');
       }
+
+      toast({
+        title: 'Success',
+        description: 'Product processed successfully',
+      });
+      setIsAddOpen(false);
+      fetchProducts();
+      resetForm();
     } catch (err: unknown) {
       console.error('Create product error:', err);
       toast({
