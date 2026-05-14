@@ -12,7 +12,7 @@ import { cn, formatDate } from '@/lib/utils';
 import { BranchResponse } from '@/types';
 import { Button } from '@/components/ui/button';
 import jsPDF from 'jspdf';
-import { toPng } from 'html-to-image';
+import { toJpeg } from 'html-to-image';
 
 export default function BranchesReportPage() {
   const [branches, setBranches] = useState<BranchResponse[]>([]);
@@ -48,9 +48,10 @@ export default function BranchesReportPage() {
       element.style.boxShadow = 'none';
       element.style.border = 'none';
       
-      const dataUrl = await toPng(element, {
-        quality: 1.0,
-        pixelRatio: 2,
+      // Use toJpeg instead of toPng to drastically reduce file size
+      const dataUrl = await toJpeg(element, {
+        quality: 0.85, // 85% quality JPEG is much smaller than PNG
+        pixelRatio: 1.5, // Good balance of sharpness and file size
         backgroundColor: '#ffffff'
       });
       
@@ -72,8 +73,9 @@ export default function BranchesReportPage() {
         if (i > 0) {
           pdf.addPage();
         }
-        // Draw the image, shifting it upwards for each subsequent page
-        pdf.addImage(dataUrl, 'PNG', 0, -(pdfHeight * i), pdfWidth, totalPdfHeight);
+        // Draw the image, shifting it upwards. 
+        // Using an ALIAS ('REPORT_IMG') ensures jsPDF embeds the image file ONLY ONCE, reusing it across pages.
+        pdf.addImage(dataUrl, 'JPEG', 0, -(pdfHeight * i), pdfWidth, totalPdfHeight, 'REPORT_IMG', 'FAST');
       }
       
       pdf.save(`Branches_Report_${new Date().toISOString().split('T')[0]}.pdf`);
