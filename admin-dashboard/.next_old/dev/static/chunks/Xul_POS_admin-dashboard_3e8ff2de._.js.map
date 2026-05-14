@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Acer/Documents/Xul/POS/admin-dashboard/src/app/reports/page.tsx"],"sourcesContent":["'use client';\r\n\r\nimport { useEffect } from 'react';\r\nimport { useRouter } from 'next/navigation';\r\n\r\nexport default function ReportsPage() {\r\n  const router = useRouter();\r\n\r\n  useEffect(() => {\r\n    // Redirect to dashboard reports by default\r\n    router.replace('/reports/dashboard');\r\n  }, [router]);\r\n\r\n  return (\r\n    <div className=\"flex items-center justify-center min-h-screen\">\r\n      <div className=\"animate-spin rounded-full h-8 w-8 border-b-2 border-primary\"></div>\r\n    </div>\r\n  );\r\n}\r\n"],"names":[],"mappings":";;;;;AAEA;AACA;;;AAHA;;;AAKe,SAAS;;IACtB,MAAM,SAAS,IAAA,sLAAS;IAExB,IAAA,8MAAS;iCAAC;YACR,2CAA2C;YAC3C,OAAO,OAAO,CAAC;QACjB;gCAAG;QAAC;KAAO;IAEX,qBACE,iOAAC;QAAI,WAAU;kBACb,cAAA,iOAAC;YAAI,WAAU;;;;;;;;;;;AAGrB;GAbwB;;QACP,sLAAS;;;KADF"}},
-    {"offset": {"line": 56, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Acer/Documents/Xul/POS/admin-dashboard/node_modules/next/navigation.js"],"sourcesContent":["module.exports = require('./dist/client/components/navigation')\n"],"names":[],"mappings":"AAAA,OAAO,OAAO","ignoreList":[0]}}]
-}

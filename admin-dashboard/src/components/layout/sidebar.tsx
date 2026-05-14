@@ -36,6 +36,7 @@ const navigationGroups = [
         children: [
           { name: 'Dashboard Reports', href: '/reports/dashboard', icon: PresentationChartBarIcon },
           { name: 'Advanced Reports', href: '/reports/advanced', icon: TableCellsIcon },
+          { name: 'Branches Report', href: '/reports/branches', icon: BuildingOfficeIcon },
         ]
       },
     ]
@@ -60,7 +61,7 @@ const navigationGroups = [
     items: [
       { name: 'Users (Staff)', href: '/users', icon: UserGroupIcon },
       { name: 'Branches', href: '/branches', icon: BuildingOfficeIcon },
-      //  { name: 'Audit Logs', href: '/audit', icon: ShieldCheckIcon },
+      { name: 'Audit Logs', href: '/audit', icon: ShieldCheckIcon },
       { name: 'Settings', href: '/settings', icon: Cog6ToothIcon },
     ]
   },

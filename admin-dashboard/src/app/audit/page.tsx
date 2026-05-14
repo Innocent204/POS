@@ -18,6 +18,12 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
 const ACTION_COLORS: Record<string, { bg: string; text: string; label: string }> = {
+    USER_LOGIN: { bg: 'bg-primary/10', text: 'text-primary', label: 'User Login' },
+    SALE_CREATED: { bg: 'bg-success/10', text: 'text-success', label: 'Sale Created' },
+    SALE_RETURNED: { bg: 'bg-warning/10', text: 'text-warning', label: 'Sale Returned' },
+    TRANSFER_DISPATCHED: { bg: 'bg-info/10', text: 'text-info', label: 'Transfer Dispatched' },
+    TRANSFER_RECEIVED: { bg: 'bg-success/10', text: 'text-success', label: 'Transfer Received' },
+    STOCK_ADJUSTED: { bg: 'bg-error/10', text: 'text-error', label: 'Stock Adjusted' },
     CREATE: { bg: 'bg-success/10', text: 'text-success', label: 'Create' },
     UPDATE: { bg: 'bg-info/10', text: 'text-info', label: 'Update' },
     DELETE: { bg: 'bg-error/10', text: 'text-error', label: 'Delete' },
@@ -100,24 +106,51 @@ export default function AuditPage() {
                 size: PAGE_SIZE,
             });
 
+            console.log('Audit Logs API Response:', response);
+
             if (response.success && response.data) {
                 setLogs(response.data.content || []);
                 setTotalPages(response.data.totalPages);
                 setTotalElements(response.data.totalElements);
                 setUsingMockData(false);
             } else {
-                throw new Error(response.message || 'Server error');
+                setError(response.message || 'An unexpected error occurred on the server.');
+                setLogs([]);
+                setTotalPages(0);
+                setTotalElements(0);
+                setUsingMockData(false);
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error('Fetch audit logs error:', err);
-            // Fallback to mock data if backend fails
+            
+            // Log detailed error information for debugging
+            if (err.response) {
+                console.error('Backend Error Status:', err.response.status);
+                console.error('Backend Error Data:', err.response.data);
+                console.error('Backend Error Headers:', err.response.headers);
+            } else if (err.request) {
+                console.error('No response received from server:', err.request);
+            } else {
+                console.error('Error message:', err.message);
+            }
+
+            // Fallback to mock data if backend fails completely (e.g. 404, 500, network error)
             setLogs(MOCK_AUDIT_LOGS);
             setTotalPages(1);
             setTotalElements(MOCK_AUDIT_LOGS.length);
             setUsingMockData(true);
-            setError(getErrorMessage(err) === 'The server is currently unavailable. Please try again later.'
-                ? 'Backend audit service is currently unavailable. Showing local activity log.'
-                : getErrorMessage(err));
+
+            // More detailed error message
+            let errorMessage = getErrorMessage(err);
+            if (err.response?.status === 500) {
+                errorMessage = `Backend Error (500): ${err.response?.data?.message || 'Internal server error'}. Showing local activity log.`;
+            } else if (err.response?.status === 401 || err.response?.status === 403) {
+                errorMessage = `Access Denied: You don't have permission to view audit logs. Showing local activity log.`;
+            } else if (errorMessage === 'The server is currently unavailable. Please try again later.') {
+                errorMessage = 'Backend audit service is currently unavailable. Showing local activity log.';
+            }
+
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -147,8 +180,8 @@ export default function AuditPage() {
         )
         : logs;
 
-    const entityTypes = ['PRODUCT', 'BRANCH', 'USER', 'TRANSFER', 'SALE', 'STOCK'];
-    const actionTypes = Object.keys(ACTION_COLORS);
+    const entityTypes = ['PRODUCT', 'BRANCH', 'USER', 'TRANSFER', 'SALE', 'STOCK', 'StockLevel'];
+    const actionTypes = ['USER_LOGIN', 'SALE_CREATED', 'SALE_RETURNED', 'TRANSFER_DISPATCHED', 'TRANSFER_RECEIVED', 'STOCK_ADJUSTED'];
 
     return (
                     <Layout>
@@ -165,7 +198,7 @@ export default function AuditPage() {
                             </p>
                         </div>
                         <div className="flex items-center gap-2">
-                            {usingMockData && <Badge variant="info" className="animate-pulse">Offline Mode</Badge>}
+                            {usingMockData && !loading && logs.length > 0 && <Badge variant="info" className="animate-pulse">Offline Mode</Badge>}
                             <Badge variant="warning" className="text-xs font-bold uppercase tracking-widest">Admin Only</Badge>
                             <Button variant="outline" size="sm" onClick={() => fetchLogs(page)} disabled={loading}>
                                 <ArrowPathIcon className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
@@ -184,12 +217,12 @@ export default function AuditPage() {
                                     placeholder="Search by user, action, or entity..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="!pl-12"
+                                    className="pl-12!"
                                 />
                             </div>
 
                             {/* Entity Type Filter */}
-                            <div className="relative flex-shrink-0">
+                            <div className="relative shrink-0">
                                 <FunnelIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary pointer-events-none" />
                                 <select
                                     value={entityFilter}
@@ -204,7 +237,7 @@ export default function AuditPage() {
                             </div>
 
                             {/* Action Filter */}
-                            <div className="relative flex-shrink-0">
+                            <div className="relative shrink-0">
                                 <FunnelIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-secondary pointer-events-none" />
                                 <select
                                     value={actionFilter}

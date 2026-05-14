@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Acer/Documents/Xul/ecotracker_pos_app/admin-dashboard/src/app/page.tsx"],"sourcesContent":["'use client';\n\nimport { useEffect } from 'react';\nimport { useRouter } from 'next/navigation';\n\nexport default function HomePage() {\n  const router = useRouter();\n\n  useEffect(() => {\n    router.push('/login');\n  }, [router]);\n\n  return (\n    <div className=\"min-h-screen flex items-center justify-center bg-surface\">\n      <div className=\"animate-pulse text-center\">\n        <div className=\"h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4\"></div>\n        <p className=\"text-text-secondary\">Redirecting...</p>\n      </div>\n    </div>\n  );\n}\n"],"names":[],"mappings":";;;;;AAEA;AACA;;;AAHA;;;AAKe,SAAS;;IACtB,MAAM,SAAS,IAAA,qMAAS;IAExB,IAAA,6NAAS;8BAAC;YACR,OAAO,IAAI,CAAC;QACd;6BAAG;QAAC;KAAO;IAEX,qBACE,gPAAC;QAAI,WAAU;kBACb,cAAA,gPAAC;YAAI,WAAU;;8BACb,gPAAC;oBAAI,WAAU;;;;;;8BACf,gPAAC;oBAAE,WAAU;8BAAsB;;;;;;;;;;;;;;;;;AAI3C;GAfwB;;QACP,qMAAS;;;KADF"}},
-    {"offset": {"line": 72, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Acer/Documents/Xul/ecotracker_pos_app/admin-dashboard/node_modules/next/navigation.js"],"sourcesContent":["module.exports = require('./dist/client/components/navigation')\n"],"names":[],"mappings":"AAAA,OAAO,OAAO","ignoreList":[0]}}]
-}
