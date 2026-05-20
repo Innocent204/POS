@@ -52,7 +52,7 @@ export default function InventoryPage() {
   // Single item stock adjustment state
   const [adjustmentOpen, setAdjustmentOpen] = useState(false);
   const [adjustmentItem, setAdjustmentItem] = useState<StockLevelResponse | null>(null);
-  const [adjustmentType, setAdjustmentType] = useState<'INCREASE' | 'DECREASE'>('INCREASE');
+  const [adjustmentType, setAdjustmentType] = useState<'INCREASE' | 'DECREASE' | 'SET'>('INCREASE');
   const [adjustmentQuantity, setAdjustmentQuantity] = useState('');
   const [adjustmentReason, setAdjustmentReason] = useState('');
   const [isAdjusting, setIsAdjusting] = useState(false);
@@ -222,16 +222,25 @@ export default function InventoryPage() {
   };
 
   const handleStockAdjustment = async () => {
-    if (!adjustmentItem || !adjustmentQuantity || parseInt(adjustmentQuantity) <= 0) {
+    if (!adjustmentItem || adjustmentQuantity === '') {
       toast({
         title: 'Validation Error',
-        description: 'Please enter a valid quantity (minimum 1)',
+        description: 'Please enter a valid quantity',
         variant: 'destructive',
       });
       return;
     }
 
     const quantity = parseInt(adjustmentQuantity);
+
+    if (isNaN(quantity) || (adjustmentType === 'SET' ? quantity < 0 : quantity <= 0)) {
+      toast({
+        title: 'Validation Error',
+        description: `Please enter a valid quantity (minimum ${adjustmentType === 'SET' ? '0' : '1'})`,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     // Prevent negative stock when decreasing
     if (adjustmentType === 'DECREASE' && quantity > adjustmentItem.quantityOnHand) {
@@ -245,20 +254,52 @@ export default function InventoryPage() {
 
     try {
       setIsAdjusting(true);
+
+      let finalAdjustmentType = adjustmentType;
+      let finalQuantity = quantity;
+
+      if (adjustmentType === 'SET') {
+        const currentQty = adjustmentItem.quantityOnHand;
+        if (quantity === currentQty) {
+          toast({
+            title: 'Success',
+            description: 'Stock set successfully',
+          });
+          setAdjustmentOpen(false);
+          setGlobalAdjustmentOpen(false);
+          setGlobalBranchId('');
+          setGlobalProductId('');
+          setAdjustmentItem(null);
+          fetchData();
+          return;
+        } else if (quantity > currentQty) {
+          finalAdjustmentType = 'INCREASE';
+          finalQuantity = quantity - currentQty;
+        } else {
+          finalAdjustmentType = 'DECREASE';
+          finalQuantity = currentQty - quantity;
+        }
+      }
+
       const adjustmentData = {
         productId: adjustmentItem.productId,
         branchId: adjustmentItem.branchId,
-        adjustmentType: adjustmentType,
-        quantity: quantity,
+        adjustmentType: finalAdjustmentType,
+        quantity: finalQuantity,
         reason: adjustmentReason.trim() || 'Manual adjustment'
       };
 
       const response = await api.stock.adjust(adjustmentData);
 
       if (response.success) {
+        let actionMsg = '';
+        if (adjustmentType === 'INCREASE') actionMsg = 'increased';
+        else if (adjustmentType === 'DECREASE') actionMsg = 'decreased';
+        else actionMsg = 'set';
+
         toast({
           title: 'Success',
-          description: `Stock ${adjustmentType === 'INCREASE' ? 'increased' : 'decreased'} successfully`,
+          description: `Stock ${actionMsg} successfully`,
         });
 
         setAdjustmentOpen(false);
@@ -508,36 +549,58 @@ export default function InventoryPage() {
 
               <div>
                 <Label className="text-sm font-semibold text-primary mb-3">Adjustment Type</Label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"
-                    onClick={() => setAdjustmentType('INCREASE')}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'INCREASE' ? 'border-success bg-success/10 text-success' : 'border-divider'
+                    onClick={() => {
+                      setAdjustmentType('INCREASE');
+                      setAdjustmentQuantity('');
+                    }}
+                    className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${adjustmentType === 'INCREASE' ? 'border-success bg-success/10 text-success' : 'border-divider'
                       }`}
                   >
-                    <ArrowUpTrayIcon className="h-6 w-6 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Increase</div>
+                    <ArrowUpTrayIcon className="h-5 w-5 mx-auto mb-1.5" />
+                    <div className="text-xs font-semibold">Increase By</div>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setAdjustmentType('DECREASE')}
-                    className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'DECREASE' ? 'border-error bg-error/10 text-error' : 'border-divider'
+                    onClick={() => {
+                      setAdjustmentType('DECREASE');
+                      setAdjustmentQuantity('');
+                    }}
+                    className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${adjustmentType === 'DECREASE' ? 'border-error bg-error/10 text-error' : 'border-divider'
                       }`}
                   >
-                    <ArrowDownTrayIcon className="h-6 w-6 mx-auto mb-2" />
-                    <div className="text-sm font-medium">Decrease</div>
+                    <ArrowDownTrayIcon className="h-5 w-5 mx-auto mb-1.5" />
+                    <div className="text-xs font-semibold">Decrease By</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAdjustmentType('SET');
+                      setAdjustmentQuantity('');
+                    }}
+                    className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${adjustmentType === 'SET' ? 'border-info bg-info/10 text-info' : 'border-divider'
+                      }`}
+                  >
+                    <AdjustmentsHorizontalIcon className="h-5 w-5 mx-auto mb-1.5" />
+                    <div className="text-xs font-semibold">Set Total To</div>
                   </button>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="quantity">Quantity</Label>
+                <Label htmlFor="quantity">
+                  {adjustmentType === 'INCREASE' && 'Quantity to Add'}
+                  {adjustmentType === 'DECREASE' && 'Quantity to Deduct'}
+                  {adjustmentType === 'SET' && 'New Total Stock Quantity'}
+                </Label>
                 <Input
                   id="quantity"
                   type="number"
                   value={adjustmentQuantity}
                   onChange={(e) => setAdjustmentQuantity(e.target.value)}
-                  placeholder="Enter quantity"
+                  placeholder={adjustmentType === 'SET' ? "e.g. 0" : "Enter quantity"}
                 />
               </div>
 
@@ -556,7 +619,7 @@ export default function InventoryPage() {
               <Button variant="outline" onClick={() => setAdjustmentOpen(false)}>Cancel</Button>
               <Button
                 onClick={handleStockAdjustment}
-                disabled={isAdjusting || !adjustmentQuantity || parseInt(adjustmentQuantity) <= 0}
+                disabled={isAdjusting || adjustmentQuantity === '' || (adjustmentType === 'SET' ? parseInt(adjustmentQuantity) < 0 : parseInt(adjustmentQuantity) <= 0)}
               >
                 {isAdjusting ? 'Processing...' : 'Adjust Stock'}
               </Button>
@@ -622,34 +685,55 @@ export default function InventoryPage() {
                 <div className="space-y-6 pt-4 border-t border-divider">
                   <div>
                     <Label className="text-sm font-semibold text-primary mb-3">3. Adjustment Type</Label>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-3 gap-3">
                       <button
                         type="button"
-                        onClick={() => setAdjustmentType('INCREASE')}
-                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'INCREASE' ? 'border-success bg-success/10 text-success' : 'border-divider'}`}
+                        onClick={() => {
+                          setAdjustmentType('INCREASE');
+                          setAdjustmentQuantity('');
+                        }}
+                        className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${adjustmentType === 'INCREASE' ? 'border-success bg-success/10 text-success' : 'border-divider'}`}
                       >
-                        <ArrowUpTrayIcon className="h-6 w-6 mx-auto mb-2" />
-                        <div className="text-sm font-medium">Increase</div>
+                        <ArrowUpTrayIcon className="h-5 w-5 mx-auto mb-1.5" />
+                        <div className="text-xs font-semibold">Increase By</div>
                       </button>
                       <button
                         type="button"
-                        onClick={() => setAdjustmentType('DECREASE')}
-                        className={`p-4 rounded-lg border-2 transition-all duration-200 ${adjustmentType === 'DECREASE' ? 'border-error bg-error/10 text-error' : 'border-divider'}`}
+                        onClick={() => {
+                          setAdjustmentType('DECREASE');
+                          setAdjustmentQuantity('');
+                        }}
+                        className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${adjustmentType === 'DECREASE' ? 'border-error bg-error/10 text-error' : 'border-divider'}`}
                       >
-                        <ArrowDownTrayIcon className="h-6 w-6 mx-auto mb-2" />
-                        <div className="text-sm font-medium">Decrease</div>
+                        <ArrowDownTrayIcon className="h-5 w-5 mx-auto mb-1.5" />
+                        <div className="text-xs font-semibold">Decrease By</div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAdjustmentType('SET');
+                          setAdjustmentQuantity('');
+                        }}
+                        className={`p-3 rounded-lg border-2 transition-all duration-200 text-center ${adjustmentType === 'SET' ? 'border-info bg-info/10 text-info' : 'border-divider'}`}
+                      >
+                        <AdjustmentsHorizontalIcon className="h-5 w-5 mx-auto mb-1.5" />
+                        <div className="text-xs font-semibold">Set Total To</div>
                       </button>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="global_quantity">4. Quantity</Label>
+                    <Label htmlFor="global_quantity">
+                      {adjustmentType === 'INCREASE' && '4. Quantity to Add'}
+                      {adjustmentType === 'DECREASE' && '4. Quantity to Deduct'}
+                      {adjustmentType === 'SET' && '4. New Total Stock Quantity'}
+                    </Label>
                     <Input
                       id="global_quantity"
                       type="number"
                       value={adjustmentQuantity}
                       onChange={(e) => setAdjustmentQuantity(e.target.value)}
-                      placeholder="Enter quantity to adjust"
+                      placeholder={adjustmentType === 'SET' ? "e.g. 0" : "Enter quantity to adjust"}
                     />
                   </div>
 
@@ -670,7 +754,7 @@ export default function InventoryPage() {
               <Button variant="outline" onClick={() => setGlobalAdjustmentOpen(false)}>Cancel</Button>
               <Button
                 onClick={handleStockAdjustment}
-                disabled={isAdjusting || !globalProductId || !adjustmentQuantity || parseInt(adjustmentQuantity) <= 0}
+                disabled={isAdjusting || !globalProductId || adjustmentQuantity === '' || (adjustmentType === 'SET' ? parseInt(adjustmentQuantity) < 0 : parseInt(adjustmentQuantity) <= 0)}
               >
                 {isAdjusting ? 'Processing...' : 'Update Stock'}
               </Button>

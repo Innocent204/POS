@@ -94,6 +94,19 @@ export default function ProductsPage() {
     initialQuantity: 0
   });
 
+  const [globalCatalog, setGlobalCatalog] = useState<ProductResponse[]>([]);
+
+  const fetchGlobalCatalog = async () => {
+    try {
+      const response = await api.products.getAll({ size: 1000 });
+      if (response.success && response.data) {
+        setGlobalCatalog(response.data.content || []);
+      }
+    } catch (err) {
+      console.error('Fetch global catalog error:', err);
+    }
+  };
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -202,6 +215,12 @@ export default function ProductsPage() {
   useEffect(() => {
     fetchProducts();
   }, [currentPage, searchTerm, allBranchStock]);
+
+  useEffect(() => {
+    if (isAddOpen) {
+      fetchGlobalCatalog();
+    }
+  }, [isAddOpen]);
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -552,7 +571,7 @@ export default function ProductsPage() {
                             const item = TAURA_CATALOG.find(p => p.name === value);
                             if (item) {
                               // Check if product already exists in database to get its SKU
-                              const existingProduct = products.find(p => p.name === item.name);
+                              const existingProduct = globalCatalog.find(p => p.name === item.name) || products.find(p => p.name === item.name);
                               const sku = existingProduct?.sku || '';
                               setFormData(prev => ({ ...prev, name: item.name, price: item.price, sku }));
                             }
@@ -563,7 +582,7 @@ export default function ProductsPage() {
                           </SelectTrigger>
                           <SelectContent>
                             {TAURA_CATALOG.map((item) => {
-                              const existingProduct = products.find(p => p.name === item.name);
+                              const existingProduct = globalCatalog.find(p => p.name === item.name) || products.find(p => p.name === item.name);
                               return (
                                 <SelectItem key={item.name} value={item.name}>
                                   {item.name} — {existingProduct?.sku || 'New'} — ${item.price.toFixed(2)}
